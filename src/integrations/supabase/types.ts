@@ -14,16 +14,211 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clues: {
+        Row: {
+          answer: string
+          base_points: number
+          category: string | null
+          clue: string
+          created_at: string
+          difficulty: number
+          external_id: string | null
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          base_points?: number
+          category?: string | null
+          clue: string
+          created_at?: string
+          difficulty?: number
+          external_id?: string | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          base_points?: number
+          category?: string | null
+          clue?: string
+          created_at?: string
+          difficulty?: number
+          external_id?: string | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      game_progress: {
+        Row: {
+          clue_id: string
+          created_at: string
+          hints_used: number
+          id: string
+          is_solved: boolean
+          revealed_letters: string[]
+          score_earned: number
+          solved_at: string | null
+          updated_at: string
+          user_id: string
+          wrong_guesses: string[]
+        }
+        Insert: {
+          clue_id: string
+          created_at?: string
+          hints_used?: number
+          id?: string
+          is_solved?: boolean
+          revealed_letters?: string[]
+          score_earned?: number
+          solved_at?: string | null
+          updated_at?: string
+          user_id: string
+          wrong_guesses?: string[]
+        }
+        Update: {
+          clue_id?: string
+          created_at?: string
+          hints_used?: number
+          id?: string
+          is_solved?: boolean
+          revealed_letters?: string[]
+          score_earned?: number
+          solved_at?: string | null
+          updated_at?: string
+          user_id?: string
+          wrong_guesses?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_progress_clue_id_fkey"
+            columns: ["clue_id"]
+            isOneToOne: false
+            referencedRelation: "clues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hint_usage: {
+        Row: {
+          clue_id: string
+          cost: number
+          created_at: string
+          id: string
+          letter: string
+          position: number
+          user_id: string
+        }
+        Insert: {
+          clue_id: string
+          cost?: number
+          created_at?: string
+          id?: string
+          letter: string
+          position: number
+          user_id: string
+        }
+        Update: {
+          clue_id?: string
+          cost?: number
+          created_at?: string
+          id?: string
+          letter?: string
+          position?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hint_usage_clue_id_fkey"
+            columns: ["clue_id"]
+            isOneToOne: false
+            referencedRelation: "clues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          best_streak: number
+          created_at: string
+          current_streak: number
+          display_name: string | null
+          id: string
+          level: number
+          solved_count: number
+          total_score: number
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          best_streak?: number
+          created_at?: string
+          current_streak?: number
+          display_name?: string | null
+          id: string
+          level?: number
+          solved_count?: number
+          total_score?: number
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          best_streak?: number
+          created_at?: string
+          current_streak?: number
+          display_name?: string | null
+          id?: string
+          level?: number
+          solved_count?: number
+          total_score?: number
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +345,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
