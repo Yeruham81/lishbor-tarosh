@@ -137,6 +137,7 @@ export const guessLetter = createServerFn({ method: "POST" })
       payload.score_earned = earned;
       payload.solved_at = new Date().toISOString();
       await applyScore(supabase, userId, earned, true);
+      await bumpSolvedCount(supabase, clue.id);
     } else if (!isCorrect) {
       // small immediate streak break for repeated mistakes? keep streak intact for now
     }
@@ -185,6 +186,7 @@ export const useHint = createServerFn({ method: "POST" })
       payload.score_earned = earned;
       payload.solved_at = new Date().toISOString();
       await applyScore(supabase, userId, earned, true);
+      await bumpSolvedCount(supabase, clue.id);
     }
     if (existing) await supabase.from("game_progress").update(payload).eq("id", existing.id);
     else await supabase.from("game_progress").insert(payload);
@@ -209,6 +211,9 @@ export const skipClue = createServerFn({ method: "POST" })
         total_score: newScore, current_streak: 0, level: levelFromScore(newScore),
       }).eq("id", userId);
     }
+    // Analytics: increment skip counter on the clue
+    const { data: c } = await supabase.from("clues").select("skip_count").eq("id", data.clueId).maybeSingle();
+    if (c) await supabase.from("clues").update({ skip_count: (c.skip_count ?? 0) + 1 }).eq("id", data.clueId);
     return { ok: true };
   });
 
@@ -225,6 +230,11 @@ async function applyScore(supabase: any, userId: string, points: number, success
     solved_count: p.solved_count + (success ? 1 : 0),
     level: levelFromScore(newScore),
   }).eq("id", userId);
+}
+
+async function bumpSolvedCount(supabase: any, clueId: string) {
+  const { data: c } = await supabase.from("clues").select("solved_count").eq("id", clueId).maybeSingle();
+  if (c) await supabase.from("clues").update({ solved_count: (c.solved_count ?? 0) + 1 }).eq("id", clueId);
 }
 
 export const getProfile = createServerFn({ method: "GET" })
