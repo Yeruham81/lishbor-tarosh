@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenges: {
+        Row: {
+          challenger_hints: number
+          challenger_id: string
+          challenger_score: number
+          challenger_wrong: number
+          clue_id: string
+          created_at: string
+          id: string
+          token: string
+        }
+        Insert: {
+          challenger_hints?: number
+          challenger_id: string
+          challenger_score?: number
+          challenger_wrong?: number
+          clue_id: string
+          created_at?: string
+          id?: string
+          token: string
+        }
+        Update: {
+          challenger_hints?: number
+          challenger_id?: string
+          challenger_score?: number
+          challenger_wrong?: number
+          clue_id?: string
+          created_at?: string
+          id?: string
+          token?: string
+        }
+        Relationships: []
+      }
+      clue_ratings: {
+        Row: {
+          clue_id: string
+          created_at: string
+          id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clue_id: string
+          created_at?: string
+          id?: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clue_id?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clues: {
         Row: {
           answer: string
@@ -22,9 +82,13 @@ export type Database = {
           clue: string
           created_at: string
           difficulty: number
+          dislikes_count: number
           external_id: string | null
           id: string
           is_active: boolean
+          likes_count: number
+          skip_count: number
+          solved_count: number
           updated_at: string
         }
         Insert: {
@@ -34,9 +98,13 @@ export type Database = {
           clue: string
           created_at?: string
           difficulty?: number
+          dislikes_count?: number
           external_id?: string | null
           id?: string
           is_active?: boolean
+          likes_count?: number
+          skip_count?: number
+          solved_count?: number
           updated_at?: string
         }
         Update: {
@@ -46,10 +114,47 @@ export type Database = {
           clue?: string
           created_at?: string
           difficulty?: number
+          dislikes_count?: number
           external_id?: string | null
           id?: string
           is_active?: boolean
+          likes_count?: number
+          skip_count?: number
+          solved_count?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      feedback: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          id: string
+          message: string
+          status: string
+          subject: string | null
+          type: Database["public"]["Enums"]["feedback_type"]
+          user_id: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          status?: string
+          subject?: string | null
+          type?: Database["public"]["Enums"]["feedback_type"]
+          user_id?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          status?: string
+          subject?: string | null
+          type?: Database["public"]["Enums"]["feedback_type"]
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -219,6 +324,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      feedback_type: "bug" | "feature" | "complaint" | "idea" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -347,6 +453,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      feedback_type: ["bug", "feature", "complaint", "idea", "other"],
     },
   },
 } as const
