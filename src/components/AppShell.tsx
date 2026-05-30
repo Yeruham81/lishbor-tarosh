@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { Trophy, User, Home, Gamepad2, LogOut, BarChart3 } from "lucide-react";
+import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail } from "lucide-react";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
@@ -19,6 +19,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {user && <NavLink to="/levels" icon={<BarChart3 className="size-4" />}>רמות</NavLink>}
             <NavLink to="/leaderboard" icon={<Trophy className="size-4" />}>טבלת מובילים</NavLink>
             {user && <NavLink to="/profile" icon={<User className="size-4" />}>פרופיל</NavLink>}
+            <NavLink to="/contact" icon={<Mail className="size-4" />}>צור קשר</NavLink>
           </nav>
           <div>
             {user ? (

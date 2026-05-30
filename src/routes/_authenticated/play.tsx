@@ -6,10 +6,13 @@ import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { HebrewKeyboard } from "@/components/HebrewKeyboard";
 import { WordBoxes } from "@/components/WordDisplay";
+import { ShareButtons } from "@/components/ShareButtons";
+import { ClueRating } from "@/components/ClueRating";
 import { getNextClue, guessLetter, useHint, skipClue, getProfile } from "@/lib/game.functions";
+import { createChallenge } from "@/lib/social.functions";
 import { scoreForNextLevel } from "@/lib/hebrew";
 import { toast } from "sonner";
-import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
+import { Lightbulb, SkipForward, Trophy, Flame, Star, Swords } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
 
@@ -25,6 +28,7 @@ function Play() {
   const doGuess = useServerFn(guessLetter);
   const doHint = useServerFn(useHint);
   const doSkip = useServerFn(skipClue);
+  const doChallenge = useServerFn(createChallenge);
   const qc = useQueryClient();
 
   const profileQ = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile(), enabled: !!user });
@@ -164,17 +168,45 @@ function Play() {
                 </div>
               </>
             ) : (
-              <div className="text-center py-6 animate-fade-in">
-                <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
-                <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
-                <p className="text-muted-foreground mb-5">+{clue.currentScore} נקודות</p>
-                <button
-                  onClick={onSkip}
-                  disabled={busy}
-                  className="px-8 py-3 rounded-xl bg-gradient-sunset text-white font-display font-bold shadow-glow hover:scale-105 transition disabled:opacity-50"
-                >
-                  חידה הבאה ←
-                </button>
+              <div className="text-center py-6 animate-fade-in space-y-6">
+                <div>
+                  <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
+                  <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                  <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+                </div>
+
+                <ClueRating clueId={clue.id} />
+
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground font-medium">שתף את ההישג</p>
+                  <ShareButtons
+                    text={`פתרתי "${clue.clue}" ב‑מילה חמה 🔥 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
+                  />
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const { token } = await doChallenge({ data: { clueId: clue.id, score: clue.currentScore, wrong: clue.wrong.length, hints: clue.hintsUsed } });
+                        const url = `${window.location.origin}/challenge/${token}`;
+                        await navigator.clipboard.writeText(url).catch(() => {});
+                        toast.success("קישור האתגר הועתק!");
+                        if ((navigator as any).share) (navigator as any).share({ title: "אתגר במילה חמה", text: "נסה לפתור את החידה הזו!", url }).catch(() => {});
+                      } catch (e: any) { toast.error(e.message); }
+                    }}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border bg-card hover:bg-muted font-medium transition"
+                  >
+                    <Swords className="size-4" /> אתגר חברים
+                  </button>
+                  <button
+                    onClick={onSkip}
+                    disabled={busy}
+                    className="px-8 py-3 rounded-xl bg-gradient-sunset text-white font-display font-bold shadow-glow hover:scale-105 transition disabled:opacity-50"
+                  >
+                    חידה הבאה ←
+                  </button>
+                </div>
               </div>
             )}
           </div>
