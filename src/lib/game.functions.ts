@@ -137,6 +137,7 @@ export const guessLetter = createServerFn({ method: "POST" })
       payload.score_earned = earned;
       payload.solved_at = new Date().toISOString();
       await applyScore(supabase, userId, earned, true);
+      await bumpSolvedCount(supabase, clue.id);
     } else if (!isCorrect) {
       // small immediate streak break for repeated mistakes? keep streak intact for now
     }
@@ -185,6 +186,7 @@ export const useHint = createServerFn({ method: "POST" })
       payload.score_earned = earned;
       payload.solved_at = new Date().toISOString();
       await applyScore(supabase, userId, earned, true);
+      await bumpSolvedCount(supabase, clue.id);
     }
     if (existing) await supabase.from("game_progress").update(payload).eq("id", existing.id);
     else await supabase.from("game_progress").insert(payload);
