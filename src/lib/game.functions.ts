@@ -209,6 +209,9 @@ export const skipClue = createServerFn({ method: "POST" })
         total_score: newScore, current_streak: 0, level: levelFromScore(newScore),
       }).eq("id", userId);
     }
+    // Analytics: increment skip counter on the clue
+    const { data: c } = await supabase.from("clues").select("skip_count").eq("id", data.clueId).maybeSingle();
+    if (c) await supabase.from("clues").update({ skip_count: (c.skip_count ?? 0) + 1 }).eq("id", data.clueId);
     return { ok: true };
   });
 
