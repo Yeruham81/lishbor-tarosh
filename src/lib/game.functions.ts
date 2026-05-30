@@ -232,6 +232,11 @@ async function applyScore(supabase: any, userId: string, points: number, success
   }).eq("id", userId);
 }
 
+async function bumpSolvedCount(supabase: any, clueId: string) {
+  const { data: c } = await supabase.from("clues").select("solved_count").eq("id", clueId).maybeSingle();
+  if (c) await supabase.from("clues").update({ solved_count: (c.solved_count ?? 0) + 1 }).eq("id", clueId);
+}
+
 export const getProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
