@@ -1,16 +1,19 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { HebrewKeyboard } from "@/components/HebrewKeyboard";
-import { WordSlots } from "@/components/WordDisplay";
-import { getNextClue, guessLetter, useHint, guessFullAnswer, getProfile } from "@/lib/game.functions";
+import { WordBoxes } from "@/components/WordDisplay";
+import { getNextClue, guessLetter, useHint, skipClue, getProfile } from "@/lib/game.functions";
+import { scoreForNextLevel } from "@/lib/hebrew";
 import { toast } from "sonner";
-import { Lightbulb, RotateCw, Trophy, Flame } from "lucide-react";
+import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
+
+type ClueState = Awaited<ReturnType<typeof getNextClue>>;
 
 function Play() {
   const { user, loading } = useAuth();
@@ -21,134 +24,156 @@ function Play() {
   const fetchProfile = useServerFn(getProfile);
   const doGuess = useServerFn(guessLetter);
   const doHint = useServerFn(useHint);
-  const doFull = useServerFn(guessFullAnswer);
+  const doSkip = useServerFn(skipClue);
   const qc = useQueryClient();
 
   const profileQ = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile(), enabled: !!user });
-  const clueQ = useQuery({ queryKey: ["clue"], queryFn: () => fetchClue(), enabled: !!user });
+  const clueQ = useQuery({ queryKey: ["clue"], queryFn: () => fetchClue(), enabled: !!user, staleTime: Infinity });
 
-  const [revealed, setRevealed] = useState<string[]>([]);
-  const [wrong, setWrong] = useState<string[]>([]);
-  const [solved, setSolved] = useState(false);
-  const [fullGuess, setFullGuess] = useState("");
+  const [state, setState] = useState<ClueState | null>(null);
   const [shake, setShake] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const prevRevealedCount = useRef(0);
 
-  useEffect(() => {
-    if (clueQ.data) {
-      setRevealed(clueQ.data.progress.revealed_letters || []);
-      setWrong((clueQ.data.progress.wrong_guesses || []).filter((w: string) => !w.startsWith("__full")));
-      setSolved(clueQ.data.progress.is_solved);
-    }
-  }, [clueQ.data]);
+  useEffect(() => { if (clueQ.data) { setState(clueQ.data); prevRevealedCount.current = clueQ.data.revealed.length; } }, [clueQ.data]);
 
-  const clue = clueQ.data?.clue;
+  const clue = state;
 
   const onLetter = async (l: string) => {
-    if (!clue || solved) return;
+    if (!clue || clue.isSolved || busy) return;
+    setBusy(true);
     try {
       const r = await doGuess({ data: { clueId: clue.id, letter: l } });
-      setRevealed(r.revealed);
-      setWrong(r.wrong.filter((w: string) => !w.startsWith("__full")));
-      if (!r.isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
-      if (r.solved) { setSolved(true); toast.success("🎉 פתרת את החידה!"); qc.invalidateQueries({ queryKey: ["profile"] }); }
+      const isCorrect = r.revealed.length > prevRevealedCount.current;
+      prevRevealedCount.current = r.revealed.length;
+      setState(r);
+      if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
+      if (r.isSolved) {
+        toast.success(`🎉 פתרת את החידה! +${r.currentScore} נקודות`);
+        qc.invalidateQueries({ queryKey: ["profile"] });
+      }
     } catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); }
   };
 
   const onHint = async () => {
-    if (!clue || solved) return;
+    if (!clue || clue.isSolved || busy) return;
+    setBusy(true);
     try {
       const r = await doHint({ data: { clueId: clue.id } });
-      setRevealed(r.revealed);
-      if (r.solved) { setSolved(true); toast.success("🎉 נפתר עם רמז!"); qc.invalidateQueries({ queryKey: ["profile"] }); }
-      else toast.info(`רמז: האות "${r.letter}" נחשפה`);
+      prevRevealedCount.current = r.revealed.length;
+      setState(r);
+      if (r.isSolved) { toast.success("🎉 נפתר עם רמז!"); qc.invalidateQueries({ queryKey: ["profile"] }); }
+      else toast.info("נחשפה אות חדשה");
     } catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); }
   };
 
-  const onFull = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!clue || !fullGuess.trim()) return;
+  const onSkip = async () => {
+    if (!clue || busy) return;
+    if (!clue.isSolved && !confirm("לדלג על החידה? תאבדו את הרצף ו-10 נקודות.")) return;
+    setBusy(true);
     try {
-      const r = await doFull({ data: { clueId: clue.id, guess: fullGuess.trim() } });
-      if (r.correct) { setSolved(true); toast.success(`🎉 +${r.earned} נקודות!`); qc.invalidateQueries({ queryKey: ["profile"] }); }
-      else { setShake(true); setTimeout(() => setShake(false), 400); toast.error("לא נכון, נסו שוב"); }
-      setFullGuess("");
+      if (!clue.isSolved) await doSkip({ data: { clueId: clue.id } });
+      await qc.invalidateQueries({ queryKey: ["clue"] });
+      await qc.invalidateQueries({ queryKey: ["profile"] });
+      const next = await fetchClue();
+      prevRevealedCount.current = next.revealed.length;
+      setState(next);
+      qc.setQueryData(["clue"], next);
     } catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); }
   };
 
-  const next = () => { qc.invalidateQueries({ queryKey: ["clue"] }); setFullGuess(""); };
-
-  // Build mask for slots
-  const mask: (string | null)[] = clue ? Array.from({ length: clue.length }).map((_, i) => {
-    // we don't know answer client-side; show revealed letters at known positions only if solved data has them
-    // For UX: when revealed list has letters, we can't position without answer. So we show revealed count via question text.
-    return null;
-  }) : [];
-  // Better: rely on revealed letters fully when solved (server returns full revealed for solved).
-  // For unsolved state, show count of "revealed" letters across slots based on first-match positions — we'd need the answer.
-  // Simplification: show revealed letters as a list above, and slots empty until solved.
+  const profile = profileQ.data;
+  const nextLevelAt = profile ? scoreForNextLevel(profile.level) : 0;
+  const prevLevelAt = profile ? scoreForNextLevel(profile.level - 1) : 0;
+  const levelProgress = profile && nextLevelAt > prevLevelAt
+    ? Math.min(100, Math.max(0, ((profile.total_score - prevLevelAt) / (nextLevelAt - prevLevelAt)) * 100))
+    : 0;
 
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <Stat label="ניקוד" value={profileQ.data?.total_score ?? 0} icon={<Trophy className="size-4" />} />
-          <Stat label="רמה" value={profileQ.data?.level ?? 1} />
-          <Stat label="רצף" value={profileQ.data?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <Stat label="ניקוד" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
+          <Stat label="רמה" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
+          <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         </div>
 
+        {/* Level progress */}
+        {profile && (
+          <div className="mb-6">
+            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+              <span>רמה {profile.level}</span>
+              <span>{profile.total_score} / {nextLevelAt}</span>
+            </div>
+            <div className="h-2 rounded-full bg-muted overflow-hidden">
+              <div className="h-full bg-gradient-sunset transition-all duration-500" style={{ width: `${levelProgress}%` }} />
+            </div>
+          </div>
+        )}
+
         {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען חידה...</div>}
+        {clueQ.error && <div className="text-center py-20 text-destructive">{(clueQ.error as Error).message}</div>}
 
         {clue && (
-          <div className={`bg-card border rounded-3xl shadow-card p-6 sm:p-8 ${shake ? "animate-shake" : ""}`}>
-            <div className="flex items-center justify-between mb-2">
-              {clue.category && <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">{clue.category}</span>}
-              <span className="text-xs text-muted-foreground">קושי: {"★".repeat(clue.difficulty)}</span>
-            </div>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-6">{clue.clue}</h2>
-
-            {/* Revealed letters chips */}
-            <div className="flex justify-center gap-2 mb-4 min-h-[3.5rem] flex-wrap">
-              {revealed.length === 0 ? (
-                <p className="text-sm text-muted-foreground">אורך התשובה: {clue.length} אותיות</p>
-              ) : (
-                revealed.map((l, i) => (
-                  <div key={i} className="w-11 h-11 rounded-lg bg-gradient-sunset text-white font-display font-extrabold text-xl flex items-center justify-center shadow-glow animate-letter-pop">{l}</div>
-                ))
-              )}
+          <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
+            <div className="flex items-center justify-between mb-2 text-xs">
+              {clue.category && <span className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground">{clue.category}</span>}
+              <span className="text-muted-foreground">קושי: {"★".repeat(clue.difficulty)}</span>
             </div>
 
-            {!solved ? (
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
+
+            {/* Word boxes */}
+            <div className="my-6">
+              <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
+            </div>
+
+            {/* Score for this puzzle */}
+            <div className="flex justify-center items-center gap-4 text-sm text-muted-foreground mb-4">
+              <span>שווי: <b className="text-foreground">{clue.currentScore}</b></span>
+              {clue.wrong.length > 0 && <span>טעויות: <b className="text-destructive">{clue.wrong.length}</b></span>}
+              {clue.hintsUsed > 0 && <span>רמזים: <b className="text-warning">{clue.hintsUsed}</b></span>}
+            </div>
+
+            {!clue.isSolved ? (
               <>
                 <div className="mb-6">
-                  <HebrewKeyboard onLetter={onLetter} revealed={revealed} wrong={wrong} />
+                  <HebrewKeyboard onLetter={onLetter} revealed={clue.revealed} wrong={clue.wrong} disabled={busy} />
                 </div>
-
-                <form onSubmit={onFull} className="flex gap-2 mb-4">
-                  <input value={fullGuess} onChange={(e) => setFullGuess(e.target.value)} placeholder="ניחוש מלא של המילה..." dir="rtl"
-                    className="flex-1 px-4 py-3 rounded-xl border bg-background text-right" />
-                  <button className="px-5 py-3 rounded-xl bg-accent text-accent-foreground font-bold hover:opacity-90 transition">נחש</button>
-                </form>
 
                 <div className="flex flex-wrap gap-2 justify-center">
-                  <button onClick={onHint} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-warning text-warning-foreground font-medium hover:opacity-90 transition">
-                    <Lightbulb className="size-4" /> רמז (-15 נק׳)
+                  <button
+                    onClick={onHint}
+                    disabled={busy || clue.wrong.length < 2}
+                    title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-warning text-warning-foreground font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  >
+                    <Lightbulb className="size-4" /> רמז (-15)
                   </button>
-                  <button onClick={next} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border bg-card hover:bg-muted transition">
-                    <RotateCw className="size-4" /> דלג
+                  <button
+                    onClick={onSkip}
+                    disabled={busy}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border bg-card hover:bg-muted transition disabled:opacity-50"
+                  >
+                    <SkipForward className="size-4" /> דלג (-10)
                   </button>
                 </div>
-
-                {wrong.length > 0 && (
-                  <p className="text-center text-sm text-muted-foreground mt-4">ניחושים שגויים: {wrong.length}</p>
-                )}
               </>
             ) : (
-              <div className="text-center py-6">
-                <div className="text-5xl mb-3">🎉</div>
-                <h3 className="font-display text-2xl font-bold mb-4">כל הכבוד!</h3>
-                <button onClick={next} className="px-6 py-3 rounded-xl bg-gradient-sunset text-white font-display font-bold shadow-glow hover:scale-105 transition">
-                  חידה הבאה →
+              <div className="text-center py-6 animate-fade-in">
+                <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
+                <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                <p className="text-muted-foreground mb-5">+{clue.currentScore} נקודות</p>
+                <button
+                  onClick={onSkip}
+                  disabled={busy}
+                  className="px-8 py-3 rounded-xl bg-gradient-sunset text-white font-display font-bold shadow-glow hover:scale-105 transition disabled:opacity-50"
+                >
+                  חידה הבאה ←
                 </button>
               </div>
             )}

@@ -1,36 +1,41 @@
-import { normalizeLetter } from "@/lib/hebrew";
-
-interface Props { answer: string; revealed: string[]; }
-
-export function WordDisplay({ answer, revealed }: Props) {
-  const letters = answer.split("");
-  return (
-    <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2" dir="rtl">
-      {letters.map((ch, i) => {
-        if (ch === " ") return <div key={i} className="w-3 sm:w-4" />;
-        const shown = revealed.includes(normalizeLetter(ch));
-        return (
-          <div key={i} className={`w-9 h-11 sm:w-11 sm:h-14 rounded-lg flex items-center justify-center font-display font-extrabold text-xl sm:text-2xl border-b-4 ${shown ? "bg-card border-primary text-foreground shadow-card animate-letter-pop" : "bg-muted/40 border-border text-transparent"}`}>
-            {shown ? ch : "_"}
-          </div>
-        );
-      })}
-    </div>
-  );
+interface Props {
+  wordLengths: number[];
+  mask: (string | null)[]; // includes spaces between words
+  shake?: boolean;
 }
 
-// Variant without knowing the answer (server hides it) — uses length
-export function WordSlots({ length, revealedMask }: { length: number; revealedMask: (string | null)[] }) {
+export function WordBoxes({ wordLengths, mask, shake }: Props) {
+  // Split mask into word groups by spaces
+  const groups: (string | null)[][] = [];
+  let cur: (string | null)[] = [];
+  for (const m of mask) {
+    if (m === " ") { groups.push(cur); cur = []; }
+    else cur.push(m);
+  }
+  groups.push(cur);
+
+  // Fallback: if mask empty/mismatched, build from lengths
+  const finalGroups = groups.length === wordLengths.length
+    ? groups
+    : wordLengths.map((len) => Array.from({ length: len }, () => null as string | null));
+
   return (
-    <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2" dir="rtl">
-      {Array.from({ length }).map((_, i) => {
-        const ch = revealedMask[i];
-        return (
-          <div key={i} className={`w-9 h-11 sm:w-11 sm:h-14 rounded-lg flex items-center justify-center font-display font-extrabold text-xl sm:text-2xl border-b-4 ${ch ? "bg-card border-primary text-foreground shadow-card animate-letter-pop" : "bg-muted/40 border-border"}`}>
-            {ch ?? ""}
-          </div>
-        );
-      })}
+    <div className={`flex flex-wrap justify-center gap-x-4 sm:gap-x-6 gap-y-3 ${shake ? "animate-shake" : ""}`} dir="rtl">
+      {finalGroups.map((group, gi) => (
+        <div key={gi} className="flex gap-1.5 sm:gap-2" dir="rtl">
+          {group.map((ch, i) => (
+            <div
+              key={i}
+              className={`w-9 h-11 sm:w-12 sm:h-14 rounded-lg flex items-center justify-center font-display font-extrabold text-xl sm:text-2xl border-b-4 transition-all
+                ${ch
+                  ? "bg-card border-primary text-foreground shadow-card animate-letter-pop"
+                  : "bg-muted/30 border-border/60"}`}
+            >
+              {ch ?? ""}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
