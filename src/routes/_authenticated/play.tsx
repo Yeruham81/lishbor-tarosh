@@ -39,9 +39,15 @@ function Play() {
   const [busy, setBusy] = useState(false);
   const prevRevealedCount = useRef(0);
 
-  useEffect(() => { if (clueQ.data) { setState(clueQ.data); prevRevealedCount.current = clueQ.data.revealed.length; } }, [clueQ.data]);
+  useEffect(() => {
+    if (clueQ.data && !("exhausted" in clueQ.data)) {
+      setState(clueQ.data);
+      prevRevealedCount.current = clueQ.data.revealed.length;
+    }
+  }, [clueQ.data]);
 
-  const clue = state;
+  const exhausted = clueQ.data && "exhausted" in clueQ.data;
+  const clue = state && !("exhausted" in state) ? state : null;
 
   const onLetter = async (l: string) => {
     if (!clue || clue.isSolved || busy) return;
@@ -82,8 +88,10 @@ function Play() {
       await qc.invalidateQueries({ queryKey: ["clue"] });
       await qc.invalidateQueries({ queryKey: ["profile"] });
       const next = await fetchClue();
-      prevRevealedCount.current = next.revealed.length;
-      setState(next);
+      if (!("exhausted" in next)) {
+        prevRevealedCount.current = next.revealed.length;
+        setState(next);
+      }
       qc.setQueryData(["clue"], next);
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
@@ -121,6 +129,13 @@ function Play() {
 
         {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען חידה...</div>}
         {clueQ.error && <div className="text-center py-20 text-destructive">{(clueQ.error as Error).message}</div>}
+        {exhausted && (
+          <div className="text-center py-16 bg-card border rounded-3xl shadow-card">
+            <div className="text-6xl mb-4">🎉</div>
+            <h2 className="font-display text-2xl font-bold mb-2">פתרת את כל החידות הזמינות!</h2>
+            <p className="text-muted-foreground">חידות חדשות בדרך — חזרו בקרוב.</p>
+          </div>
+        )}
 
         {clue && (
           <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
