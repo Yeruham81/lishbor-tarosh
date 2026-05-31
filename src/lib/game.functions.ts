@@ -252,3 +252,79 @@ export const getLeaderboard = createServerFn({ method: "GET" })
       .order("total_score", { ascending: false }).limit(50);
     return data ?? [];
   });
+
+const periodSchema = z.object({
+  period: z.enum(["today", "week", "month", "all"]),
+});
+
+export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => periodSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+
+    if (data.period === "all") {
+      const { data: rows } = await supabase.from("profiles")
+        .select("id, username, display_name, total_score, level, solved_count, best_streak")
+        .order("total_score", { ascending: false }).limit(20);
+      return (rows ?? []).map((r: any) => ({
+        id: r.id,
+        username: r.username,
+        display_name: r.display_name,
+        level: r.level,
+        solved_count: r.solved_count,
+        best_streak: r.best_streak,
+        score: r.total_score,
+      }));
+    }
+
+    const now = new Date();
+    let since: Date;
+    if (data.period === "today") {
+      since = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    } else if (data.period === "week") {
+      since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else {
+      since = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    const { data: progress } = await supabase
+      .from("game_progress")
+      .select("user_id, score_earned")
+      .eq("is_solved", true)
+      .gte("solved_at", since.toISOString())
+      .limit(5000);
+
+    const totals = new Map<string, { score: number; solved: number }>();
+    for (const row of (progress ?? []) as any[]) {
+      const t = totals.get(row.user_id) ?? { score: 0, solved: 0 };
+      t.score += row.score_earned ?? 0;
+      t.solved += 1;
+      totals.set(row.user_id, t);
+    }
+
+    const topIds = [...totals.entries()]
+      .sort((a, b) => b[1].score - a[1].score)
+      .slice(0, 20);
+
+    if (topIds.length === 0) return [];
+
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, username, display_name, level, best_streak")
+      .in("id", topIds.map(([id]) => id));
+
+    const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
+    return topIds.map(([id, t]) => {
+      const p = byId.get(id) ?? {};
+      return {
+        id,
+        username: p.username ?? "",
+        display_name: p.display_name ?? null,
+        level: p.level ?? 1,
+        solved_count: t.solved,
+        best_streak: p.best_streak ?? 0,
+        score: t.score,
+      };
+    });
+  });
