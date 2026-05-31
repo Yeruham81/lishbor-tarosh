@@ -17,6 +17,12 @@ function AuthPage() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (user) navigate({ to: "/levels", replace: true });
+  }, [user, navigate]);
+
+  
+
   
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
