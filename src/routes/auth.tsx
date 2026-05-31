@@ -18,7 +18,7 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) navigate({ to: "/play", replace: true });
+    if (user) navigate({ to: "/", replace: true });
   }, [user, navigate]);
 
   const submit = async (e: React.FormEvent) => {
