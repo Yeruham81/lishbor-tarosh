@@ -129,6 +129,13 @@ function Play() {
 
         {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען חידה...</div>}
         {clueQ.error && <div className="text-center py-20 text-destructive">{(clueQ.error as Error).message}</div>}
+        {exhausted && (
+          <div className="text-center py-16 bg-card border rounded-3xl shadow-card">
+            <div className="text-6xl mb-4">🎉</div>
+            <h2 className="font-display text-2xl font-bold mb-2">פתרת את כל החידות הזמינות!</h2>
+            <p className="text-muted-foreground">חידות חדשות בדרך — חזרו בקרוב.</p>
+          </div>
+        )}
 
         {clue && (
           <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
