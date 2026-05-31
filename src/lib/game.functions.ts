@@ -77,7 +77,7 @@ export const getNextClue = createServerFn({ method: "GET" })
       const { data: any } = await supabase.from("clues").select("*").eq("is_active", true).limit(100);
       clues = (any ?? []).filter((c: any) => !solvedIds.includes(c.id));
     }
-    if (!clues || clues.length === 0) throw new Error("פתרת את כל החידות הזמינות! 🎉");
+    if (!clues || clues.length === 0) return { exhausted: true as const };
 
     const pick = clues[Math.floor(Math.random() * clues.length)];
 
