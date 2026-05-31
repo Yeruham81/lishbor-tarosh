@@ -88,8 +88,10 @@ function Play() {
       await qc.invalidateQueries({ queryKey: ["clue"] });
       await qc.invalidateQueries({ queryKey: ["profile"] });
       const next = await fetchClue();
-      prevRevealedCount.current = next.revealed.length;
-      setState(next);
+      if (!("exhausted" in next)) {
+        prevRevealedCount.current = next.revealed.length;
+        setState(next);
+      }
       qc.setQueryData(["clue"], next);
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
