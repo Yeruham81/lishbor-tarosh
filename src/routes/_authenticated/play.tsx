@@ -39,9 +39,15 @@ function Play() {
   const [busy, setBusy] = useState(false);
   const prevRevealedCount = useRef(0);
 
-  useEffect(() => { if (clueQ.data) { setState(clueQ.data); prevRevealedCount.current = clueQ.data.revealed.length; } }, [clueQ.data]);
+  useEffect(() => {
+    if (clueQ.data && !("exhausted" in clueQ.data)) {
+      setState(clueQ.data);
+      prevRevealedCount.current = clueQ.data.revealed.length;
+    }
+  }, [clueQ.data]);
 
-  const clue = state;
+  const exhausted = clueQ.data && "exhausted" in clueQ.data;
+  const clue = state && !("exhausted" in state) ? state : null;
 
   const onLetter = async (l: string) => {
     if (!clue || clue.isSolved || busy) return;
