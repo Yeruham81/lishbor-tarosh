@@ -109,6 +109,39 @@
   --ring: oklch(0.75 0.19 50);
 }
 
+/* Palettes */
+[data-palette="ocean"] {
+  --primary: oklch(0.7 0.16 230);
+  --primary-glow: oklch(0.76 0.15 220);
+  --secondary: oklch(0.65 0.18 260);
+  --accent: oklch(0.65 0.15 200);
+  --ring: oklch(0.7 0.16 230);
+  --gradient-sunset: linear-gradient(135deg, oklch(0.72 0.16 200), oklch(0.65 0.18 240), oklch(0.55 0.2 280));
+  --gradient-flame: linear-gradient(135deg, oklch(0.78 0.14 210), oklch(0.7 0.17 240));
+  --shadow-glow: 0 10px 40px -10px color-mix(in oklab, oklch(0.7 0.16 230) 45%, transparent);
+}
+[data-palette="forest"] {
+  --primary: oklch(0.68 0.17 150);
+  --primary-glow: oklch(0.75 0.16 140);
+  --secondary: oklch(0.6 0.18 130);
+  --accent: oklch(0.6 0.15 180);
+  --ring: oklch(0.68 0.17 150);
+  --gradient-sunset: linear-gradient(135deg, oklch(0.78 0.18 110), oklch(0.65 0.18 150), oklch(0.55 0.16 190));
+  --gradient-flame: linear-gradient(135deg, oklch(0.78 0.16 130), oklch(0.7 0.17 160));
+  --shadow-glow: 0 10px 40px -10px color-mix(in oklab, oklch(0.68 0.17 150) 45%, transparent);
+}
+[data-palette="candy"] {
+  --primary: oklch(0.72 0.2 340);
+  --primary-glow: oklch(0.78 0.18 320);
+  --secondary: oklch(0.65 0.22 300);
+  --accent: oklch(0.65 0.2 280);
+  --ring: oklch(0.72 0.2 340);
+  --gradient-sunset: linear-gradient(135deg, oklch(0.78 0.18 340), oklch(0.65 0.22 310), oklch(0.55 0.22 270));
+  --gradient-flame: linear-gradient(135deg, oklch(0.78 0.18 350), oklch(0.7 0.21 320));
+  --shadow-glow: 0 10px 40px -10px color-mix(in oklab, oklch(0.72 0.2 340) 45%, transparent);
+}
+
+
 @layer base {
   * {
     border-color: var(--color-border);

@@ -5,13 +5,12 @@ import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { submitFeedback } from "@/lib/social.functions";
 import { toast } from "sonner";
-import { Mail, Bug, Lightbulb, AlertTriangle, Sparkles, MessageSquare } from "lucide-react";
+import { Mail, Bug, Lightbulb, AlertTriangle, MessageSquare } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({ component: ContactPage });
 
 const TYPES = [
   { v: "bug", label: "דיווח על באג", icon: <Bug className="size-4" /> },
-  { v: "feature", label: "הצעה לפיצ'ר", icon: <Sparkles className="size-4" /> },
   { v: "complaint", label: "תלונה", icon: <AlertTriangle className="size-4" /> },
   { v: "idea", label: "רעיון לשיפור", icon: <Lightbulb className="size-4" /> },
   { v: "other", label: "אחר", icon: <MessageSquare className="size-4" /> },
@@ -53,7 +52,7 @@ function ContactPage() {
         <form onSubmit={submit} className="bg-card border rounded-3xl shadow-card p-5 sm:p-7 space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">סוג פנייה</label>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {TYPES.map((t) => (
                 <button key={t.v} type="button" onClick={() => setType(t.v)}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-xs transition ${type === t.v ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}>
