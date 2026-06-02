@@ -19,7 +19,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             {user && <NavLink to="/levels" icon={<BarChart3 className="size-4" />}>רמות</NavLink>}
             <NavLink to="/leaderboard" icon={<Trophy className="size-4" />}>טבלת מובילים</NavLink>
             {user && <NavLink to="/profile" icon={<User className="size-4" />}>פרופיל</NavLink>}
-            <NavLink to="/contact" icon={<Mail className="size-4" />}>צור קשר</NavLink>
           </nav>
           <div>
             {user ? (
@@ -41,6 +40,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           מקום שמור למודעה (Google AdSense)
         </div>
       </div>
+      {/* Footer */}
+      <footer className="border-t bg-muted/20 mt-2">
+        <div className="container mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-muted-foreground">
+          <span>© {new Date().getFullYear()} מילה חמה</span>
+          <Link to="/contact" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-muted hover:text-foreground transition font-medium">
+            <Mail className="size-4" /> צור קשר
+          </Link>
+        </div>
+      </footer>
       {/* Mobile bottom nav */}
       {user && (
         <nav className="md:hidden sticky bottom-0 border-t bg-background/95 backdrop-blur-xl">
