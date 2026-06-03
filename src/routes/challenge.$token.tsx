@@ -30,7 +30,7 @@ function ChallengePage() {
           <div className="bg-card border rounded-3xl shadow-card p-6 space-y-5">
             <p className="text-center text-lg">
               <span className="font-bold text-gradient-sunset">{data.challenger?.display_name ?? data.challenger?.username ?? "שחקן"}</span>{" "}
-              מאתגר אותך לפתור את החידה:
+              מאתגר אותך לפתור את ההגדרה:
             </p>
 
             {data.clue && (
