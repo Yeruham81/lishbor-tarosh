@@ -1,64 +1,19 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
-import { getStats, deleteAccount } from "@/lib/account.functions";
+import { getStats, deleteAccount, resetAccount } from "@/lib/account.functions";
 import { scoreForNextLevel } from "@/lib/hebrew";
 import { useTheme, PALETTES, type Palette } from "@/hooks/use-theme";
 import { toast } from "sonner";
 import {
-  Trophy, Flame, Target, Award, Percent, Sparkles, Lightbulb,
-  Sun, Moon, Palette as PaletteIcon, RotateCcw, Trash2, Lock, CheckCircle2,
+  Trophy, Flame, Target, Award, Percent, Sparkles, Lightbulb, CheckCircle2,
+  Sun, Moon, Palette as PaletteIcon, RotateCcw, Trash2, LogOut, Eraser,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/profile")({ component: Profile });
-
-type Achievement = {
-  id: string;
-  title: string;
-  desc: string;
-  done: boolean;
-  progress?: { cur: number; max: number };
-};
-
-function buildAchievements(p: {
-  solved_count: number; best_streak: number; total_score: number;
-}, perfectSolves: number): Achievement[] {
-  const solveTiers = [1, 10, 50, 100, 250, 500];
-  const streakTiers = [3, 5, 10, 20];
-  const perfectTiers = [1, 10, 50];
-  const list: Achievement[] = [];
-  for (const n of solveTiers) {
-    list.push({
-      id: `solve-${n}`,
-      title: n === 1 ? "פתירת הגדרה ראשונה" : `פתירת ${n} הגדרות`,
-      desc: n === 1 ? "ההגדרה הראשונה שלכם!" : `פתרו ${n} הגדרות בסך הכל`,
-      done: p.solved_count >= n,
-      progress: { cur: Math.min(p.solved_count, n), max: n },
-    });
-  }
-  for (const n of perfectTiers) {
-    list.push({
-      id: `perfect-${n}`,
-      title: n === 1 ? "פתירה מושלמת ראשונה" : `${n} פתירות מושלמות`,
-      desc: "ללא טעויות וללא רמזים",
-      done: perfectSolves >= n,
-      progress: { cur: Math.min(perfectSolves, n), max: n },
-    });
-  }
-  for (const n of streakTiers) {
-    list.push({
-      id: `streak-${n}`,
-      title: `רצף של ${n}`,
-      desc: `פתרו ${n} הגדרות ברצף`,
-      done: p.best_streak >= n,
-      progress: { cur: Math.min(p.best_streak, n), max: n },
-    });
-  }
-  return list;
-}
 
 function Profile() {
   const { user, loading, signOut } = useAuth();
@@ -67,21 +22,49 @@ function Profile() {
 
   const fetchStats = useServerFn(getStats);
   const doDelete = useServerFn(deleteAccount);
+  const doReset = useServerFn(resetAccount);
+  const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["stats"], queryFn: () => fetchStats(), enabled: !!user });
   const { palette, mode, setPalette, setMode, reset } = useTheme();
   const [deleting, setDeleting] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   if (!data?.profile) return <AppShell><div className="text-center py-20 text-muted-foreground">טוען...</div></AppShell>;
   const p = data.profile;
   const nextLevel = scoreForNextLevel(p.level);
   const prevLevel = scoreForNextLevel(p.level - 1);
   const progress = Math.min(100, Math.round(((p.total_score - prevLevel) / (nextLevel - prevLevel)) * 100));
-  const achievements = buildAchievements(p, data.perfectSolves);
-  const completed = achievements.filter((a) => a.done).length;
+
+  const onForgetMe = async () => {
+    if (!confirm(
+      "פעולה זו תאפס את כל ההיסטוריה וההתקדמות שלך:\n\n" +
+      "• כל ההגדרות שפתרת יימחקו\n" +
+      "• הניקוד יתאפס ל-0\n" +
+      "• הרמה תחזור ל-1\n" +
+      "• הרצפים והאתגרים יתאפסו\n" +
+      "• כל הרמזים והדירוגים יימחקו\n\n" +
+      "החשבון ושם התצוגה יישמרו. להמשיך?"
+    )) return;
+    if (!confirm("בטוחים? לא ניתן לשחזר את הנתונים לאחר האיפוס.")) return;
+    setResetting(true);
+    try {
+      await doReset();
+      await qc.invalidateQueries();
+      toast.success("הפרופיל אופס. ברוך הבא מחדש!");
+    } catch (e: any) { toast.error(e.message); }
+    finally { setResetting(false); }
+  };
 
   const onDelete = async () => {
-    if (!confirm("למחוק את הפרופיל לצמיתות? פעולה זו אינה הפיכה.")) return;
-    if (!confirm("בטוחים? כל הניקוד וההיסטוריה יימחקו.")) return;
+    if (!confirm(
+      "מחיקת הפרופיל היא פעולה בלתי הפיכה.\n\n" +
+      "כל הנתונים יימחקו לצמיתות:\n" +
+      "• החשבון עצמו\n" +
+      "• הסטטיסטיקות וההיסטוריה\n" +
+      "• הניקוד וההישגים בטבלת המובילים\n\n" +
+      "להמשיך?"
+    )) return;
+    if (!confirm("בטוחים לחלוטין? פעולה זו אינה הפיכה.")) return;
     setDeleting(true);
     try {
       await doDelete();
@@ -125,35 +108,7 @@ function Profile() {
             <StatCard icon={<Award className="size-5" />} label="שיא רצף" value={p.best_streak} />
             <StatCard icon={<Sparkles className="size-5" />} label="פתירות מושלמות" value={data.perfectSolves} />
             <StatCard icon={<Lightbulb className="size-5" />} label="רמזים בשימוש" value={data.totalHints} />
-            <StatCard icon={<CheckCircle2 className="size-5" />} label="אתגרים שהושלמו" value={`${completed}/${achievements.length}`} />
-          </div>
-        </section>
-
-        {/* Achievements */}
-        <section>
-          <h2 className="font-display text-xl font-bold mb-3">אתגרים</h2>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {achievements.map((a) => (
-              <div key={a.id} className={`p-4 rounded-2xl border shadow-card transition ${a.done ? "bg-gradient-sunset text-white border-transparent" : "bg-card"}`}>
-                <div className="flex items-start gap-3">
-                  <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${a.done ? "bg-white/20" : "bg-muted text-muted-foreground"}`}>
-                    {a.done ? <Trophy className="size-5" /> : <Lock className="size-4" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold">{a.title}</div>
-                    <div className={`text-xs ${a.done ? "text-white/80" : "text-muted-foreground"}`}>{a.desc}</div>
-                    {a.progress && !a.done && (
-                      <div className="mt-2">
-                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div className="h-full bg-gradient-sunset" style={{ width: `${(a.progress.cur / a.progress.max) * 100}%` }} />
-                        </div>
-                        <div className="text-[11px] text-muted-foreground mt-1">{a.progress.cur} / {a.progress.max}</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+            <StatCard icon={<CheckCircle2 className="size-5" />} label="רמה נוכחית" value={p.level} />
           </div>
         </section>
 
@@ -161,7 +116,7 @@ function Profile() {
         <section className="bg-card border rounded-3xl p-5 shadow-card space-y-5">
           <div className="flex items-center gap-2">
             <PaletteIcon className="size-5 text-primary" />
-            <h2 className="font-display text-xl font-bold">תצוגה ופלטה</h2>
+            <h2 className="font-display text-xl font-bold">תצוגה וצבעים</h2>
           </div>
 
           <div>
@@ -197,14 +152,29 @@ function Profile() {
           </button>
         </section>
 
-        {/* Danger zone */}
+        {/* Account actions */}
         <section className="space-y-3">
-          <button onClick={signOut} className="w-full py-3 rounded-xl border bg-card hover:bg-muted transition font-medium">
-            התנתק
+          <button
+            onClick={signOut}
+            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border bg-card hover:bg-muted transition font-medium"
+          >
+            <LogOut className="size-4" /> נתק אותי
           </button>
-          <button onClick={onDelete} disabled={deleting}
-            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground transition font-medium disabled:opacity-50">
-            <Trash2 className="size-4" /> {deleting ? "מוחק..." : "מחיקת פרופיל לצמיתות"}
+
+          <button
+            onClick={onForgetMe}
+            disabled={resetting}
+            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-warning/40 text-warning hover:bg-warning hover:text-warning-foreground transition font-medium disabled:opacity-50"
+          >
+            <Eraser className="size-4" /> {resetting ? "מאפס..." : "שכח אותי"}
+          </button>
+
+          <button
+            onClick={onDelete}
+            disabled={deleting}
+            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground transition font-medium disabled:opacity-50"
+          >
+            <Trash2 className="size-4" /> {deleting ? "מוחק..." : "מחק אותי"}
           </button>
         </section>
       </div>
