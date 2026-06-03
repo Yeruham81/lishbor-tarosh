@@ -79,7 +79,7 @@ function Play() {
 
   const onSkip = async () => {
     if (!clue || busy) return;
-    if (!clue.isSolved && !confirm("לדלג על החידה? תאבדו את הרצף ו-10 נקודות.")) return;
+    if (!clue.isSolved && !confirm("לדלג על ההגדרה? תאבדו את הרצף ו-10 נקודות.")) return;
     setBusy(true);
     try {
       if (!clue.isSolved) await doSkip({ data: { clueId: clue.id } });
