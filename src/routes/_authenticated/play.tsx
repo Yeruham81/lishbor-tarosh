@@ -57,7 +57,7 @@ function Play() {
       setState(r);
       if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
       if (r.isSolved) {
-        toast.success(`🎉 פתרת את החידה! +${r.currentScore} נקודות`);
+        toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
         qc.invalidateQueries({ queryKey: ["profile"] });
       }
     } catch (e: any) { toast.error(e.message); }
@@ -79,7 +79,7 @@ function Play() {
 
   const onSkip = async () => {
     if (!clue || busy) return;
-    if (!clue.isSolved && !confirm("לדלג על החידה? תאבדו את הרצף ו-10 נקודות.")) return;
+    if (!clue.isSolved && !confirm("לדלג על ההגדרה? תאבדו את הרצף ו-10 נקודות.")) return;
     setBusy(true);
     try {
       if (!clue.isSolved) await doSkip({ data: { clueId: clue.id } });
@@ -125,13 +125,13 @@ function Play() {
           </div>
         )}
 
-        {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען חידה...</div>}
+        {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען הגדרה...</div>}
         {clueQ.error && <div className="text-center py-20 text-destructive">{(clueQ.error as Error).message}</div>}
         {exhausted && (
           <div className="text-center py-16 bg-card border rounded-3xl shadow-card">
             <div className="text-6xl mb-4">🎉</div>
-            <h2 className="font-display text-2xl font-bold mb-2">פתרת את כל החידות הזמינות!</h2>
-            <p className="text-muted-foreground">חידות חדשות בדרך — חזרו בקרוב.</p>
+            <h2 className="font-display text-2xl font-bold mb-2">פתרת את כל ההגדרות הזמינות!</h2>
+            <p className="text-muted-foreground">הגדרות חדשות בדרך — חזרו בקרוב.</p>
           </div>
         )}
 

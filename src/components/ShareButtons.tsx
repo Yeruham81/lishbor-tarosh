@@ -11,23 +11,34 @@ interface Props {
 export function ShareButtons({ text, url, title = "מילה חמה" }: Props) {
   const [copied, setCopied] = useState(false);
   const shareUrl = url ?? (typeof window !== "undefined" ? window.location.origin : "");
-  const fullText = url ? `${text}\n${url}` : text;
+  const fullText = url ? `${text}\n${url}` : `${text}\n${shareUrl}`;
   const enc = encodeURIComponent;
 
-  const native = async () => {
-    if (typeof navigator !== "undefined" && (navigator as any).share) {
-      try { await (navigator as any).share({ title, text, url: shareUrl }); } catch {}
-    } else {
-      copy();
-    }
-  };
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(fullText);
       setCopied(true);
-      toast.success("הועתק ללוח");
+      toast.success("הקישור הועתק ללוח 📋");
       setTimeout(() => setCopied(false), 1500);
-    } catch { toast.error("העתקה נכשלה"); }
+    } catch {
+      toast.error("העתקה נכשלה");
+    }
+  };
+
+  const native = async () => {
+    const nav: any = typeof navigator !== "undefined" ? navigator : null;
+    if (nav && typeof nav.share === "function") {
+      try {
+        await nav.share({ title, text, url: shareUrl });
+        toast.success("שותף בהצלחה!");
+        return;
+      } catch (e: any) {
+        // User cancelled — don't show error; fall through to copy only on real failure
+        if (e?.name === "AbortError") return;
+      }
+    }
+    // Fallback
+    await copy();
   };
 
   const links = [

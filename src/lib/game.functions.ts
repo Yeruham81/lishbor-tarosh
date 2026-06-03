@@ -81,11 +81,24 @@ export const getNextClue = createServerFn({ method: "GET" })
 
     const pick = clues[Math.floor(Math.random() * clues.length)];
 
+    // Auto-reveal one letter if answer has more than 3 (non-space) letters.
+    // Picked randomly from letters that appear EXACTLY ONCE. Free of charge.
+    const normalized = normalizeWord(pick.answer).replace(/\s/g, "");
+    let initialRevealed: string[] = [];
+    if (normalized.length > 3) {
+      const counts = new Map<string, number>();
+      for (const ch of normalized) counts.set(ch, (counts.get(ch) ?? 0) + 1);
+      const singletons = [...counts.entries()].filter(([, n]) => n === 1).map(([c]) => c);
+      if (singletons.length > 0) {
+        initialRevealed = [singletons[Math.floor(Math.random() * singletons.length)]];
+      }
+    }
+
     // Create a progress row so it persists across navigation/refresh
     await supabase.from("game_progress").insert({
       user_id: userId,
       clue_id: pick.id,
-      revealed_letters: [],
+      revealed_letters: initialRevealed,
       wrong_guesses: [],
       hints_used: 0,
       is_solved: false,
@@ -105,7 +118,7 @@ export const guessLetter = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: clue } = await supabase.from("clues").select("*").eq("id", data.clueId).single();
-    if (!clue) throw new Error("חידה לא נמצאה");
+    if (!clue) throw new Error("הגדרה לא נמצאה");
 
     const letter = normalizeLetter(data.letter);
     const answer = normalizeWord(clue.answer);
@@ -156,7 +169,7 @@ export const useHint = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: clue } = await supabase.from("clues").select("*").eq("id", data.clueId).single();
-    if (!clue) throw new Error("חידה לא נמצאה");
+    if (!clue) throw new Error("הגדרה לא נמצאה");
     const answer = normalizeWord(clue.answer);
     const { data: existing } = await supabase.from("game_progress").select("*")
       .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
