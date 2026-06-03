@@ -118,7 +118,7 @@ export const guessLetter = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: clue } = await supabase.from("clues").select("*").eq("id", data.clueId).single();
-    if (!clue) throw new Error("חידה לא נמצאה");
+    if (!clue) throw new Error("הגדרה לא נמצאה");
 
     const letter = normalizeLetter(data.letter);
     const answer = normalizeWord(clue.answer);
