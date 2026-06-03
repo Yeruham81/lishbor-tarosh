@@ -30,7 +30,7 @@ function Index() {
 
         <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto mt-16">
           {[
-            { icon: <Brain className="size-7" />, t: "חידות מאתגרות", d: "מאות חידות עבריות ברמות קושי משתנות" },
+            { icon: <Brain className="size-7" />, t: "הגדרות מאתגרות", d: "מאות הגדרות עבריות ברמות קושי משתנות" },
             { icon: <Zap className="size-7" />, t: "בונוסי רצף", d: "פתרו ברצף וקבלו בונוס נקודות הולך וגדל" },
             { icon: <Trophy className="size-7" />, t: "תחרו על המקום הראשון", d: "טבלת מובילים גלובלית מתעדכנת בזמן אמת" },
           ].map((f, i) => (
