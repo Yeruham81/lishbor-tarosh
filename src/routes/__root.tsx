@@ -9,8 +9,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "מילה חמה — משחק חידות בעברית" },
-      { name: "description", content: "משחק חידות עברי מודרני — נחשו מילים, צברו נקודות וטפסו בטבלת המובילים" },
+      { title: "מילה חמה — משחק הגדרות בעברית" },
+      { name: "description", content: "משחק הגדרות עברי מודרני — נחשו מילים, צברו נקודות וטפסו בטבלת המובילים" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
