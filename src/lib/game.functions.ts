@@ -169,7 +169,7 @@ export const useHint = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: clue } = await supabase.from("clues").select("*").eq("id", data.clueId).single();
-    if (!clue) throw new Error("חידה לא נמצאה");
+    if (!clue) throw new Error("הגדרה לא נמצאה");
     const answer = normalizeWord(clue.answer);
     const { data: existing } = await supabase.from("game_progress").select("*")
       .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
