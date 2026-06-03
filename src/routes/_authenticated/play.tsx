@@ -57,7 +57,7 @@ function Play() {
       setState(r);
       if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
       if (r.isSolved) {
-        toast.success(`🎉 פתרת את החידה! +${r.currentScore} נקודות`);
+        toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
         qc.invalidateQueries({ queryKey: ["profile"] });
       }
     } catch (e: any) { toast.error(e.message); }
