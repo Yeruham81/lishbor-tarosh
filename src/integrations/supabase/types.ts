@@ -253,6 +253,7 @@ export type Database = {
           created_at: string
           current_streak: number
           display_name: string | null
+          display_name_confirmed: boolean
           id: string
           level: number
           solved_count: number
@@ -266,6 +267,7 @@ export type Database = {
           created_at?: string
           current_streak?: number
           display_name?: string | null
+          display_name_confirmed?: boolean
           id: string
           level?: number
           solved_count?: number
@@ -279,6 +281,7 @@ export type Database = {
           created_at?: string
           current_streak?: number
           display_name?: string | null
+          display_name_confirmed?: boolean
           id?: string
           level?: number
           solved_count?: number
