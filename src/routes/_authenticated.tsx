@@ -1,5 +1,11 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { DisplayNameSetup } from "@/components/DisplayNameSetup";
 
 export const Route = createFileRoute("/_authenticated")({
-  component: () => <Outlet />,
+  component: () => (
+    <>
+      <Outlet />
+      <DisplayNameSetup />
+    </>
+  ),
 });
