@@ -11,7 +11,7 @@ function Index() {
     <AppShell>
       <section className="container mx-auto px-4 py-12 sm:py-20 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted text-sm font-medium mb-6">
-          <Sparkles className="size-4 text-primary" /> משחק חידות בעברית
+          <Sparkles className="size-4 text-primary" /> משחק הגדרות בעברית
         </div>
         <h1 className="font-display text-5xl sm:text-7xl font-black leading-tight mb-4">
           <span className="text-gradient-sunset">מילה חמה</span>
