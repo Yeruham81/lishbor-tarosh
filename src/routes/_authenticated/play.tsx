@@ -44,6 +44,9 @@ function Play() {
     }
   }, [clueQ.data]);
 
+  const exhausted = clueQ.data && "exhausted" in clueQ.data;
+  const clue = state && !("exhausted" in state) ? state : null;
+
   // Auto-advance to next puzzle after solving (if user opted in)
   useEffect(() => {
     if (!clue?.isSolved || !profileQ.data?.auto_next) return;
@@ -51,9 +54,6 @@ function Play() {
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clue?.isSolved, clue?.id, profileQ.data?.auto_next]);
-
-  const exhausted = clueQ.data && "exhausted" in clueQ.data;
-  const clue = state && !("exhausted" in state) ? state : null;
 
   const onLetter = async (l: string) => {
     if (!clue || clue.isSolved || busy) return;
