@@ -137,10 +137,31 @@ function Play() {
 
         {clue && (
           <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
-            <div className="flex items-center justify-between mb-2 text-xs">
-              {clue.category && <span className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground">{clue.category}</span>}
-              <span className="text-muted-foreground">קושי: {"★".repeat(clue.difficulty)}</span>
-            </div>
+            {!clue.isSolved && (
+              <div className="flex gap-2 justify-center mb-4">
+                <button
+                  onClick={onHint}
+                  disabled={busy || clue.wrong.length < 2}
+                  title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  <Lightbulb className="size-4" /> רמז
+                </button>
+                <button
+                  onClick={onSkip}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-sm hover:bg-muted transition disabled:opacity-50"
+                >
+                  <SkipForward className="size-4" /> דלג
+                </button>
+              </div>
+            )}
+
+            {clue.category && (
+              <div className="flex justify-center mb-2">
+                <span className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">{clue.category}</span>
+              </div>
+            )}
 
             <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
 
@@ -157,29 +178,9 @@ function Play() {
             </div>
 
             {!clue.isSolved ? (
-              <>
-                <div className="mb-6">
-                  <HebrewKeyboard onLetter={onLetter} revealed={clue.revealed} wrong={clue.wrong} disabled={busy} />
-                </div>
-
-                <div className="flex flex-wrap gap-2 justify-center">
-                  <button
-                    onClick={onHint}
-                    disabled={busy || clue.wrong.length < 2}
-                    title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-warning text-warning-foreground font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                  >
-                    <Lightbulb className="size-4" /> רמז (-15)
-                  </button>
-                  <button
-                    onClick={onSkip}
-                    disabled={busy}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border bg-card hover:bg-muted transition disabled:opacity-50"
-                  >
-                    <SkipForward className="size-4" /> דלג (-10)
-                  </button>
-                </div>
-              </>
+              <div className="mb-2">
+                <HebrewKeyboard onLetter={onLetter} revealed={clue.revealed} wrong={clue.wrong} disabled={busy} />
+              </div>
             ) : (
               <div className="text-center py-6 animate-fade-in space-y-6">
                 <div>
