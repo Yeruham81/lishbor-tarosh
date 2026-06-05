@@ -262,7 +262,8 @@ export const getLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await context.supabase.from("profiles")
-      .select("id, username, display_name, total_score, level, solved_count, best_streak")
+      .select("id, username, display_name, avatar_url, total_score, level, solved_count, best_streak")
+      .eq("is_private", false)
       .order("total_score", { ascending: false }).limit(50);
     return data ?? [];
   });
@@ -279,12 +280,14 @@ export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
 
     if (data.period === "all") {
       const { data: rows } = await supabase.from("profiles")
-        .select("id, username, display_name, total_score, level, solved_count, best_streak")
+        .select("id, username, display_name, avatar_url, total_score, level, solved_count, best_streak")
+        .eq("is_private", false)
         .order("total_score", { ascending: false }).limit(20);
       return (rows ?? []).map((r: any) => ({
         id: r.id,
         username: r.username,
         display_name: r.display_name,
+        avatar_url: r.avatar_url,
         level: r.level,
         solved_count: r.solved_count,
         best_streak: r.best_streak,
@@ -325,20 +328,23 @@ export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
 
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, username, display_name, level, best_streak")
+      .select("id, username, display_name, avatar_url, level, best_streak, is_private")
       .in("id", topIds.map(([id]) => id));
 
     const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
-    return topIds.map(([id, t]) => {
-      const p = byId.get(id) ?? {};
-      return {
-        id,
-        username: p.username ?? "",
-        display_name: p.display_name ?? null,
-        level: p.level ?? 1,
-        solved_count: t.solved,
-        best_streak: p.best_streak ?? 0,
-        score: t.score,
-      };
-    });
+    return topIds
+      .filter(([id]) => !byId.get(id)?.is_private)
+      .map(([id, t]) => {
+        const p = byId.get(id) ?? {};
+        return {
+          id,
+          username: p.username ?? "",
+          display_name: p.display_name ?? null,
+          avatar_url: p.avatar_url ?? null,
+          level: p.level ?? 1,
+          solved_count: t.solved,
+          best_streak: p.best_streak ?? 0,
+          score: t.score,
+        };
+      });
   });
