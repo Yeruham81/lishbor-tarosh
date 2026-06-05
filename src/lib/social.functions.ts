@@ -115,3 +115,24 @@ export const getChallenge = createServerFn({ method: "POST" })
       hints: ch.challenger_hints,
     };
   });
+
+// ------- Puzzle submissions -------
+const puzzleSubmissionSchema = z.object({
+  clue_text: z.string().trim().min(3).max(500),
+  suggested_answer: z.string().trim().min(1).max(200),
+  notes: z.string().trim().max(1000).optional().or(z.literal("")),
+});
+
+export const submitPuzzle = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => puzzleSubmissionSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("puzzle_submissions").insert({
+      user_id: context.userId,
+      clue_text: data.clue_text,
+      suggested_answer: data.suggested_answer,
+      notes: data.notes || null,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
