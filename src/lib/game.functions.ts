@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { normalizeLetter, normalizeWord, levelFromScore, buildRevealMask, wordLengths } from "./hebrew";
 
 const HINT_COST = 15;
@@ -56,7 +57,7 @@ export const getNextClue = createServerFn({ method: "GET" })
       .maybeSingle();
 
     if (inProgress?.clue_id) {
-      const { data: clue } = await supabase.from("clues").select("*").eq("id", inProgress.clue_id).eq("is_active", true).maybeSingle();
+      const { data: clue } = await supabaseAdmin.from("clues").select("*").eq("id", inProgress.clue_id).eq("is_active", true).maybeSingle();
       if (clue) return await loadProgress(supabase, userId, clue);
     }
 
@@ -68,13 +69,13 @@ export const getNextClue = createServerFn({ method: "GET" })
       .from("game_progress").select("clue_id").eq("user_id", userId).eq("is_solved", true);
     const solvedIds = (solvedRows ?? []).map((r: any) => r.clue_id);
 
-    let query = supabase.from("clues").select("*")
+    let query = supabaseAdmin.from("clues").select("*")
       .eq("is_active", true).lte("difficulty", maxDiff).limit(100);
     if (solvedIds.length) query = query.not("id", "in", `(${solvedIds.join(",")})`);
 
     let { data: clues } = await query;
     if (!clues || clues.length === 0) {
-      const { data: any } = await supabase.from("clues").select("*").eq("is_active", true).limit(100);
+      const { data: any } = await supabaseAdmin.from("clues").select("*").eq("is_active", true).limit(100);
       clues = (any ?? []).filter((c: any) => !solvedIds.includes(c.id));
     }
     if (!clues || clues.length === 0) return { exhausted: true as const };
@@ -117,7 +118,7 @@ export const guessLetter = createServerFn({ method: "POST" })
   .inputValidator((d) => guessSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: clue } = await supabase.from("clues").select("*").eq("id", data.clueId).single();
+    const { data: clue } = await supabaseAdmin.from("clues").select("*").eq("id", data.clueId).single();
     if (!clue) throw new Error("הגדרה לא נמצאה");
 
     const letter = normalizeLetter(data.letter);
@@ -168,7 +169,7 @@ export const useHint = createServerFn({ method: "POST" })
   .inputValidator((d) => hintSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: clue } = await supabase.from("clues").select("*").eq("id", data.clueId).single();
+    const { data: clue } = await supabaseAdmin.from("clues").select("*").eq("id", data.clueId).single();
     if (!clue) throw new Error("הגדרה לא נמצאה");
     const answer = normalizeWord(clue.answer);
     const { data: existing } = await supabase.from("game_progress").select("*")
@@ -225,8 +226,8 @@ export const skipClue = createServerFn({ method: "POST" })
       }).eq("id", userId);
     }
     // Analytics: increment skip counter on the clue
-    const { data: c } = await supabase.from("clues").select("skip_count").eq("id", data.clueId).maybeSingle();
-    if (c) await supabase.from("clues").update({ skip_count: (c.skip_count ?? 0) + 1 }).eq("id", data.clueId);
+    const { data: c } = await supabaseAdmin.from("clues").select("skip_count").eq("id", data.clueId).maybeSingle();
+    if (c) await supabaseAdmin.from("clues").update({ skip_count: (c.skip_count ?? 0) + 1 }).eq("id", data.clueId);
     return { ok: true };
   });
 
@@ -246,8 +247,8 @@ async function applyScore(supabase: any, userId: string, points: number, success
 }
 
 async function bumpSolvedCount(supabase: any, clueId: string) {
-  const { data: c } = await supabase.from("clues").select("solved_count").eq("id", clueId).maybeSingle();
-  if (c) await supabase.from("clues").update({ solved_count: (c.solved_count ?? 0) + 1 }).eq("id", clueId);
+  const { data: c } = await supabaseAdmin.from("clues").select("solved_count").eq("id", clueId).maybeSingle();
+  if (c) await supabaseAdmin.from("clues").update({ solved_count: (c.solved_count ?? 0) + 1 }).eq("id", clueId);
 }
 
 export const getProfile = createServerFn({ method: "GET" })

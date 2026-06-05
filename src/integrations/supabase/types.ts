@@ -248,46 +248,97 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accessibility_prefs: Json
+          auth_provider: string | null
+          auto_next: boolean
           avatar_url: string | null
           best_streak: number
           created_at: string
           current_streak: number
           display_name: string | null
           display_name_confirmed: boolean
+          email: string | null
           id: string
+          is_private: boolean
           level: number
+          notification_prefs: Json
           solved_count: number
           total_score: number
           updated_at: string
           username: string
         }
         Insert: {
+          accessibility_prefs?: Json
+          auth_provider?: string | null
+          auto_next?: boolean
           avatar_url?: string | null
           best_streak?: number
           created_at?: string
           current_streak?: number
           display_name?: string | null
           display_name_confirmed?: boolean
+          email?: string | null
           id: string
+          is_private?: boolean
           level?: number
+          notification_prefs?: Json
           solved_count?: number
           total_score?: number
           updated_at?: string
           username: string
         }
         Update: {
+          accessibility_prefs?: Json
+          auth_provider?: string | null
+          auto_next?: boolean
           avatar_url?: string | null
           best_streak?: number
           created_at?: string
           current_streak?: number
           display_name?: string | null
           display_name_confirmed?: boolean
+          email?: string | null
           id?: string
+          is_private?: boolean
           level?: number
+          notification_prefs?: Json
           solved_count?: number
           total_score?: number
           updated_at?: string
           username?: string
+        }
+        Relationships: []
+      }
+      puzzle_submissions: {
+        Row: {
+          clue_text: string
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          suggested_answer: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clue_text: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          suggested_answer: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clue_text?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          suggested_answer?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
