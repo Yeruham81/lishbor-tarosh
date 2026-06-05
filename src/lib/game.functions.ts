@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { normalizeLetter, normalizeWord, levelFromScore, buildRevealMask, wordLengths } from "./hebrew";
 
 const HINT_COST = 15;
