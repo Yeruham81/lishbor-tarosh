@@ -203,7 +203,7 @@ function Play() {
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
                   <ShareButtons
-                    text={`פתרתי "${clue.clue}" ב‑מילה חמה 🔥 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
+                    text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
                   />
                 </div>
               </div>

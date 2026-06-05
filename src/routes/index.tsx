@@ -11,20 +11,17 @@ function Index() {
     <AppShell>
       <section className="container mx-auto px-4 py-12 sm:py-20 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted text-sm font-medium mb-6">
-          <Sparkles className="size-4 text-primary" /> משחק הגדרות בעברית
+          <Sparkles className="size-4 text-primary" /> המשחק שעושה היגיון
         </div>
         <h1 className="font-display text-5xl sm:text-7xl font-black leading-tight mb-4">
-          <span className="text-gradient-sunset">מילה חמה</span>
+          <span className="text-gradient-sunset">לשבור ת'ראש</span>
         </h1>
         <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          נחשו את המילה הנסתרת מתוך רמז עברי. צברו נקודות, שברו שיאי רצף, וטפסו בטבלת המובילים.
+          כי זה לא רק מה שאתם יודעים - זה גם איך אתם חושבים
         </p>
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="flex justify-center">
           <Link to={user ? "/play" : "/auth"} className="px-8 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 active:scale-95 transition">
             {user ? "המשך לשחק" : "התחילו עכשיו"}
-          </Link>
-          <Link to="/leaderboard" className="px-8 py-4 rounded-2xl bg-card border font-display font-bold text-lg hover:bg-muted transition">
-            טבלת מובילים
           </Link>
         </div>
 

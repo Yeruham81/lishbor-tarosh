@@ -15,6 +15,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "לשבור ת'ראש - המשחק שעושה היגיון" },
       { property: "og:description", content: "כי זה לא רק מה שאתם יודעים - זה גם איך אתם חושבים" },
       { name: "twitter:description", content: "כי זה לא רק מה שאתם יודעים - זה גם איך אתם חושבים" },
+      { property: "og:site_name", content: "לשבור ת'ראש" },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8565aeaa-bdfe-497b-8df7-81d2200a0f3a/id-preview-13d14430--d79e643b-116e-498a-bdf8-db5043b3e68e.lovable.app-1780450609409.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8565aeaa-bdfe-497b-8df7-81d2200a0f3a/id-preview-13d14430--d79e643b-116e-498a-bdf8-db5043b3e68e.lovable.app-1780450609409.png" },
       { name: "twitter:card", content: "summary_large_image" },
