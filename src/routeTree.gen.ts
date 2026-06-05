@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubmitPuzzleRouteImport } from './routes/submit-puzzle'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -19,6 +20,11 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPlayRouteImport } from './routes/_authenticated/play'
 import { Route as AuthenticatedLevelsRouteImport } from './routes/_authenticated/levels'
 
+const SubmitPuzzleRoute = SubmitPuzzleRouteImport.update({
+  id: '/submit-puzzle',
+  path: '/submit-puzzle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/submit-puzzle': typeof SubmitPuzzleRoute
   '/levels': typeof AuthenticatedLevelsRoute
   '/play': typeof AuthenticatedPlayRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/submit-puzzle': typeof SubmitPuzzleRoute
   '/levels': typeof AuthenticatedLevelsRoute
   '/play': typeof AuthenticatedPlayRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/submit-puzzle': typeof SubmitPuzzleRoute
   '/_authenticated/levels': typeof AuthenticatedLevelsRoute
   '/_authenticated/play': typeof AuthenticatedPlayRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/leaderboard'
+    | '/submit-puzzle'
     | '/levels'
     | '/play'
     | '/profile'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/leaderboard'
+    | '/submit-puzzle'
     | '/levels'
     | '/play'
     | '/profile'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/leaderboard'
+    | '/submit-puzzle'
     | '/_authenticated/levels'
     | '/_authenticated/play'
     | '/_authenticated/profile'
@@ -136,11 +148,19 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  SubmitPuzzleRoute: typeof SubmitPuzzleRoute
   ChallengeTokenRoute: typeof ChallengeTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/submit-puzzle': {
+      id: '/submit-puzzle'
+      path: '/submit-puzzle'
+      fullPath: '/submit-puzzle'
+      preLoaderRoute: typeof SubmitPuzzleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -229,6 +249,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   LeaderboardRoute: LeaderboardRoute,
+  SubmitPuzzleRoute: SubmitPuzzleRoute,
   ChallengeTokenRoute: ChallengeTokenRoute,
 }
 export const routeTree = rootRouteImport

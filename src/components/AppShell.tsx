@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail } from "lucide-react";
+import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail, PlusCircle } from "lucide-react";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
@@ -10,22 +10,18 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-xl">
-            <span className="text-2xl">🔤</span>
-            <span className="text-gradient-sunset">מילה חמה</span>
+            <span className="text-2xl">🧠</span>
+            <span className="text-gradient-sunset">לשבור ת'ראש</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 text-sm">
             <NavLink to="/" icon={<Home className="size-4" />}>בית</NavLink>
             {user && <NavLink to="/play" icon={<Gamepad2 className="size-4" />}>שחק</NavLink>}
-            {user && <NavLink to="/levels" icon={<BarChart3 className="size-4" />}>רמות</NavLink>}
-            <NavLink to="/leaderboard" icon={<Trophy className="size-4" />}>טבלת מובילים</NavLink>
-            {user && <NavLink to="/profile" icon={<User className="size-4" />}>פרופיל</NavLink>}
+            {user && <NavLink to="/levels" icon={<BarChart3 className="size-4" />}>איך אני</NavLink>}
+            <NavLink to="/leaderboard" icon={<Trophy className="size-4" />}>מי בראש</NavLink>
+            {user && <NavLink to="/profile" icon={<User className="size-4" />}>לוח הבקרה</NavLink>}
           </nav>
           <div>
-            {user ? (
-              <button onClick={signOut} className="inline-flex items-center gap-1.5 text-sm px-3 py-2 rounded-lg hover:bg-muted transition">
-                <LogOut className="size-4" /> יציאה
-              </button>
-            ) : (
+            {!user && (
               <Link to="/auth" className="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-sunset text-white font-semibold text-sm shadow-glow hover:opacity-90 transition">
                 התחברות
               </Link>
@@ -40,13 +36,27 @@ export function AppShell({ children }: { children: ReactNode }) {
           מקום שמור למודעה (Google AdSense)
         </div>
       </div>
-      {/* Footer */}
+      {/* Footer actions */}
       <footer className="border-t bg-muted/20 mt-2">
-        <div className="container mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-muted-foreground">
-          <span>© {new Date().getFullYear()} מילה חמה</span>
-          <Link to="/contact" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-muted hover:text-foreground transition font-medium">
-            <Mail className="size-4" /> צור קשר
-          </Link>
+        <div className="container mx-auto px-4 py-5 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              {user && (
+                <button onClick={signOut} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium">
+                  <LogOut className="size-4" /> יציאה
+                </button>
+              )}
+              <Link to="/contact" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium">
+                <Mail className="size-4" /> צור קשר
+              </Link>
+            </div>
+            {user && (
+              <Link to="/submit-puzzle" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition">
+                <PlusCircle className="size-4" /> הוספת הגדרה
+              </Link>
+            )}
+          </div>
+          <div className="text-center text-xs text-muted-foreground">© {new Date().getFullYear()} לשבור ת'ראש</div>
         </div>
       </footer>
       {/* Mobile bottom nav */}
@@ -55,9 +65,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="grid grid-cols-5 text-xs">
             <MobileLink to="/"><Home className="size-5" /><span>בית</span></MobileLink>
             <MobileLink to="/play"><Gamepad2 className="size-5" /><span>שחק</span></MobileLink>
-            <MobileLink to="/levels"><BarChart3 className="size-5" /><span>רמות</span></MobileLink>
-            <MobileLink to="/leaderboard"><Trophy className="size-5" /><span>טבלה</span></MobileLink>
-            <MobileLink to="/profile"><User className="size-5" /><span>פרופיל</span></MobileLink>
+            <MobileLink to="/levels"><BarChart3 className="size-5" /><span>איך אני</span></MobileLink>
+            <MobileLink to="/leaderboard"><Trophy className="size-5" /><span>מי בראש</span></MobileLink>
+            <MobileLink to="/profile"><User className="size-5" /><span>לוח</span></MobileLink>
           </div>
         </nav>
       )}

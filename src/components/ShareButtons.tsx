@@ -8,7 +8,7 @@ interface Props {
   title?: string;
 }
 
-export function ShareButtons({ text, url, title = "מילה חמה" }: Props) {
+export function ShareButtons({ text, url, title = "לשבור ת'ראש" }: Props) {
   const [copied, setCopied] = useState(false);
   const shareUrl = url ?? (typeof window !== "undefined" ? window.location.origin : "");
   const fullText = url ? `${text}\n${url}` : `${text}\n${shareUrl}`;
