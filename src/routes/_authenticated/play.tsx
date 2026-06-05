@@ -44,6 +44,14 @@ function Play() {
     }
   }, [clueQ.data]);
 
+  // Auto-advance to next puzzle after solving (if user opted in)
+  useEffect(() => {
+    if (!clue?.isSolved || !profileQ.data?.auto_next) return;
+    const t = setTimeout(() => { onSkip(); }, 3000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clue?.isSolved, clue?.id, profileQ.data?.auto_next]);
+
   const exhausted = clueQ.data && "exhausted" in clueQ.data;
   const clue = state && !("exhausted" in state) ? state : null;
 
