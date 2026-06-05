@@ -59,18 +59,10 @@ export function DisplayNameSetup() {
           <h2 className="font-display text-2xl font-extrabold text-gradient-sunset">
             איך לקרוא לך?
           </h2>
-          <p className="text-sm text-muted-foreground mt-2">
-            בחרו את השם שיוצג בטבלת המובילים ובפרופיל.
-            <br />
-            <span className="font-semibold text-foreground">שם התצוגה הוא קבוע ולא ניתן לשינוי בהמשך.</span>
+          <p className="text-sm text-muted-foreground mt-3">
+            אפשר לבחור שם פרטי, שם מלא או כינוי
           </p>
         </div>
-
-        {data.suggested && (
-          <p className="text-xs text-center text-muted-foreground">
-            הצענו לך שם על-פי החשבון שלך — תוכל לערוך אם תרצה.
-          </p>
-        )}
 
         <input
           dir="rtl"
@@ -78,21 +70,16 @@ export function DisplayNameSetup() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={40}
-          placeholder="שם פרטי, שם מלא או כינוי"
+          aria-label="שם תצוגה"
           className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
         />
-
-        <div className="text-xs text-muted-foreground text-right">
-          • מותר שם פרטי, שם מלא או כינוי<br />
-          • מותר ששחקנים שונים יבחרו אותו שם
-        </div>
 
         <button
           type="submit"
           disabled={!valid || busy}
           className="w-full py-3 rounded-xl bg-gradient-sunset text-white font-display font-bold shadow-glow hover:opacity-90 disabled:opacity-50 transition"
         >
-          {busy ? "שומר..." : "אישור והמשך"}
+          {busy ? "שומר..." : "יאללה למשחק"}
         </button>
       </form>
     </div>
