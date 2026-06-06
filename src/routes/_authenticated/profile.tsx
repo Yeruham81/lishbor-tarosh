@@ -1,19 +1,40 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
-import { getStats, deleteAccount, resetAccount } from "@/lib/account.functions";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  getStats, deleteAccount, resetAccount,
+  updatePreferences, setAvatarPath, getAvatarUrl,
+} from "@/lib/account.functions";
 import { scoreForNextLevel } from "@/lib/hebrew";
-import { useTheme, PALETTES, type Palette } from "@/hooks/use-theme";
+import { PALETTES, type Palette } from "@/hooks/use-theme";
 import { toast } from "sonner";
 import {
   Trophy, Flame, Target, Award, Percent, Sparkles, Lightbulb, CheckCircle2,
-  Sun, Moon, Palette as PaletteIcon, RotateCcw, Trash2, LogOut, Eraser,
+  Sun, Moon, Palette as PaletteIcon, Trash2, Eraser, UserCircle2, KeyRound,
+  EyeOff, Bell, Gamepad2, Accessibility, Camera, X, Type,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/profile")({ component: Profile });
+
+type Accessibility = {
+  text_size?: "small" | "normal" | "large";
+  high_contrast?: boolean;
+  colorblind?: boolean;
+  screen_reader?: boolean;
+  palette?: Palette;
+  mode?: "light" | "dark";
+};
+type Notifs = {
+  level_up?: boolean;
+  challenge?: boolean;
+  daily?: boolean;
+  events?: boolean;
+  announcements?: boolean;
+};
 
 function Profile() {
   const { user, loading, signOut } = useAuth();
@@ -23,55 +44,93 @@ function Profile() {
   const fetchStats = useServerFn(getStats);
   const doDelete = useServerFn(deleteAccount);
   const doReset = useServerFn(resetAccount);
+  const doUpdatePrefs = useServerFn(updatePreferences);
+  const doSetAvatar = useServerFn(setAvatarPath);
+  const fetchAvatar = useServerFn(getAvatarUrl);
   const qc = useQueryClient();
+
   const { data } = useQuery({ queryKey: ["stats"], queryFn: () => fetchStats(), enabled: !!user });
-  const { palette, mode, setPalette, setMode, reset } = useTheme();
+  const avatarQ = useQuery({ queryKey: ["avatar-url"], queryFn: () => fetchAvatar(), enabled: !!user });
+
   const [deleting, setDeleting] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  // Password change (email auth only)
+  const [pwd, setPwd] = useState("");
+  const [pwd2, setPwd2] = useState("");
+  const [pwdBusy, setPwdBusy] = useState(false);
 
   if (!data?.profile) return <AppShell><div className="text-center py-20 text-muted-foreground">טוען...</div></AppShell>;
   const p = data.profile;
+  const a11y: Accessibility = (p.accessibility_prefs ?? {}) as Accessibility;
+  const notifs: Notifs = (p.notification_prefs ?? {}) as Notifs;
+  const isEmailAuth = (p.auth_provider ?? "email") === "email";
   const nextLevel = scoreForNextLevel(p.level);
   const prevLevel = scoreForNextLevel(p.level - 1);
   const progress = Math.min(100, Math.round(((p.total_score - prevLevel) / (nextLevel - prevLevel)) * 100));
 
+  const refresh = () => qc.invalidateQueries({ queryKey: ["stats"] });
+  const setPref = async (patch: Parameters<typeof doUpdatePrefs>[0]["data"]) => {
+    try { await doUpdatePrefs({ data: patch }); refresh(); }
+    catch (e: any) { toast.error(e.message); }
+  };
+  const setA11y = (patch: Partial<Accessibility>) =>
+    setPref({ accessibility_prefs: patch });
+  const setNotif = (patch: Partial<Notifs>) =>
+    setPref({ notification_prefs: { ...notifs, ...patch } as any });
+
+  const onAvatarPick = async (file: File) => {
+    if (!user) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error("הקובץ גדול מ-2MB"); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      if (error) throw error;
+      await doSetAvatar({ data: { path } });
+      toast.success("התמונה עודכנה");
+      qc.invalidateQueries({ queryKey: ["avatar-url"] });
+    } catch (e: any) { toast.error(e.message); }
+    finally { setUploading(false); }
+  };
+  const onAvatarRemove = async () => {
+    if (!confirm("להסיר את התמונה?")) return;
+    try { await doSetAvatar({ data: { path: null } }); qc.invalidateQueries({ queryKey: ["avatar-url"] }); toast.success("התמונה הוסרה"); }
+    catch (e: any) { toast.error(e.message); }
+  };
+
+  const onChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pwd.length < 6) { toast.error("הסיסמה חייבת להכיל לפחות 6 תווים"); return; }
+    if (pwd !== pwd2) { toast.error("הסיסמאות אינן תואמות"); return; }
+    setPwdBusy(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: pwd });
+      if (error) throw error;
+      toast.success("הסיסמה עודכנה");
+      setPwd(""); setPwd2("");
+    } catch (e: any) { toast.error(e.message); }
+    finally { setPwdBusy(false); }
+  };
+
   const onForgetMe = async () => {
-    if (!confirm(
-      "פעולה זו תאפס את כל ההיסטוריה וההתקדמות שלך:\n\n" +
-      "• כל ההגדרות שפתרת יימחקו\n" +
-      "• הניקוד יתאפס ל-0\n" +
-      "• הרמה תחזור ל-1\n" +
-      "• הרצפים והאתגרים יתאפסו\n" +
-      "• כל הרמזים והדירוגים יימחקו\n\n" +
-      "החשבון ושם התצוגה יישמרו. להמשיך?"
-    )) return;
+    if (!confirm("פעולה זו תאפס את ההיסטוריה וההתקדמות שלך (הניקוד, הרצפים, הפתרונות). להמשיך?")) return;
     if (!confirm("בטוחים? לא ניתן לשחזר את הנתונים לאחר האיפוס.")) return;
     setResetting(true);
-    try {
-      await doReset();
-      await qc.invalidateQueries();
-      toast.success("הפרופיל אופס. ברוך הבא מחדש!");
-    } catch (e: any) { toast.error(e.message); }
+    try { await doReset(); await qc.invalidateQueries(); toast.success("הפרופיל אופס. ברוך הבא מחדש!"); }
+    catch (e: any) { toast.error(e.message); }
     finally { setResetting(false); }
   };
 
   const onDelete = async () => {
-    if (!confirm(
-      "מחיקת הפרופיל היא פעולה בלתי הפיכה.\n\n" +
-      "כל הנתונים יימחקו לצמיתות:\n" +
-      "• החשבון עצמו\n" +
-      "• הסטטיסטיקות וההיסטוריה\n" +
-      "• הניקוד וההישגים בטבלת המובילים\n\n" +
-      "להמשיך?"
-    )) return;
+    if (!confirm("מחיקת הפרופיל היא פעולה בלתי הפיכה. כל הנתונים יימחקו לצמיתות. להמשיך?")) return;
     if (!confirm("בטוחים לחלוטין? פעולה זו אינה הפיכה.")) return;
     setDeleting(true);
-    try {
-      await doDelete();
-      await signOut();
-      toast.success("הפרופיל נמחק");
-      navigate({ to: "/" });
-    } catch (e: any) { toast.error(e.message); }
+    try { await doDelete(); await signOut(); toast.success("הפרופיל נמחק"); navigate({ to: "/" }); }
+    catch (e: any) { toast.error(e.message); }
     finally { setDeleting(false); }
   };
 
@@ -81,12 +140,16 @@ function Profile() {
         {/* Header card */}
         <div className="bg-gradient-sunset rounded-3xl p-6 text-white shadow-glow">
           <div className="flex items-center gap-4">
-            <div className="size-20 rounded-full bg-white/20 flex items-center justify-center text-3xl font-display font-extrabold">
-              {p.display_name?.[0] ?? p.username[0]}
+            <div className="size-20 rounded-full bg-white/20 flex items-center justify-center overflow-hidden text-3xl font-display font-extrabold">
+              {avatarQ.data?.url ? (
+                <img src={avatarQ.data.url} alt="תמונת פרופיל" className="size-full object-cover" />
+              ) : (
+                p.display_name?.[0] ?? p.username[0]
+              )}
             </div>
-            <div>
-              <h1 className="font-display text-3xl font-extrabold">{p.display_name ?? p.username}</h1>
-              <p className="text-white/80">@{p.username}</p>
+            <div className="min-w-0">
+              <h1 className="font-display text-3xl font-extrabold truncate">{p.display_name ?? p.username}</h1>
+              <p className="text-white/80 truncate" dir="ltr">{p.email ?? user?.email ?? `@${p.username}`}</p>
             </div>
           </div>
           <div className="mt-6">
@@ -112,22 +175,97 @@ function Profile() {
           </div>
         </section>
 
-        {/* Theme */}
-        <section className="bg-card border rounded-3xl p-5 shadow-card space-y-5">
-          <div className="flex items-center gap-2">
-            <PaletteIcon className="size-5 text-primary" />
-            <h2 className="font-display text-xl font-bold">תצוגה וצבעים</h2>
+        {/* Account management */}
+        <Card icon={<UserCircle2 className="size-5 text-primary" />} title="ניהול החשבון">
+          {/* Avatar */}
+          <div>
+            <div className="text-sm font-medium mb-2">תמונת פרופיל</div>
+            <div className="flex items-center gap-4">
+              <div className="size-16 rounded-full bg-muted flex items-center justify-center overflow-hidden border">
+                {avatarQ.data?.url ? <img src={avatarQ.data.url} alt="תמונת פרופיל" className="size-full object-cover" /> : <UserCircle2 className="size-10 text-muted-foreground" />}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <input ref={fileInput} type="file" accept="image/*" className="hidden"
+                  onChange={(e) => e.target.files?.[0] && onAvatarPick(e.target.files[0])} />
+                <button onClick={() => fileInput.current?.click()} disabled={uploading}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted text-sm font-medium transition disabled:opacity-50">
+                  <Camera className="size-4" /> {avatarQ.data?.url ? "החלפת תמונה" : "העלאת תמונה"}
+                </button>
+                {avatarQ.data?.url && (
+                  <button onClick={onAvatarRemove} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground text-sm font-medium transition">
+                    <X className="size-4" /> הסרה
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
+          {/* Password change (email auth only) */}
+          {isEmailAuth && (
+            <form onSubmit={onChangePassword} className="space-y-2">
+              <div className="text-sm font-medium flex items-center gap-2"><KeyRound className="size-4" /> החלפת סיסמה</div>
+              <input type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} minLength={6} placeholder="סיסמה חדשה"
+                className="w-full px-3 py-2.5 rounded-xl border bg-background text-left" dir="ltr" autoComplete="new-password" />
+              <input type="password" value={pwd2} onChange={(e) => setPwd2(e.target.value)} minLength={6} placeholder="אימות סיסמה"
+                className="w-full px-3 py-2.5 rounded-xl border bg-background text-left" dir="ltr" autoComplete="new-password" />
+              <button type="submit" disabled={pwdBusy || !pwd || !pwd2}
+                className="w-full py-2.5 rounded-xl bg-card border hover:bg-muted transition font-medium disabled:opacity-50">
+                {pwdBusy ? "מעדכן..." : "עדכון סיסמה"}
+              </button>
+            </form>
+          )}
+
+          {/* Private mode */}
+          <Toggle
+            icon={<EyeOff className="size-4" />}
+            label="מצב פרטי"
+            hint="הסתרת הפרופיל מטבלת המובילים ומשחקנים אחרים"
+            checked={!!p.is_private}
+            onChange={(v) => setPref({ is_private: v })}
+          />
+
+          {/* Account actions */}
+          <div className="pt-2 space-y-2 border-t">
+            <button onClick={onForgetMe} disabled={resetting}
+              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-warning/40 text-warning hover:bg-warning hover:text-warning-foreground transition font-medium disabled:opacity-50">
+              <Eraser className="size-4" /> {resetting ? "מאפס..." : "שכח אותי"}
+            </button>
+            <button onClick={onDelete} disabled={deleting}
+              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground transition font-medium disabled:opacity-50">
+              <Trash2 className="size-4" /> {deleting ? "מוחק..." : "מחק אותי"}
+            </button>
+          </div>
+        </Card>
+
+        {/* Game settings */}
+        <Card icon={<Gamepad2 className="size-5 text-primary" />} title="הגדרות משחק">
+          <Toggle
+            label="מעבר אוטומטי להגדרה הבאה"
+            hint="לאחר פתרון מוצלח, המשחק יעבור אוטומטית להגדרה הבאה תוך 3 שניות"
+            checked={!!p.auto_next}
+            onChange={(v) => setPref({ auto_next: v })}
+          />
+          <div className="pt-3 border-t space-y-2">
+            <div className="text-sm font-medium flex items-center gap-2"><Bell className="size-4" /> התראות</div>
+            <Toggle small label="התקדמות ברמות" checked={notifs.level_up ?? true} onChange={(v) => setNotif({ level_up: v })} />
+            <Toggle small label="השלמת אתגרים" checked={notifs.challenge ?? true} onChange={(v) => setNotif({ challenge: v })} />
+            <Toggle small label="אתגר יומי חדש" checked={notifs.daily ?? true} onChange={(v) => setNotif({ daily: v })} />
+            <Toggle small label="אירועים מיוחדים" checked={notifs.events ?? true} onChange={(v) => setNotif({ events: v })} />
+            <Toggle small label="הכרזות על תכונות חדשות" checked={notifs.announcements ?? true} onChange={(v) => setNotif({ announcements: v })} />
+          </div>
+        </Card>
+
+        {/* Display & colors */}
+        <Card icon={<PaletteIcon className="size-5 text-primary" />} title="תצוגה וצבעים">
           <div>
             <div className="text-sm font-medium mb-2">מצב</div>
             <div className="flex gap-2">
-              <button onClick={() => setMode("light")}
-                className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${mode === "light" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}>
+              <button onClick={() => setA11y({ mode: "light" })}
+                className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${(a11y.mode ?? "light") === "light" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}>
                 <Sun className="size-4" /> בהיר
               </button>
-              <button onClick={() => setMode("dark")}
-                className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${mode === "dark" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}>
+              <button onClick={() => setA11y({ mode: "dark" })}
+                className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${a11y.mode === "dark" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}>
                 <Moon className="size-4" /> כהה
               </button>
             </div>
@@ -137,8 +275,8 @@ function Profile() {
             <div className="text-sm font-medium mb-2">פלטת צבעים</div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {PALETTES.map((pl) => (
-                <button key={pl.id} onClick={() => setPalette(pl.id as Palette)}
-                  className={`p-3 rounded-xl border transition text-center ${palette === pl.id ? "ring-2 ring-primary border-transparent" : "hover:bg-muted"}`}>
+                <button key={pl.id} onClick={() => setA11y({ palette: pl.id as Palette })}
+                  className={`p-3 rounded-xl border transition text-center ${(a11y.palette ?? "sunset") === pl.id ? "ring-2 ring-primary border-transparent" : "hover:bg-muted"}`}>
                   <div className="h-10 rounded-lg mb-2" style={{ background: pl.swatch }} />
                   <div className="text-sm font-medium">{pl.label}</div>
                 </button>
@@ -146,39 +284,74 @@ function Profile() {
             </div>
           </div>
 
-          <button onClick={() => { reset(); toast.success("ההגדרות אופסו"); }}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border bg-card hover:bg-muted transition text-sm font-medium">
-            <RotateCcw className="size-4" /> איפוס הגדרות תצוגה
-          </button>
-        </section>
+          <Toggle
+            label="צבעים ידידותיים לעיוורי צבעים"
+            checked={!!a11y.colorblind}
+            onChange={(v) => setA11y({ colorblind: v })}
+          />
+          <Toggle
+            label="ניגודיות גבוהה"
+            checked={!!a11y.high_contrast}
+            onChange={(v) => setA11y({ high_contrast: v })}
+          />
+        </Card>
 
-        {/* Account actions */}
-        <section className="space-y-3">
-          <button
-            onClick={signOut}
-            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border bg-card hover:bg-muted transition font-medium"
-          >
-            <LogOut className="size-4" /> נתק אותי
-          </button>
-
-          <button
-            onClick={onForgetMe}
-            disabled={resetting}
-            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-warning/40 text-warning hover:bg-warning hover:text-warning-foreground transition font-medium disabled:opacity-50"
-          >
-            <Eraser className="size-4" /> {resetting ? "מאפס..." : "שכח אותי"}
-          </button>
-
-          <button
-            onClick={onDelete}
-            disabled={deleting}
-            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground transition font-medium disabled:opacity-50"
-          >
-            <Trash2 className="size-4" /> {deleting ? "מוחק..." : "מחק אותי"}
-          </button>
-        </section>
+        {/* Accessibility */}
+        <Card icon={<Accessibility className="size-5 text-primary" />} title="נגישות">
+          <div>
+            <div className="text-sm font-medium mb-2 flex items-center gap-2"><Type className="size-4" /> גודל טקסט</div>
+            <div className="grid grid-cols-3 gap-2">
+              {([["small", "קטן"], ["normal", "רגיל"], ["large", "גדול"]] as const).map(([v, label]) => (
+                <button key={v} onClick={() => setA11y({ text_size: v })}
+                  className={`px-3 py-2.5 rounded-xl border transition ${(a11y.text_size ?? "normal") === v ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <Toggle
+            label="תמיכה בקורא מסך"
+            hint="הפעלת אזורי aria-live ושיפורי נגישות לקוראי מסך"
+            checked={!!a11y.screen_reader}
+            onChange={(v) => setA11y({ screen_reader: v })}
+          />
+        </Card>
       </div>
     </AppShell>
+  );
+}
+
+function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+  return (
+    <section className="bg-card border rounded-3xl p-5 shadow-card space-y-4">
+      <div className="flex items-center gap-2">
+        {icon}
+        <h2 className="font-display text-xl font-bold">{title}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Toggle({ label, hint, icon, checked, onChange, small }: {
+  label: string; hint?: string; icon?: React.ReactNode; checked: boolean; onChange: (v: boolean) => void; small?: boolean;
+}) {
+  return (
+    <label className={`flex items-center justify-between gap-3 cursor-pointer ${small ? "py-1" : ""}`}>
+      <div className="min-w-0">
+        <div className={`font-medium flex items-center gap-2 ${small ? "text-sm" : ""}`}>{icon}{label}</div>
+        {hint && <div className="text-xs text-muted-foreground mt-0.5">{hint}</div>}
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`relative h-6 w-11 rounded-full transition shrink-0 ${checked ? "bg-gradient-sunset" : "bg-muted border"}`}
+      >
+        <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition ${checked ? "right-0.5" : "right-[1.4rem]"}`} />
+      </button>
+    </label>
   );
 }
 
