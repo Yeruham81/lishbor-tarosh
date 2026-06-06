@@ -72,7 +72,7 @@ function Profile() {
   const progress = Math.min(100, Math.round(((p.total_score - prevLevel) / (nextLevel - prevLevel)) * 100));
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["stats"] });
-  const setPref = async (patch: Parameters<typeof doUpdatePrefs>[0]["data"]) => {
+  const setPref = async (patch: any) => {
     try { await doUpdatePrefs({ data: patch }); refresh(); }
     catch (e: any) { toast.error(e.message); }
   };
