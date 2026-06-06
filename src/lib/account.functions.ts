@@ -129,3 +129,81 @@ export const getDisplayNameStatus = createServerFn({ method: "GET" })
       suggested,
     };
   });
+
+// ---- Preferences (private mode, auto-next, notifications, accessibility) ----
+const prefsSchema = z.object({
+  is_private: z.boolean().optional(),
+  auto_next: z.boolean().optional(),
+  notification_prefs: z.record(z.string(), z.boolean()).optional(),
+  accessibility_prefs: z
+    .object({
+      colorblind: z.boolean().optional(),
+      high_contrast: z.boolean().optional(),
+      text_size: z.enum(["small", "normal", "large"]).optional(),
+      screen_reader: z.boolean().optional(),
+      palette: z.enum(["sunset", "ocean", "forest", "candy"]).optional(),
+      mode: z.enum(["light", "dark"]).optional(),
+    })
+    .optional(),
+});
+
+export const updatePreferences = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => prefsSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const patch: Record<string, any> = {};
+    if (typeof data.is_private === "boolean") patch.is_private = data.is_private;
+    if (typeof data.auto_next === "boolean") patch.auto_next = data.auto_next;
+    if (data.notification_prefs) patch.notification_prefs = data.notification_prefs;
+    if (data.accessibility_prefs) {
+      // merge with existing
+      const { data: cur } = await supabase
+        .from("profiles")
+        .select("accessibility_prefs")
+        .eq("id", userId)
+        .single();
+      const curPrefs = (cur?.accessibility_prefs ?? {}) as Record<string, any>;
+      patch.accessibility_prefs = { ...curPrefs, ...data.accessibility_prefs };
+    }
+    const { error } = await supabase.from("profiles").update(patch as any).eq("id", userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ---- Avatar: save path & get signed URL ----
+export const setAvatarPath = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ path: z.string().nullable() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("profiles")
+      .update({ avatar_url: data.path })
+      .eq("id", context.userId);
+    if (error) throw new Error(error.message);
+    // Best-effort: remove old file when clearing
+    if (!data.path) {
+      const { data: list } = await supabaseAdmin.storage.from("avatars").list(context.userId);
+      if (list?.length) {
+        await supabaseAdmin.storage
+          .from("avatars")
+          .remove(list.map((f) => `${context.userId}/${f.name}`));
+      }
+    }
+    return { ok: true };
+  });
+
+export const getAvatarUrl = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: profile } = await context.supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", context.userId)
+      .single();
+    if (!profile?.avatar_url) return { url: null as string | null };
+    const { data: signed } = await supabaseAdmin.storage
+      .from("avatars")
+      .createSignedUrl(profile.avatar_url, 60 * 60 * 24);
+    return { url: signed?.signedUrl ?? null };
+  });
