@@ -163,9 +163,10 @@ export const updatePreferences = createServerFn({ method: "POST" })
         .select("accessibility_prefs")
         .eq("id", userId)
         .single();
-      patch.accessibility_prefs = { ...(cur?.accessibility_prefs ?? {}), ...data.accessibility_prefs };
+      const curPrefs = (cur?.accessibility_prefs ?? {}) as Record<string, any>;
+      patch.accessibility_prefs = { ...curPrefs, ...data.accessibility_prefs };
     }
-    const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
+    const { error } = await supabase.from("profiles").update(patch as any).eq("id", userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
