@@ -8,7 +8,7 @@ import { HebrewKeyboard } from "@/components/HebrewKeyboard";
 import { WordBoxes } from "@/components/WordDisplay";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ClueRating } from "@/components/ClueRating";
-import { getNextClue, guessLetter, useHint, skipClue, getProfile } from "@/lib/game.functions";
+import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState } from "@/lib/game.functions";
 import { scoreForNextLevel } from "@/lib/hebrew";
 import { toast } from "sonner";
 import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
