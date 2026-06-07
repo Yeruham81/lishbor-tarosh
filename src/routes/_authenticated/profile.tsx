@@ -219,7 +219,7 @@ function Profile() {
           <Toggle
             icon={<EyeOff className="size-4" />}
             label="מצב פרטי"
-            hint="הסתרת הפרופיל מטבלת המובילים ומשחקנים אחרים"
+            hint="הסתרת הפרופיל משחקנים אחרים"
             checked={!!p.is_private}
             onChange={(v) => setPref({ is_private: v })}
           />
@@ -311,7 +311,7 @@ function Profile() {
           </div>
           <Toggle
             label="תמיכה בקורא מסך"
-            hint="הפעלת אזורי aria-live ושיפורי נגישות לקוראי מסך"
+            hint="הפעלת שיפורי נגישות לקוראי מסך"
             checked={!!a11y.screen_reader}
             onChange={(v) => setA11y({ screen_reader: v })}
           />
