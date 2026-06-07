@@ -15,12 +15,12 @@ import { toast } from "sonner";
 import {
   Trophy, Flame, Target, Award, Percent, Sparkles, Lightbulb, CheckCircle2,
   Sun, Moon, Palette as PaletteIcon, Trash2, Eraser, UserCircle2, KeyRound,
-  EyeOff, Bell, Gamepad2, Accessibility, Camera, X, Type,
+  EyeOff, BellOff, Gamepad2, Accessibility, Camera, X, Type, LogOut, RotateCcw,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/profile")({ component: Profile });
 
-type Accessibility = {
+type AccessibilityPrefs = {
   text_size?: "small" | "normal" | "large";
   high_contrast?: boolean;
   colorblind?: boolean;
@@ -28,13 +28,19 @@ type Accessibility = {
   palette?: Palette;
   mode?: "light" | "dark";
 };
-type Notifs = {
-  level_up?: boolean;
-  challenge?: boolean;
-  daily?: boolean;
-  events?: boolean;
-  announcements?: boolean;
+// mute_* keys: true = notification IS MUTED (disabled).  Absent / false = enabled (default).
+type MuteNotifs = {
+  mute_level_up?: boolean;
+  mute_challenge?: boolean;
+  mute_daily?: boolean;
+  mute_events?: boolean;
+  mute_announcements?: boolean;
 };
+
+// Upload limits — single source of truth
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+const AVATAR_ACCEPTED_MIMES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+const AVATAR_HINT_FORMATS = "PNG, JPG, WEBP, GIF";
 
 function Profile() {
   const { user, loading, signOut } = useAuth();
@@ -64,8 +70,8 @@ function Profile() {
 
   if (!data?.profile) return <AppShell><div className="text-center py-20 text-muted-foreground">טוען...</div></AppShell>;
   const p = data.profile;
-  const a11y: Accessibility = (p.accessibility_prefs ?? {}) as Accessibility;
-  const notifs: Notifs = (p.notification_prefs ?? {}) as Notifs;
+  const a11y: AccessibilityPrefs = (p.accessibility_prefs ?? {}) as AccessibilityPrefs;
+  const mutes: MuteNotifs = (p.notification_prefs ?? {}) as MuteNotifs;
   const isEmailAuth = (p.auth_provider ?? "email") === "email";
   const nextLevel = scoreForNextLevel(p.level);
   const prevLevel = scoreForNextLevel(p.level - 1);
@@ -76,14 +82,40 @@ function Profile() {
     try { await doUpdatePrefs({ data: patch }); refresh(); }
     catch (e: any) { toast.error(e.message); }
   };
-  const setA11y = (patch: Partial<Accessibility>) =>
-    setPref({ accessibility_prefs: patch });
-  const setNotif = (patch: Partial<Notifs>) =>
-    setPref({ notification_prefs: { ...notifs, ...patch } as any });
+  const setA11y = (patch: Partial<AccessibilityPrefs>) => {
+    // Apply immediately to <html> so the user sees the change without refresh.
+    const html = document.documentElement;
+    const merged = { ...a11y, ...patch } as AccessibilityPrefs;
+    html.dataset.textSize = merged.text_size ?? "normal";
+    html.dataset.highContrast = merged.high_contrast ? "true" : "false";
+    html.dataset.colorblind = merged.colorblind ? "true" : "false";
+    if (merged.palette) html.dataset.palette = merged.palette;
+    if (merged.mode) html.classList.toggle("dark", merged.mode === "dark");
+    if (merged.screen_reader) html.setAttribute("aria-live", "polite");
+    else html.removeAttribute("aria-live");
+    return setPref({ accessibility_prefs: patch });
+  };
+  const resetDisplaySettings = () => {
+    const reset: AccessibilityPrefs = {
+      text_size: "normal", high_contrast: false, colorblind: false,
+      screen_reader: false, palette: "sunset", mode: "light",
+    };
+    setA11y(reset);
+    toast.success("הגדרות התצוגה אופסו");
+  };
+  // muted=true means the notification is OFF. Toggle UI shows checked when MUTED.
+  const setMute = (patch: Partial<MuteNotifs>) =>
+    setPref({ notification_prefs: { ...mutes, ...patch } as any });
 
   const onAvatarPick = async (file: File) => {
     if (!user) return;
-    if (file.size > 2 * 1024 * 1024) { toast.error("הקובץ גדול מ-2MB"); return; }
+    if (!AVATAR_ACCEPTED_MIMES.includes(file.type)) {
+      toast.error(`פורמט לא נתמך. ניתן להעלות ${AVATAR_HINT_FORMATS}`); return;
+    }
+    if (file.size > AVATAR_MAX_BYTES) {
+      toast.error(`הקובץ גדול מדי. הגודל המרבי הוא ${Math.round(AVATAR_MAX_BYTES / 1024 / 1024)}MB`);
+      return;
+    }
     setUploading(true);
     try {
       const ext = file.name.split(".").pop()?.toLowerCase() || "png";
@@ -134,6 +166,11 @@ function Profile() {
     finally { setDeleting(false); }
   };
 
+  const onSignOut = async () => {
+    await signOut();
+    navigate({ to: "/" });
+  };
+
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-8 max-w-3xl space-y-6">
@@ -149,7 +186,7 @@ function Profile() {
             </div>
             <div className="min-w-0">
               <h1 className="font-display text-3xl font-extrabold truncate">{p.display_name ?? p.username}</h1>
-              <p className="text-white/80 truncate" dir="ltr">{p.email ?? user?.email ?? `@${p.username}`}</p>
+              <p className="text-white/80 truncate" dir="ltr">{user?.email ?? `@${p.username}`}</p>
             </div>
           </div>
           <div className="mt-6">
@@ -185,7 +222,7 @@ function Profile() {
                 {avatarQ.data?.url ? <img src={avatarQ.data.url} alt="תמונת פרופיל" className="size-full object-cover" /> : <UserCircle2 className="size-10 text-muted-foreground" />}
               </div>
               <div className="flex flex-wrap gap-2">
-                <input ref={fileInput} type="file" accept="image/*" className="hidden"
+                <input ref={fileInput} type="file" accept={AVATAR_ACCEPTED_MIMES.join(",")} className="hidden"
                   onChange={(e) => e.target.files?.[0] && onAvatarPick(e.target.files[0])} />
                 <button onClick={() => fileInput.current?.click()} disabled={uploading}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted text-sm font-medium transition disabled:opacity-50">
@@ -198,13 +235,16 @@ function Profile() {
                 )}
               </div>
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              גודל מרבי: {Math.round(AVATAR_MAX_BYTES / 1024 / 1024)}MB · פורמטים נתמכים: {AVATAR_HINT_FORMATS}
+            </p>
           </div>
 
           {/* Password change (email auth only) */}
           {isEmailAuth && (
             <form onSubmit={onChangePassword} className="space-y-2">
               <div className="text-sm font-medium flex items-center gap-2"><KeyRound className="size-4" /> החלפת סיסמה</div>
-              <input type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} minLength={6} placeholder="סיסמה חדשה"
+              <input type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} minLength={6} placeholder="סיסמה חדשה (לפחות 6 תווים)"
                 className="w-full px-3 py-2.5 rounded-xl border bg-background text-left" dir="ltr" autoComplete="new-password" />
               <input type="password" value={pwd2} onChange={(e) => setPwd2(e.target.value)} minLength={6} placeholder="אימות סיסמה"
                 className="w-full px-3 py-2.5 rounded-xl border bg-background text-left" dir="ltr" autoComplete="new-password" />
@@ -224,16 +264,22 @@ function Profile() {
             onChange={(v) => setPref({ is_private: v })}
           />
 
-          {/* Account actions */}
-          <div className="pt-2 space-y-2 border-t">
-            <button onClick={onForgetMe} disabled={resetting}
-              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-warning/40 text-warning hover:bg-warning hover:text-warning-foreground transition font-medium disabled:opacity-50">
-              <Eraser className="size-4" /> {resetting ? "מאפס..." : "שכח אותי"}
-            </button>
-            <button onClick={onDelete} disabled={deleting}
-              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground transition font-medium disabled:opacity-50">
-              <Trash2 className="size-4" /> {deleting ? "מוחק..." : "מחק אותי"}
-            </button>
+          {/* Account actions — single horizontal row (RTL): נתק (right) | שכח (center) | מחק (left) */}
+          <div className="pt-3 border-t">
+            <div dir="rtl" className="grid grid-cols-3 gap-2">
+              <button onClick={onSignOut}
+                className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border bg-card hover:bg-muted transition font-medium text-sm sm:text-base">
+                <LogOut className="size-4 shrink-0" /> <span className="truncate">נתק אותי</span>
+              </button>
+              <button onClick={onForgetMe} disabled={resetting}
+                className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border border-warning/40 text-warning hover:bg-warning hover:text-warning-foreground transition font-medium text-sm sm:text-base disabled:opacity-50">
+                <Eraser className="size-4 shrink-0" /> <span className="truncate">{resetting ? "מאפס..." : "שכח אותי"}</span>
+              </button>
+              <button onClick={onDelete} disabled={deleting}
+                className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground transition font-medium text-sm sm:text-base disabled:opacity-50">
+                <Trash2 className="size-4 shrink-0" /> <span className="truncate">{deleting ? "מוחק..." : "מחק אותי"}</span>
+              </button>
+            </div>
           </div>
         </Card>
 
@@ -246,12 +292,13 @@ function Profile() {
             onChange={(v) => setPref({ auto_next: v })}
           />
           <div className="pt-3 border-t space-y-2">
-            <div className="text-sm font-medium flex items-center gap-2"><Bell className="size-4" /> התראות</div>
-            <Toggle small label="התקדמות ברמות" checked={notifs.level_up ?? true} onChange={(v) => setNotif({ level_up: v })} />
-            <Toggle small label="השלמת אתגרים" checked={notifs.challenge ?? true} onChange={(v) => setNotif({ challenge: v })} />
-            <Toggle small label="אתגר יומי חדש" checked={notifs.daily ?? true} onChange={(v) => setNotif({ daily: v })} />
-            <Toggle small label="אירועים מיוחדים" checked={notifs.events ?? true} onChange={(v) => setNotif({ events: v })} />
-            <Toggle small label="הכרזות על תכונות חדשות" checked={notifs.announcements ?? true} onChange={(v) => setNotif({ announcements: v })} />
+            <div className="text-sm font-medium flex items-center gap-2"><BellOff className="size-4" /> ביטול התראות</div>
+            <p className="text-xs text-muted-foreground -mt-1">הפעלת מתג משתיקה את ההתראה המתאימה.</p>
+            <Toggle small label="ביטול התראות על התקדמות ברמות" checked={!!mutes.mute_level_up} onChange={(v) => setMute({ mute_level_up: v })} />
+            <Toggle small label="ביטול התראות על השלמת אתגרים" checked={!!mutes.mute_challenge} onChange={(v) => setMute({ mute_challenge: v })} />
+            <Toggle small label="ביטול התראות על אתגר יומי חדש" checked={!!mutes.mute_daily} onChange={(v) => setMute({ mute_daily: v })} />
+            <Toggle small label="ביטול התראות על אירועים מיוחדים" checked={!!mutes.mute_events} onChange={(v) => setMute({ mute_events: v })} />
+            <Toggle small label="ביטול הכרזות על תכונות חדשות" checked={!!mutes.mute_announcements} onChange={(v) => setMute({ mute_announcements: v })} />
           </div>
         </Card>
 
@@ -294,6 +341,12 @@ function Profile() {
             checked={!!a11y.high_contrast}
             onChange={(v) => setA11y({ high_contrast: v })}
           />
+
+          {/* Reset display settings */}
+          <button onClick={resetDisplaySettings}
+            className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl border bg-card hover:bg-muted transition font-medium text-sm">
+            <RotateCcw className="size-4" /> איפוס הגדרות תצוגה
+          </button>
         </Card>
 
         {/* Accessibility */}

@@ -8,7 +8,7 @@ import { HebrewKeyboard } from "@/components/HebrewKeyboard";
 import { WordBoxes } from "@/components/WordDisplay";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ClueRating } from "@/components/ClueRating";
-import { getNextClue, guessLetter, useHint, skipClue, getProfile } from "@/lib/game.functions";
+import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState } from "@/lib/game.functions";
 import { scoreForNextLevel } from "@/lib/hebrew";
 import { toast } from "sonner";
 import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
@@ -23,14 +23,53 @@ function Play() {
   useEffect(() => { if (!loading && !user) navigate({ to: "/auth" }); }, [user, loading, navigate]);
 
   const fetchClue = useServerFn(getNextClue);
+  const fetchClueState = useServerFn(getClueState);
   const fetchProfile = useServerFn(getProfile);
   const doGuess = useServerFn(guessLetter);
   const doHint = useServerFn(useHint);
   const doSkip = useServerFn(skipClue);
   const qc = useQueryClient();
 
+  // localStorage key — per-user so different accounts on the same browser don't collide.
+  const storageKey = user ? `play:currentClueId:${user.id}` : null;
+  const readStoredClueId = () => {
+    if (!storageKey || typeof window === "undefined") return null;
+    try { return window.localStorage.getItem(storageKey); } catch { return null; }
+  };
+  const writeStoredClueId = (id: string | null) => {
+    if (!storageKey || typeof window === "undefined") return;
+    try {
+      if (id) window.localStorage.setItem(storageKey, id);
+      else window.localStorage.removeItem(storageKey);
+    } catch {}
+  };
+
   const profileQ = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile(), enabled: !!user });
-  const clueQ = useQuery({ queryKey: ["clue"], queryFn: () => fetchClue(), enabled: !!user, staleTime: Infinity });
+
+  // Resume by stored clue id first (handles solved-but-not-advanced + post-refresh).
+  // Falls back to getNextClue when there's no stored id or it can no longer be resolved.
+  const clueQ = useQuery({
+    queryKey: ["clue", user?.id ?? "anon"],
+    queryFn: async () => {
+      const storedId = readStoredClueId();
+      if (storedId) {
+        try {
+          const restored = await fetchClueState({ data: { clueId: storedId } });
+          if (restored) return restored;
+        } catch { /* fall through */ }
+        writeStoredClueId(null);
+      }
+      const next = await fetchClue();
+      if (next && !("exhausted" in next)) writeStoredClueId(next.id);
+      return next;
+    },
+    enabled: !!user,
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 
   const [state, setState] = useState<ClueState | null>(null);
   const [shake, setShake] = useState(false);
@@ -41,7 +80,9 @@ function Play() {
     if (clueQ.data && !("exhausted" in clueQ.data)) {
       setState(clueQ.data);
       prevRevealedCount.current = clueQ.data.revealed.length;
+      writeStoredClueId(clueQ.data.id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clueQ.data]);
 
   const exhausted = clueQ.data && "exhausted" in clueQ.data;
@@ -91,14 +132,16 @@ function Play() {
     setBusy(true);
     try {
       if (!clue.isSolved) await doSkip({ data: { clueId: clue.id } });
-      await qc.invalidateQueries({ queryKey: ["clue"] });
+      // The user explicitly advances — clear the stored id so the next fetch picks fresh.
+      writeStoredClueId(null);
       await qc.invalidateQueries({ queryKey: ["profile"] });
       const next = await fetchClue();
-      if (!("exhausted" in next)) {
+      if (next && !("exhausted" in next)) {
         prevRevealedCount.current = next.revealed.length;
         setState(next);
+        writeStoredClueId(next.id);
       }
-      qc.setQueryData(["clue"], next);
+      qc.setQueryData(["clue", user?.id ?? "anon"], next);
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
   };

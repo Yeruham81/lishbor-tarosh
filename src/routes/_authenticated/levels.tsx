@@ -33,23 +33,38 @@ function Levels() {
         <section>
           <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">רמות</h1>
           <p className="text-center text-muted-foreground mb-6">פתרו הגדרות כדי לעלות ברמות ולשחרר הגדרות מאתגרות יותר</p>
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {Array.from({ length: 15 }).map((_, i) => {
               const lvl = i + 1;
               const required = scoreForNextLevel(lvl - 1);
               const unlocked = cur >= lvl;
               const current = cur === lvl;
+              // Future levels: keep hidden until reached.
+              if (!unlocked) {
+                return (
+                  <div key={lvl} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border bg-muted/30 min-h-[140px]">
+                    <Lock className="size-6 text-muted-foreground" />
+                    <div className="text-xs text-muted-foreground">נדרשים {required} נק׳</div>
+                  </div>
+                );
+              }
               return (
-                <div key={lvl} className={`flex items-center gap-4 p-4 rounded-2xl border ${current ? "bg-gradient-sunset text-white shadow-glow" : unlocked ? "bg-card" : "bg-muted/30"}`}>
-                  <div className={`size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-lg ${current ? "bg-white/20" : unlocked ? "bg-gradient-sunset text-white" : "bg-muted text-muted-foreground"}`}>
-                    {unlocked ? lvl : <Lock className="size-5" />}
+                <div
+                  key={lvl}
+                  className={`flex flex-col items-center justify-between gap-2 p-4 rounded-2xl border text-center min-h-[140px] ${
+                    current ? "bg-gradient-sunset text-white shadow-glow" : "bg-card"
+                  }`}
+                >
+                  <div className={`size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-lg ${current ? "bg-white/20" : "bg-gradient-sunset text-white"}`}>
+                    {lvl}
                   </div>
-                  <div className="flex-1">
-                    <div className="font-bold">רמה {lvl}</div>
-                    <div className={`text-xs ${current ? "text-white/80" : "text-muted-foreground"}`}>נדרשים {required} נק׳</div>
-                  </div>
-                  {unlocked && !current && <Check className="size-5 text-success" />}
-                  {current && <Link to="/play" className="px-4 py-2 rounded-lg bg-white text-primary font-bold text-sm">המשך</Link>}
+                  <div className="font-bold">רמה {lvl}</div>
+                  <div className={`text-xs ${current ? "text-white/80" : "text-muted-foreground"}`}>נדרשים {required} נק׳</div>
+                  {current ? (
+                    <Link to="/play" className="px-3 py-1.5 rounded-lg bg-white text-primary font-bold text-sm">המשך</Link>
+                  ) : (
+                    <Check className="size-5 text-success" />
+                  )}
                 </div>
               );
             })}

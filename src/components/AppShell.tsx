@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail, PlusCircle } from "lucide-react";
+import brandIcon from "@/assets/lishbor-icon.jpg.asset.json";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
@@ -10,7 +11,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-xl">
-            <span className="text-2xl">🧠</span>
+            <img src={brandIcon.url} alt="לשבור ת'ראש" className="size-9 rounded-lg object-cover shadow-card" />
             <span className="text-gradient-sunset">לשבור ת'ראש</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 text-sm">
@@ -36,25 +37,32 @@ export function AppShell({ children }: { children: ReactNode }) {
           מקום שמור למודעה (Google AdSense)
         </div>
       </div>
-      {/* Footer actions */}
+      {/* Footer actions: יציאה (left) | יצירת קשר (center) | הוספת הגדרה (right) */}
       <footer className="border-t bg-muted/20 mt-2">
         <div className="container mx-auto px-4 py-5 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              {user && (
+          <div dir="ltr" className="grid grid-cols-3 items-center gap-2">
+            {/* LEFT — יציאה */}
+            <div className="flex justify-start">
+              {user ? (
                 <button onClick={signOut} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium">
                   <LogOut className="size-4" /> יציאה
                 </button>
-              )}
+              ) : <span />}
+            </div>
+            {/* CENTER — יצירת קשר */}
+            <div className="flex justify-center">
               <Link to="/contact" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium">
-                <Mail className="size-4" /> צור קשר
+                <Mail className="size-4" /> יצירת קשר
               </Link>
             </div>
-            {user && (
-              <Link to="/submit-puzzle" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition">
-                <PlusCircle className="size-4" /> הוספת הגדרה
-              </Link>
-            )}
+            {/* RIGHT — הוספת הגדרה */}
+            <div className="flex justify-end">
+              {user ? (
+                <Link to="/submit-puzzle" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition">
+                  <PlusCircle className="size-4" /> הוספת הגדרה
+                </Link>
+              ) : <span />}
+            </div>
           </div>
           <div className="text-center text-xs text-muted-foreground">© {new Date().getFullYear()} לשבור ת'ראש</div>
         </div>

@@ -108,6 +108,28 @@ export const getNextClue = createServerFn({ method: "GET" })
     return await loadProgress(supabase, userId, pick);
   });
 
+// Fetch state for a specific clue (used to restore the play screen on return/refresh,
+// including clues already solved but not yet advanced past).
+export const getClueState = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ clueId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: clue } = await supabaseAdmin
+      .from("clues").select("*").eq("id", data.clueId).eq("is_active", true).maybeSingle();
+    if (!clue) return null;
+    const { data: prog } = await supabase.from("game_progress").select("*")
+      .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
+    if (!prog) return null;
+    return publicClue(
+      clue,
+      prog.revealed_letters ?? [],
+      (prog.wrong_guesses ?? []).filter((w: string) => !w.startsWith("__")),
+      prog.hints_used ?? 0,
+      prog.is_solved ?? false,
+    );
+  });
+
 const guessSchema = z.object({
   clueId: z.string().uuid(),
   letter: z.string().min(1).max(2),
@@ -232,7 +254,9 @@ export const skipClue = createServerFn({ method: "POST" })
   });
 
 async function applyScore(supabase: any, userId: string, points: number, success: boolean) {
-  const { data: p } = await supabase.from("profiles").select("*").eq("id", userId).single();
+  const { data: p } = await supabase.from("profiles")
+    .select("total_score, current_streak, best_streak, solved_count")
+    .eq("id", userId).single();
   if (!p) return;
   const newStreak = success ? p.current_streak + 1 : 0;
   const bonus = success ? newStreak * STREAK_BONUS : 0;
@@ -254,7 +278,11 @@ async function bumpSolvedCount(supabase: any, clueId: string) {
 export const getProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase.from("profiles").select("*").eq("id", context.userId).single();
+    // NOTE: exclude `email` (column SELECT revoked from authenticated for privacy).
+    const { data } = await context.supabase
+      .from("profiles")
+      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, created_at, updated_at")
+      .eq("id", context.userId).single();
     return data;
   });
 
