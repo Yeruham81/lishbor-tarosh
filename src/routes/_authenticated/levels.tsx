@@ -32,7 +32,7 @@ function Levels() {
       <div className="container mx-auto px-4 py-8 max-w-2xl space-y-10">
         <section>
           <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">רמות</h1>
-          <p className="text-center text-muted-foreground mb-6">פתרו הגדרות כדי לעלות ברמות ולשחרר הגדרות קשות יותר</p>
+          <p className="text-center text-muted-foreground mb-6">פתרו הגדרות כדי לעלות ברמות ולשחרר הגדרות מאתגרות יותר</p>
           <div className="space-y-2">
             {Array.from({ length: 15 }).map((_, i) => {
               const lvl = i + 1;
