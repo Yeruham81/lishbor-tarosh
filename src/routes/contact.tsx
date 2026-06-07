@@ -12,7 +12,7 @@ export const Route = createFileRoute("/contact")({ component: ContactPage });
 const TYPES = [
   { v: "bug", label: "דיווח על באג", icon: <Bug className="size-4" /> },
   { v: "complaint", label: "תלונה", icon: <AlertTriangle className="size-4" /> },
-  { v: "idea", label: "רעיון לשיפור", icon: <Lightbulb className="size-4" /> },
+  { v: "idea", label: "הצעה לשיפור", icon: <Lightbulb className="size-4" /> },
   { v: "other", label: "אחר", icon: <MessageSquare className="size-4" /> },
 ] as const;
 
@@ -45,13 +45,13 @@ function ContactPage() {
       <div className="container mx-auto px-4 py-8 max-w-2xl" dir="rtl">
         <div className="text-center mb-6">
           <Mail className="size-12 mx-auto text-primary mb-2" />
-          <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">צור קשר</h1>
-          <p className="text-muted-foreground mt-2">משובים, באגים, רעיונות — הכל מתקבל בברכה</p>
+          <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">יצירת קשר</h1>
+          <p className="text-muted-foreground mt-2">באגים, תלונות, רעיונות — הכל מתקבל בברכה</p>
         </div>
 
         <form onSubmit={submit} className="bg-card border rounded-3xl shadow-card p-5 sm:p-7 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">סוג פנייה</label>
+            <label className="block text-sm font-medium mb-2">סוג הפנייה</label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {TYPES.map((t) => (
                 <button key={t.v} type="button" onClick={() => setType(t.v)}
@@ -63,7 +63,7 @@ function ContactPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">נושא (לא חובה)</label>
+            <label className="block text-sm font-medium mb-1">נושא</label>
             <input dir="rtl" value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200}
               className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary" placeholder="כותרת קצרה" />
           </div>
@@ -71,19 +71,19 @@ function ContactPage() {
           <div>
             <label className="block text-sm font-medium mb-1">הודעה</label>
             <textarea dir="rtl" value={message} onChange={(e) => setMessage(e.target.value)} required minLength={3} maxLength={4000} rows={6}
-              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y" placeholder="ספר/י לנו מה על הלב..." />
+              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y" placeholder="ספרו לנו במה מדובר..." />
             <div className="text-xs text-muted-foreground mt-1 text-left">{message.length} / 4000</div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">אימייל ליצירת קשר (לא חובה)</label>
+            <label className="block text-sm font-medium mb-1">כתובת אימייל לתגובה (לא חובה)</label>
             <input dir="ltr" type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255}
               className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-left" placeholder="you@example.com" />
           </div>
 
           <button type="submit" disabled={busy}
-            className="w-full py-3 rounded-xl bg-gradient-sunset text-white font-display font-bold shadow-glow hover:opacity-90 transition disabled:opacity-50">
-            {busy ? "שולח..." : "שלח משוב"}
+            className="w-full py-3 bg-gradient-sunset text-white font-display font-bold shadow-glow hover:opacity-90 transition disabled:opacity-50 rounded-xl">
+            {busy ? "שולח..." : "שליחה"}
           </button>
         </form>
       </div>
