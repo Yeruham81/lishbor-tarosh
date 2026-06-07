@@ -29,7 +29,7 @@ function Index() {
           {[
             { icon: <Brain className="size-7" />, t: "הגדרות מאתגרות", d: "מאות הגדרות עבריות ברמות קושי משתנות" },
             { icon: <Zap className="size-7" />, t: "בונוסי רצף", d: "פתרו ברצף וקבלו בונוס נקודות הולך וגדל" },
-            { icon: <Trophy className="size-7" />, t: "תחרו על המקום הראשון", d: "טבלת מובילים גלובלית מתעדכנת בזמן אמת" },
+            { icon: <Trophy className="size-7" />, t: "התחרו על המקום הראשון", d: "טבלת מובילים גלובלית מתעדכנת בזמן אמת" },
           ].map((f, i) => (
             <div key={i} className="p-6 rounded-2xl bg-card border shadow-card text-right">
               <div className="inline-flex p-3 rounded-xl bg-gradient-flame text-white mb-3">{f.icon}</div>
