@@ -11,7 +11,7 @@ export const Route = createFileRoute("/auth")({ component: AuthPage });
 function AuthPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -21,14 +21,20 @@ function AuthPage() {
     if (user) navigate({ to: "/play", replace: true });
   }, [user, navigate]);
 
-  
-
-  
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signup") {
+      if (mode === "forgot") {
+        if (!email) throw new Error("נא להזין כתובת אימייל");
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("שלחנו לכם מייל לאיפוס הסיסמה. בדקו את תיבת הדואר.");
+        setMode("signin");
+      } else if (mode === "signup") {
+        if (password.length < 6) throw new Error("הסיסמה חייבת להכיל לפחות 6 תווים");
         const { error } = await supabase.auth.signUp({
           email, password,
           options: { data: { username, display_name: username }, emailRedirectTo: window.location.origin },
