@@ -254,7 +254,9 @@ export const skipClue = createServerFn({ method: "POST" })
   });
 
 async function applyScore(supabase: any, userId: string, points: number, success: boolean) {
-  const { data: p } = await supabase.from("profiles").select("*").eq("id", userId).single();
+  const { data: p } = await supabase.from("profiles")
+    .select("total_score, current_streak, best_streak, solved_count")
+    .eq("id", userId).single();
   if (!p) return;
   const newStreak = success ? p.current_streak + 1 : 0;
   const bonus = success ? newStreak * STREAK_BONUS : 0;
