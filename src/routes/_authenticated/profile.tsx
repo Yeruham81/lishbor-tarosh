@@ -311,7 +311,7 @@ function Profile() {
           </div>
           <Toggle
             label="תמיכה בקורא מסך"
-            hint="הפעלת שיפורי נגישות לקוראי מסך"
+            hint="הפעלת שיפורי נגישות לנעזרים בקורא מסך"
             checked={!!a11y.screen_reader}
             onChange={(v) => setA11y({ screen_reader: v })}
           />
