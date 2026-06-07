@@ -8,7 +8,8 @@ export const getStats = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const [{ data: profile }, { data: solves }, { count: hintsCount }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", userId).single(),
+      // NOTE: exclude `email` — column-level SELECT was revoked from authenticated for privacy.
+      supabase.from("profiles").select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, created_at, updated_at").eq("id", userId).single(),
       supabase
         .from("game_progress")
         .select("wrong_guesses, hints_used")
