@@ -254,7 +254,11 @@ async function bumpSolvedCount(supabase: any, clueId: string) {
 export const getProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase.from("profiles").select("*").eq("id", context.userId).single();
+    // NOTE: exclude `email` (column SELECT revoked from authenticated for privacy).
+    const { data } = await context.supabase
+      .from("profiles")
+      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, created_at, updated_at")
+      .eq("id", context.userId).single();
     return data;
   });
 
