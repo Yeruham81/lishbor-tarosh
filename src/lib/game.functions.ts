@@ -108,6 +108,28 @@ export const getNextClue = createServerFn({ method: "GET" })
     return await loadProgress(supabase, userId, pick);
   });
 
+// Fetch state for a specific clue (used to restore the play screen on return/refresh,
+// including clues already solved but not yet advanced past).
+export const getClueState = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ clueId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: clue } = await supabaseAdmin
+      .from("clues").select("*").eq("id", data.clueId).eq("is_active", true).maybeSingle();
+    if (!clue) return null;
+    const { data: prog } = await supabase.from("game_progress").select("*")
+      .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
+    if (!prog) return null;
+    return publicClue(
+      clue,
+      prog.revealed_letters ?? [],
+      (prog.wrong_guesses ?? []).filter((w: string) => !w.startsWith("__")),
+      prog.hints_used ?? 0,
+      prog.is_solved ?? false,
+    );
+  });
+
 const guessSchema = z.object({
   clueId: z.string().uuid(),
   letter: z.string().min(1).max(2),
