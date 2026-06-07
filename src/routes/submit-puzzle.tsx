@@ -43,12 +43,12 @@ function SubmitPuzzlePage() {
         </div>
 
         <div className="bg-muted/40 border rounded-2xl p-4 text-sm text-muted-foreground mb-4">
-          הצעות שיתקבלו עשויות להתווסף למשחק, וייתכן שגם יזכו בתגמול בעתיד 🎁
+          ההגדרות הטובות ביותר יתווספו למשחק ויזכו אתכם בנקודות בונוס 🎁
         </div>
 
         <form onSubmit={submit} className="bg-card border rounded-3xl shadow-card p-5 sm:p-7 space-y-4">
           <div>
-            <label htmlFor="clue" className="block text-sm font-medium mb-1">טקסט ההגדרה / רמז</label>
+            <label htmlFor="clue" className="block text-sm font-medium mb-1">ההגדרה שלכם</label>
             <textarea id="clue" dir="rtl" value={clue} onChange={(e) => setClue(e.target.value)} required minLength={3} maxLength={500} rows={3}
               className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y" placeholder="לדוגמה: הולך על ארבע בבוקר, על שתיים בצהריים..." />
           </div>
@@ -60,14 +60,14 @@ function SubmitPuzzlePage() {
           </div>
 
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium mb-1">הערות (לא חובה)</label>
+            <label htmlFor="notes" className="block text-sm font-medium mb-1">הסברים והערות (אם יש)</label>
             <textarea id="notes" dir="rtl" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1000} rows={3}
               className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y" placeholder="קטגוריה, רמת קושי, מקור..." />
           </div>
 
           <button type="submit" disabled={busy}
             className="w-full py-3 rounded-xl bg-gradient-sunset text-white font-display font-bold shadow-glow hover:opacity-90 transition disabled:opacity-50">
-            {busy ? "שולח..." : "שליחת ההצעה"}
+            {busy ? "שולח..." : "שליחה"}
           </button>
         </form>
       </div>
