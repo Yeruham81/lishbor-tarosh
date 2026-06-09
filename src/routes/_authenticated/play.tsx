@@ -355,3 +355,30 @@ function Stat({ label, value, icon }: { label: string; value: number | string; i
     </div>
   );
 }
+
+// Visual indicator for the three free mistakes. Filled dots reflect wrong letters
+// used so far (capped at `free`). After exceeding `free`, all dots remain filled.
+function MistakesIndicator({ wrongCount, free }: { wrongCount: number; free: number }) {
+  const filled = Math.min(wrongCount, free);
+  const dots = Array.from({ length: free }, (_, i) => i < filled);
+  const exceeded = wrongCount > free;
+  return (
+    <div
+      className="inline-flex items-center gap-1.5"
+      aria-label={`טעויות חופשיות שנוצלו: ${filled} מתוך ${free}`}
+      title={exceeded ? "כל טעות נוספת עולה נקודה" : `נותרו ${free - filled} טעויות חופשיות`}
+      dir="ltr"
+    >
+      {dots.map((isFilled, i) => (
+        <span
+          key={i}
+          className={`inline-block size-3 rounded-full border-2 transition ${
+            isFilled
+              ? "bg-destructive border-destructive"
+              : "bg-transparent border-muted-foreground/50"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
