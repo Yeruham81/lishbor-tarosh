@@ -61,7 +61,7 @@ function Board({ period, currentUserId }: { period: Period; currentUserId?: stri
     return <div className="p-8 text-center text-muted-foreground">טוען...</div>;
   }
 
-  const rows = data ?? [];
+  const rows = period === "all" ? [] : (data ?? []);
   if (rows.length === 0) {
     return <div className="bg-card border rounded-3xl shadow-card p-8 text-center text-muted-foreground">אין עדיין שחקנים בתקופה זו</div>;
   }
