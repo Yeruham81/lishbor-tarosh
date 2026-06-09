@@ -245,26 +245,29 @@ function Play() {
 
         {clue && (
           <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
-            {!clue.isSolved && (
-              <div className="flex items-center gap-3 justify-center mb-4">
-                <button
-                  onClick={onHint}
-                  disabled={busy || clue.wrong.length < 2}
-                  title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                >
-                  <Lightbulb className="size-4" /> רמז
-                </button>
-                <button
-                  onClick={onSkip}
-                  disabled={busy}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-sm hover:bg-muted transition disabled:opacity-50"
-                >
-                  <SkipForward className="size-4" /> דלג
-                </button>
-                <MistakesIndicator wrongCount={clue.wrong.length} free={clue.freeWrongs ?? SCORING.FREE_WRONGS} />
-              </div>
-            )}
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-base sm:text-lg font-bold">ניקוד: {clue.currentScore}</span>
+              {!clue.isSolved && (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={onHint}
+                    disabled={busy || clue.wrong.length < 2}
+                    title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  >
+                    <Lightbulb className="size-4" /> רמז
+                  </button>
+                  <button
+                    onClick={onSkip}
+                    disabled={busy}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-sm hover:bg-muted transition disabled:opacity-50"
+                  >
+                    <SkipForward className="size-4" /> דלג
+                  </button>
+                  <MistakesIndicator wrongCount={clue.wrong.length} free={clue.freeWrongs ?? SCORING.FREE_WRONGS} />
+                </div>
+              )}
+            </div>
 
             {clue.category && (
               <div className="flex justify-center mb-2">
@@ -279,12 +282,6 @@ function Play() {
               <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
             </div>
 
-            {/* Score for this puzzle */}
-            <div className="flex justify-center items-center gap-4 text-sm text-muted-foreground mb-4">
-              <span>שווי: <b className="text-foreground">{clue.currentScore}</b></span>
-              {clue.wrong.length > 0 && <span>טעויות: <b className="text-destructive">{clue.wrong.length}</b></span>}
-              {clue.hintsUsed > 0 && <span>רמזים: <b className="text-warning">{clue.hintsUsed}</b></span>}
-            </div>
 
             {!clue.isSolved ? (
               <div className="mb-2">
