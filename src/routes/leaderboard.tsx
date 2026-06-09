@@ -53,8 +53,8 @@ function Board({ period, currentUserId }: { period: Period; currentUserId?: stri
   const fetchLB = useServerFn(getLeaderboardByPeriod);
   const { data, isLoading } = useQuery({
     queryKey: ["lb", period],
-    queryFn: () => fetchLB({ data: { period } }),
-    enabled: true,
+    queryFn: () => fetchLB({ data: { period: period as "today" | "week" | "month" } }),
+    enabled: period !== "all",
   });
 
   if (isLoading) {
