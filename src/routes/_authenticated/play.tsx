@@ -291,7 +291,7 @@ function Play() {
             {/* Score for this puzzle */}
             <div className="flex justify-center items-center gap-4 text-sm text-muted-foreground mb-4">
               <span>
-                שווי: <b className="text-foreground">{clue.currentScore}</b>
+                נקודות: <b className="text-foreground">{clue.currentScore}</b>
               </span>
               {clue.wrong.length > 0 && (
                 <span>
