@@ -212,24 +212,6 @@ function Profile() {
           </div>
         </div>
 
-        {/* Stats */}
-        <section>
-          <h2 className="font-display text-xl font-bold mb-3">סטטיסטיקות אישיות</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <StatCard icon={<Trophy className="size-5" />} label="ניקוד כולל" value={totalScore} />
-            <StatCard icon={<CheckCircle2 className="size-5" />} label="שלב נוכחי" value={currentStage} />
-            <StatCard icon={<Target className="size-5" />} label="הגדרות שנפתרו" value={data.definitionsSolved} />
-            <StatCard icon={<Sparkles className="size-5" />} label="פתירות מושלמות" value={data.perfectSolves} />
-            <StatCard icon={<Percent className="size-5" />} label="אחוז הצלחה" value={`${data.successRate}%`} />
-            <StatCard icon={<Flame className="size-5" />} label="רצף מושלם נוכחי" value={data.currentPerfectStreak} />
-            <StatCard icon={<Award className="size-5" />} label="שיא רצף מושלם" value={data.bestPerfectStreak} />
-            <StatCard icon={<Flame className="size-5" />} label="ימים רצופים" value={data.currentPlayDaysStreak} />
-            <StatCard icon={<Award className="size-5" />} label="שיא ימים רצופים" value={data.bestPlayDaysStreak} />
-            <StatCard icon={<Lightbulb className="size-5" />} label="רמזים בשימוש" value={data.totalHints} />
-            <StatCard icon={<Target className="size-5" />} label="הגדרות ששוחקו" value={data.definitionsPlayed} />
-            <StatCard icon={<Target className="size-5" />} label="הגדרות שדולגו" value={data.definitionsSkipped} />
-          </div>
-        </section>
 
         {/* Account management */}
         <Card icon={<UserCircle2 className="size-5 text-primary" />} title="ניהול החשבון">

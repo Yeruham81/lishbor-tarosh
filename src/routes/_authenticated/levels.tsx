@@ -8,7 +8,7 @@ import { getProfile } from "@/lib/game.functions";
 import { getStats } from "@/lib/account.functions";
 import { STAGE_THRESHOLDS, stageFromScore, nextStageInfo } from "@/lib/progression";
 import { AchievementsByCategory } from "@/components/Achievements";
-import { Check, Award } from "lucide-react";
+import { Check, Award, Trophy, CheckCircle2, Target, Sparkles, Percent, Flame, Lightbulb } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/levels")({ component: Levels });
 
@@ -109,7 +109,36 @@ function Levels() {
             />
           )}
         </section>
+
+        {stats && (
+          <section>
+            <h2 className="font-display text-xl font-bold mb-3">סטטיסטיקות אישיות</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <StatCard icon={<Trophy className="size-5" />} label="ניקוד כולל" value={totalScore} />
+              <StatCard icon={<CheckCircle2 className="size-5" />} label="שלב נוכחי" value={currentStage} />
+              <StatCard icon={<Target className="size-5" />} label="הגדרות שנפתרו" value={stats.definitionsSolved} />
+              <StatCard icon={<Sparkles className="size-5" />} label="פתירות מושלמות" value={stats.perfectSolves} />
+              <StatCard icon={<Percent className="size-5" />} label="אחוז הצלחה" value={`${stats.successRate}%`} />
+              <StatCard icon={<Flame className="size-5" />} label="רצף מושלם נוכחי" value={stats.currentPerfectStreak} />
+              <StatCard icon={<Award className="size-5" />} label="שיא רצף מושלם" value={stats.bestPerfectStreak} />
+              <StatCard icon={<Flame className="size-5" />} label="ימים רצופים" value={stats.currentPlayDaysStreak} />
+              <StatCard icon={<Award className="size-5" />} label="שיא ימים רצופים" value={stats.bestPlayDaysStreak} />
+              <StatCard icon={<Lightbulb className="size-5" />} label="רמזים בשימוש" value={stats.totalHints} />
+              <StatCard icon={<Target className="size-5" />} label="הגדרות ששוחקו" value={stats.definitionsPlayed} />
+              <StatCard icon={<Target className="size-5" />} label="הגדרות שדולגו" value={stats.definitionsSkipped} />
+            </div>
+          </section>
+        )}
       </div>
     </AppShell>
+  );
+}
+
+function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number | string }) {
+  return (
+    <div className="bg-card border rounded-2xl p-4 shadow-card">
+      <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">{icon} {label}</div>
+      <div className="font-display text-3xl font-extrabold text-gradient-sunset">{value}</div>
+    </div>
   );
 }
