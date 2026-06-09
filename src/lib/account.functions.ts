@@ -85,8 +85,9 @@ const confirmSchema = z.object({
   displayName: z
     .string()
     .trim()
-    .min(1, "שם תצוגה לא יכול להיות ריק")
-    .max(40, "שם תצוגה ארוך מדי"),
+    .min(2, "הכינוי קצר מדי (לפחות 2 תווים)")
+    .max(20, "הכינוי ארוך מדי (עד 20 תווים)")
+    .regex(/^[A-Za-z\u0590-\u05FF ]+$/, "ניתן להשתמש באותיות עברית/אנגלית ורווחים בלבד"),
 });
 
 export const confirmDisplayName = createServerFn({ method: "POST" })
