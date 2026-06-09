@@ -167,8 +167,10 @@ function Play() {
       qc.setQueryData(clueQueryKey, r);
       if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
       if (r.isSolved) {
-        toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
+        toast.success(`🎉 פתרת את ההגדרה!`);
+        notifications.emit((r as any).events);
         qc.invalidateQueries({ queryKey: ["profile"] });
+        qc.invalidateQueries({ queryKey: ["stats"] });
       }
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
@@ -182,11 +184,16 @@ function Play() {
       prevRevealedCount.current = r.revealed.length;
       setState(r);
       qc.setQueryData(clueQueryKey, r);
-      if (r.isSolved) { toast.success("🎉 נפתר עם רמז!"); qc.invalidateQueries({ queryKey: ["profile"] }); }
-      else toast.info("נחשפה אות חדשה");
+      if (r.isSolved) {
+        toast.success("🎉 נפתר עם רמז!");
+        notifications.emit((r as any).events);
+        qc.invalidateQueries({ queryKey: ["profile"] });
+        qc.invalidateQueries({ queryKey: ["stats"] });
+      } else toast.info("נחשפה אות חדשה");
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
   };
+
 
   const onSkip = async () => {
     if (!clue || busy) return;
