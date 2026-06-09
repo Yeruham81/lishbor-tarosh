@@ -46,7 +46,7 @@ function ContactPage() {
         <div className="text-center mb-6">
           <Mail className="size-12 mx-auto text-primary mb-2" />
           <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">יצירת קשר</h1>
-          <p className="text-muted-foreground mt-2 text-base">באגים, תלונות, רעיונות — הכל מתקבל בברכה</p>
+          <p className="text-muted-foreground mt-2 text-base">תקלות? תלונות? הצעות לשיפור? שתפו אותנו!</p>
         </div>
 
         <form onSubmit={submit} className="bg-card border rounded-3xl shadow-card p-5 sm:p-7 space-y-4">
