@@ -140,7 +140,7 @@ export function buildAchievementDefs(): AchievementDef[] {
 }
 
 export const CATEGORY_LABELS: Record<AchievementCategory, string> = {
-  solved: "הגדרות שפתרת",
+  solved: "הגדרות פתורות",
   perfect: "פתירות מושלמות",
   play_days: "ימים רצופים",
 };
