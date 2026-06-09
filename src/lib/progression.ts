@@ -103,7 +103,7 @@ export type AchievementDef = {
   description: string; // Hebrew
 };
 
-function solvedTitle(n: number) { return `${n.toLocaleString("he-IL")} הגדרות שנפתרו`; }
+function solvedTitle(n: number) { return `${n.toLocaleString("he-IL")} הגדרות שפתרת`; }
 function perfectTitle(n: number) { return `${n.toLocaleString("he-IL")} פתירות מושלמות`; }
 function daysTitle(n: number) { return `${n.toLocaleString("he-IL")} ימים רצופים`; }
 
@@ -140,7 +140,7 @@ export function buildAchievementDefs(): AchievementDef[] {
 }
 
 export const CATEGORY_LABELS: Record<AchievementCategory, string> = {
-  solved: "הגדרות שנפתרו",
+  solved: "הגדרות שפתרת",
   perfect: "פתירות מושלמות",
   play_days: "ימים רצופים",
 };
