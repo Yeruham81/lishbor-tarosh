@@ -27,9 +27,9 @@ function Index() {
 
         <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto mt-16">
           {[
-            { icon: <Brain className="size-7" />, t: "הגדרות מאתגרות", d: "מאות הגדרות עבריות ברמות קושי משתנות" },
-            { icon: <Zap className="size-7" />, t: "בונוסי רצף", d: "פתרו ברצף וקבלו בונוס נקודות הולך וגדל" },
-            { icon: <Trophy className="size-7" />, t: "התחרו על המקום הראשון", d: "טבלת מובילים גלובלית מתעדכנת בזמן אמת" },
+            { icon: <Brain className="size-7" />, t: "הפעילו את הראש", d: "אתגרו את עצמכם עם הגדרות היגיון מהנות המשלבות ידע כללי וחשיבה יצירתית" },
+            { icon: <Zap className="size-7" />, t: "השתפרו בכל משחק", d: "צברו נקודות, השלימו אתגרים, עברו שלבים וקבעו בכל יום שיאים חדשים" },
+            { icon: <Trophy className="size-7" />, t: "כמה רחוק תגיעו?", d: "התחרו מול שחקנים אחרים, טפסו בדירוג ונסו לכבוש את המקום הראשון" },
           ].map((f, i) => (
             <div key={i} className="p-6 rounded-2xl bg-card border shadow-card text-right">
               <div className="inline-flex p-3 rounded-xl bg-gradient-flame text-white mb-3">{f.icon}</div>
