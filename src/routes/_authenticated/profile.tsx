@@ -9,7 +9,7 @@ import {
   getStats, deleteAccount, resetAccount,
   updatePreferences, setAvatarPath, getAvatarUrl,
 } from "@/lib/account.functions";
-import { stageFromScore, nextStageInfo } from "@/lib/progression";
+
 import { PALETTES, type Palette } from "@/hooks/use-theme";
 import { toast } from "sonner";
 import {
@@ -73,12 +73,6 @@ function Profile() {
   const a11y: AccessibilityPrefs = (p.accessibility_prefs ?? {}) as AccessibilityPrefs;
   const mutes: MuteNotifs = (p.notification_prefs ?? {}) as MuteNotifs;
   const isEmailAuth = (p.auth_provider ?? "email") === "email";
-  const totalScore = p.total_score ?? 0;
-  const currentStage = stageFromScore(totalScore);
-  const nextStage = nextStageInfo(totalScore);
-  const progress = nextStage && nextStage.required > 0
-    ? Math.min(100, Math.round((totalScore / nextStage.required) * 100))
-    : 100;
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["stats"] });
   const setPref = async (patch: any) => {
@@ -191,24 +185,6 @@ function Profile() {
               <h1 className="font-display text-3xl font-extrabold truncate">{p.display_name ?? p.username}</h1>
               <p className="text-white/80 truncate" dir="ltr">{user?.email ?? `@${p.username}`}</p>
             </div>
-          </div>
-          <div className="mt-6">
-            <div className="flex justify-between text-sm mb-1">
-              <span>שלב {currentStage}</span>
-              <span>
-                {nextStage
-                  ? `${totalScore.toLocaleString("he-IL")} / ${nextStage.required.toLocaleString("he-IL")}`
-                  : `${totalScore.toLocaleString("he-IL")}`}
-              </span>
-            </div>
-            <div className="h-3 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-white" style={{ width: `${progress}%` }} />
-            </div>
-            {nextStage && (
-              <div className="text-xs text-white/80 mt-1 text-center">
-                לשלב הבא דרושות עוד {nextStage.remaining.toLocaleString("he-IL")} נקודות
-              </div>
-            )}
           </div>
         </div>
 
