@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -20,7 +20,6 @@ type ClueState = Awaited<ReturnType<typeof getNextClue>>;
 function Play() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
   useEffect(() => { if (!loading && !user) navigate({ to: "/auth" }); }, [user, loading, navigate]);
 
   const fetchClue = useServerFn(getNextClue);
@@ -74,7 +73,7 @@ function Play() {
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: "always",
     refetchOnReconnect: false,
   });
 
@@ -89,7 +88,6 @@ function Play() {
   // we cancel the auto-advance for THIS solved clue permanently.
   const [autoCancelled, setAutoCancelled] = useState(false);
   const lastClueIdRef = useRef<string | null>(null);
-  const hasEnteredPlayRef = useRef(false);
 
   useEffect(() => {
     if (clueQ.data) {
@@ -105,17 +103,6 @@ function Play() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clueQ.data]);
-
-  useEffect(() => {
-    if (!user || pathname !== "/play") return;
-
-    if (hasEnteredPlayRef.current) {
-      void clueQ.refetch();
-      return;
-    }
-
-    hasEnteredPlayRef.current = true;
-  }, [user, pathname, clueQ]);
 
   // Prefer derived state from query so the first render after restore
   // immediately shows letters without waiting for setState/useEffect.
