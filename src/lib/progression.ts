@@ -151,6 +151,17 @@ export const CATEGORY_REMAINING_LABEL: Record<AchievementCategory, (n: number) =
   play_days: (n) => `עוד ${n.toLocaleString("he-IL")} ימים רצופים`,
 };
 
+// Returns thresholds in `thresholds` newly crossed when value moves from `before` to `after`.
+export function tiersCrossed(thresholds: number[], before: number, after: number): number[] {
+  return thresholds.filter((t) => before < t && after >= t);
+}
+
+export function findAchievementTitle(category: AchievementCategory, threshold: number): string {
+  if (category === "solved") return solvedTitle(threshold);
+  if (category === "perfect") return perfectTitle(threshold);
+  return daysTitle(threshold);
+}
+
 // Returns ISO date (YYYY-MM-DD) for the current UTC day.
 export function todayIsoDate(d: Date = new Date()): string {
   return d.toISOString().slice(0, 10);

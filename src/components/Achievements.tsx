@@ -8,7 +8,7 @@ import {
   type AchievementDef,
 } from "@/lib/progression";
 
-export type AchievementView = AchievementDef & { done: boolean; remaining: number };
+export type AchievementView = AchievementDef & { done: boolean; remaining: number; current: number };
 
 export type AchievementStats = {
   solvedCount: number;
@@ -33,6 +33,7 @@ export function buildAchievementsForStats(s: AchievementStats): AchievementView[
       ...d,
       done: v >= d.threshold,
       remaining: Math.max(0, d.threshold - v),
+      current: v,
     };
   });
 }
@@ -68,9 +69,6 @@ export function AchievementsByCategory({ stats }: { stats: AchievementStats }) {
         <div key={g.category}>
           <div className="flex items-baseline justify-between mb-2">
             <h3 className="font-display text-lg font-bold">{g.label}</h3>
-            {g.nextRemainingLabel && (
-              <span className="text-sm text-muted-foreground">{g.nextRemainingLabel}</span>
-            )}
           </div>
           {g.items.length === 0 ? (
             <div className="text-sm text-muted-foreground py-3">אין עדיין הישגים בקטגוריה זו</div>
@@ -88,6 +86,7 @@ export function AchievementsByCategory({ stats }: { stats: AchievementStats }) {
 }
 
 function AchievementCard({ a }: { a: AchievementView }) {
+  const pct = a.done ? 100 : Math.min(100, Math.round((a.current / a.threshold) * 100));
   return (
     <div
       className={`p-4 rounded-2xl border shadow-card transition ${
@@ -109,6 +108,19 @@ function AchievementCard({ a }: { a: AchievementView }) {
           >
             {a.description}
           </div>
+          {!a.done && (
+            <div className="mt-2">
+              <div className="h-2 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-gradient-sunset transition-all"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 tabular-nums">
+                {a.current.toLocaleString("he-IL")} / {a.threshold.toLocaleString("he-IL")}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

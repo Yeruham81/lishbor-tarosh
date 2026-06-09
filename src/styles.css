@@ -195,6 +195,13 @@
 }
 .animate-shake { animation: shake 0.4s ease-in-out; }
 
+@keyframes score-burst {
+  0%   { transform: translateY(0) scale(0.8); opacity: 0; }
+  20%  { transform: translateY(-4px) scale(1.1); opacity: 1; }
+  100% { transform: translateY(-28px) scale(1); opacity: 0; }
+}
+.animate-score-burst { animation: score-burst 1.4s ease-out forwards; }
+
 /* Accessibility: text size */
 html[data-text-size="small"] { font-size: 14px; }
 html[data-text-size="normal"] { font-size: 16px; }

@@ -10,6 +10,7 @@ import { ShareButtons } from "@/components/ShareButtons";
 import { ClueRating } from "@/components/ClueRating";
 import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState } from "@/lib/game.functions";
 import { nextStageInfo, stageFromScore, SCORING } from "@/lib/progression";
+import { useSolveNotifications } from "@/components/SolveNotifications";
 import { toast } from "sonner";
 import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
 
@@ -31,6 +32,7 @@ function Play() {
   const doSkip = useServerFn(skipClue);
   const qc = useQueryClient();
   const clueQueryKey = ["clue", user?.id ?? "anon"] as const;
+  const notifications = useSolveNotifications();
 
   // localStorage key — per-user so different accounts on the same browser don't collide.
   const storageKey = user ? `play:currentClueId:${user.id}` : null;
@@ -165,8 +167,10 @@ function Play() {
       qc.setQueryData(clueQueryKey, r);
       if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
       if (r.isSolved) {
-        toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
+        toast.success(`🎉 פתרת את ההגדרה!`);
+        notifications.emit((r as any).events);
         qc.invalidateQueries({ queryKey: ["profile"] });
+        qc.invalidateQueries({ queryKey: ["stats"] });
       }
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
@@ -180,11 +184,16 @@ function Play() {
       prevRevealedCount.current = r.revealed.length;
       setState(r);
       qc.setQueryData(clueQueryKey, r);
-      if (r.isSolved) { toast.success("🎉 נפתר עם רמז!"); qc.invalidateQueries({ queryKey: ["profile"] }); }
-      else toast.info("נחשפה אות חדשה");
+      if (r.isSolved) {
+        toast.success("🎉 נפתר עם רמז!");
+        notifications.emit((r as any).events);
+        qc.invalidateQueries({ queryKey: ["profile"] });
+        qc.invalidateQueries({ queryKey: ["stats"] });
+      } else toast.info("נחשפה אות חדשה");
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
   };
+
 
   const onSkip = async () => {
     if (!clue || busy) return;
@@ -219,7 +228,10 @@ function Play() {
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />
+          <div className="relative">
+            <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />
+            {notifications.scoreBurst}
+          </div>
           <Stat label="שלב" value={currentStage} icon={<Star className="size-4 text-warning" />} />
           <Stat label="רצף מושלם" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         </div>
@@ -340,9 +352,11 @@ function Play() {
           </div>
         )}
       </div>
+      {notifications.stageBanner}
     </AppShell>
   );
 }
+
 
 function Stat({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) {
   return (
