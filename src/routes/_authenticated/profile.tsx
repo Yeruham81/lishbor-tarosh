@@ -192,24 +192,6 @@ function Profile() {
               <p className="text-white/80 truncate" dir="ltr">{user?.email ?? `@${p.username}`}</p>
             </div>
           </div>
-          <div className="mt-6">
-            <div className="flex justify-between text-sm mb-1">
-              <span>שלב {currentStage}</span>
-              <span>
-                {nextStage
-                  ? `${totalScore.toLocaleString("he-IL")} / ${nextStage.required.toLocaleString("he-IL")}`
-                  : `${totalScore.toLocaleString("he-IL")}`}
-              </span>
-            </div>
-            <div className="h-3 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-white" style={{ width: `${progress}%` }} />
-            </div>
-            {nextStage && (
-              <div className="text-xs text-white/80 mt-1 text-center">
-                לשלב הבא דרושות עוד {nextStage.remaining.toLocaleString("he-IL")} נקודות
-              </div>
-            )}
-          </div>
         </div>
 
 
