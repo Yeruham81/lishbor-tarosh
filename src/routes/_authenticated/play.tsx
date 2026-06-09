@@ -221,7 +221,7 @@ function Play() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
-          <Stat label="רמה" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
+          <Stat label="שלב נוכחי" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
           <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         </div>
 
