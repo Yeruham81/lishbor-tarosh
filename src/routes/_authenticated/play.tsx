@@ -352,9 +352,11 @@ function Play() {
           </div>
         )}
       </div>
+      {notifications.stageBanner}
     </AppShell>
   );
 }
+
 
 function Stat({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) {
   return (
