@@ -35,7 +35,7 @@ function Levels() {
       <div className="container mx-auto px-4 py-8 max-w-2xl space-y-10">
         <section>
           <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">שלבים</h1>
-          <p className="text-center text-muted-foreground mb-4">פתרו הגדרות וצברו ניקוד כדי להתקדם בשלבים</p>
+          <p className="text-center text-muted-foreground mb-4">מעקב ביצועים, אתגרים, התקדמות וסטטיסטיקות</p>
 
           {/* Score summary */}
           <div className="bg-card border rounded-2xl p-4 mb-5 text-center shadow-card">
