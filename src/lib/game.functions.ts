@@ -12,7 +12,17 @@ import {
   perfectStreakBonus,
   todayIsoDate,
   nextPlayDaysStreak,
+  ACHIEVEMENT_TIERS,
+  tiersCrossed,
+  findAchievementTitle,
 } from "./progression";
+
+export type SolveEvent =
+  | { kind: "score"; points: number }
+  | { kind: "perfect_bonus"; points: number; streak: number }
+  | { kind: "stage_up"; stage: number }
+  | { kind: "achievement"; title: string; category: "solved" | "perfect" | "play_days"; threshold: number };
+
 
 type ClueRow = {
   id: string; clue: string; answer: string; category: string | null;
