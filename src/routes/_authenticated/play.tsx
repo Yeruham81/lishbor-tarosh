@@ -228,7 +228,10 @@ function Play() {
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />
+          <div className="relative">
+            <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />
+            {notifications.scoreBurst}
+          </div>
           <Stat label="שלב" value={currentStage} icon={<Star className="size-4 text-warning" />} />
           <Stat label="רצף מושלם" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         </div>
