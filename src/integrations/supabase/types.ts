@@ -76,6 +76,7 @@ export type Database = {
       }
       clues: {
         Row: {
+          alt_answer: string | null
           answer: string
           base_points: number
           category: string | null
@@ -83,15 +84,19 @@ export type Database = {
           created_at: string
           difficulty: number
           dislikes_count: number
+          explanation: string | null
           external_id: string | null
+          hint: string | null
           id: string
           is_active: boolean
           likes_count: number
           skip_count: number
           solved_count: number
+          type: string | null
           updated_at: string
         }
         Insert: {
+          alt_answer?: string | null
           answer: string
           base_points?: number
           category?: string | null
@@ -99,15 +104,19 @@ export type Database = {
           created_at?: string
           difficulty?: number
           dislikes_count?: number
+          explanation?: string | null
           external_id?: string | null
+          hint?: string | null
           id?: string
           is_active?: boolean
           likes_count?: number
           skip_count?: number
           solved_count?: number
+          type?: string | null
           updated_at?: string
         }
         Update: {
+          alt_answer?: string | null
           answer?: string
           base_points?: number
           category?: string | null
@@ -115,12 +124,15 @@ export type Database = {
           created_at?: string
           difficulty?: number
           dislikes_count?: number
+          explanation?: string | null
           external_id?: string | null
+          hint?: string | null
           id?: string
           is_active?: boolean
           likes_count?: number
           skip_count?: number
           solved_count?: number
+          type?: string | null
           updated_at?: string
         }
         Relationships: []
