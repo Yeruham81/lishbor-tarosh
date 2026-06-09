@@ -134,7 +134,7 @@ function Levels() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <StatCard icon={<Trophy className="size-5" />} label="ניקוד כולל" value={totalScore} />
               <StatCard icon={<CheckCircle2 className="size-5" />} label="שלב נוכחי" value={currentStage} />
-              <StatCard icon={<Target className="size-5" />} label="הגדרות שפתרת" value={stats.definitionsSolved} />
+              <StatCard icon={<Target className="size-5" />} label="הגדרות פתורות" value={stats.definitionsSolved} />
               <StatCard icon={<Sparkles className="size-5" />} label="פתירות מושלמות" value={stats.perfectSolves} />
               <StatCard icon={<Percent className="size-5" />} label="אחוז הצלחה" value={`${stats.successRate}%`} />
               <StatCard icon={<Flame className="size-5" />} label="רצף מושלם נוכחי" value={stats.currentPerfectStreak} />
