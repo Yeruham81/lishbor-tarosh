@@ -8,7 +8,7 @@ import {
   type AchievementDef,
 } from "@/lib/progression";
 
-export type AchievementView = AchievementDef & { done: boolean; remaining: number };
+export type AchievementView = AchievementDef & { done: boolean; remaining: number; current: number };
 
 export type AchievementStats = {
   solvedCount: number;
