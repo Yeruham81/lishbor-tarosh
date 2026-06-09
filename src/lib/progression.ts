@@ -103,7 +103,7 @@ export type AchievementDef = {
   description: string; // Hebrew
 };
 
-function solvedTitle(n: number) { return `${n.toLocaleString("he-IL")} הגדרות שפתרת`; }
+function solvedTitle(n: number) { return `${n.toLocaleString("he-IL")} הגדרות פתורות`; }
 function perfectTitle(n: number) { return `${n.toLocaleString("he-IL")} פתירות מושלמות`; }
 function daysTitle(n: number) { return `${n.toLocaleString("he-IL")} ימים רצופים`; }
 
