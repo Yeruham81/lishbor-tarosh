@@ -66,7 +66,7 @@ export function DisplayNameSetup() {
             בחרו כינוי
           </h2>
           <p className="text-sm text-muted-foreground mt-3">
-            2–20 תווים, עברית או אנגלית, ניתן להוסיף רווחים
+            בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים
           </p>
         </div>
 
