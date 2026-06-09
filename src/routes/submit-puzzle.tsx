@@ -62,7 +62,7 @@ function SubmitPuzzlePage() {
           <div>
             <label htmlFor="notes" className="block text-sm font-medium mb-1">הסברים והערות (אם יש)</label>
             <textarea id="notes" dir="rtl" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1000} rows={3}
-              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y" placeholder="קטגוריה, רמת קושי, מקור..." />
+              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y" placeholder="" />
           </div>
 
           <button type="submit" disabled={busy}
