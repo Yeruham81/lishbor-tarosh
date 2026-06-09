@@ -185,13 +185,14 @@ export const guessLetter = createServerFn({ method: "POST" })
       revealed_letters: revealed, wrong_guesses: wrong, hints_used: hintsUsed,
     };
 
+    let events: SolveEvent[] = [];
     if (solved) {
       const earned = computeSolveScore(wrong.length, hintsUsed);
       payload.is_solved = true;
       payload.is_perfect = perfect;
       payload.score_earned = earned;
       payload.solved_at = new Date().toISOString();
-      await applySolveResult(supabase, userId, earned, perfect, wasNewWrong ? 1 : 0);
+      events = await applySolveResult(supabase, userId, earned, perfect, wasNewWrong ? 1 : 0);
       await bumpSolvedCount(supabase, clue.id);
     } else if (wasNewWrong) {
       // Track wrong letters & maybe break perfect streak if exceeded free wrongs.
@@ -201,8 +202,10 @@ export const guessLetter = createServerFn({ method: "POST" })
     if (existing) await supabase.from("game_progress").update(payload).eq("id", existing.id);
     else await supabase.from("game_progress").insert(payload);
 
-    return publicClue(clue, revealed, wrong, hintsUsed, solved);
+    const result = publicClue(clue, revealed, wrong, hintsUsed, solved);
+    return { ...result, events };
   });
+
 
 const hintSchema = z.object({ clueId: z.string().uuid() });
 
