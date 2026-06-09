@@ -331,7 +331,7 @@ function Play() {
                     להגדרה הבאה
                   </button>
                   {countdown !== null && countdown > 0 && (
-                    <p className="text-sm text-muted-foreground" aria-live="polite">
+                    <p className="text-muted-foreground text-base font-normal" aria-live="polite">
                       {countdown === 3
                         ? "מעבר להגדרה הבאה בעוד 3 שניות..."
                         : `להגדרה הבאה: ${countdown}...`}
