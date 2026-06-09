@@ -304,24 +304,56 @@ async function bumpPlayCounters(supabase: any, userId: string) {
 }
 
 // Apply solve outcome: score, perfect streak, stage progression, counters.
-async function applySolveResult(supabase: any, userId: string, points: number, perfect: boolean, newWrongLetters: number) {
+// Returns notification events that should be surfaced to the player.
+async function applySolveResult(
+  supabase: any, userId: string, points: number, perfect: boolean, newWrongLetters: number,
+): Promise<SolveEvent[]> {
   const { data: p } = await supabase.from("profiles")
-    .select("total_score, current_streak, best_streak, solved_count, perfect_solves, wrong_letters_total")
+    .select("total_score, current_streak, best_streak, solved_count, perfect_solves, wrong_letters_total, current_play_days_streak, best_play_days_streak")
     .eq("id", userId).single();
-  if (!p) return;
+  if (!p) return [];
   const newPerfectStreak = perfect ? (p.current_streak ?? 0) + 1 : 0;
   const bonus = perfect ? perfectStreakBonus(newPerfectStreak) : 0;
-  const newScore = (p.total_score ?? 0) + points + bonus;
+  const oldScore = p.total_score ?? 0;
+  const newScore = oldScore + points + bonus;
+  const oldStage = stageFromScore(oldScore);
+  const newStage = stageFromScore(newScore);
+  const oldSolved = p.solved_count ?? 0;
+  const newSolved = oldSolved + 1;
+  const oldPerfect = p.perfect_solves ?? 0;
+  const newPerfectTotal = oldPerfect + (perfect ? 1 : 0);
+  const playDays = Math.max(p.current_play_days_streak ?? 0, p.best_play_days_streak ?? 0);
+
   await supabase.from("profiles").update({
     total_score: newScore,
     current_streak: newPerfectStreak,
     best_streak: Math.max(p.best_streak ?? 0, newPerfectStreak),
-    solved_count: (p.solved_count ?? 0) + 1,
-    perfect_solves: (p.perfect_solves ?? 0) + (perfect ? 1 : 0),
+    solved_count: newSolved,
+    perfect_solves: newPerfectTotal,
     wrong_letters_total: (p.wrong_letters_total ?? 0) + newWrongLetters,
-    level: stageFromScore(newScore),
+    level: newStage,
   }).eq("id", userId);
+
+  const events: SolveEvent[] = [{ kind: "score", points: points + bonus }];
+  if (bonus > 0) events.push({ kind: "perfect_bonus", points: bonus, streak: newPerfectStreak });
+  if (newStage > oldStage) events.push({ kind: "stage_up", stage: newStage });
+  for (const t of tiersCrossed(ACHIEVEMENT_TIERS.solved, oldSolved, newSolved)) {
+    events.push({ kind: "achievement", category: "solved", threshold: t, title: findAchievementTitle("solved", t) });
+  }
+  if (perfect) {
+    for (const t of tiersCrossed(ACHIEVEMENT_TIERS.perfect, oldPerfect, newPerfectTotal)) {
+      events.push({ kind: "achievement", category: "perfect", threshold: t, title: findAchievementTitle("perfect", t) });
+    }
+  }
+  // Play days threshold check (already updated on bumpPlayCounters earlier in flow).
+  for (const t of ACHIEVEMENT_TIERS.play_days) {
+    if (playDays === t) {
+      events.push({ kind: "achievement", category: "play_days", threshold: t, title: findAchievementTitle("play_days", t) });
+    }
+  }
+  return events;
 }
+
 
 async function applyWrongLetter(supabase: any, userId: string, totalWrongInClue: number) {
   const { data: p } = await supabase.from("profiles")
