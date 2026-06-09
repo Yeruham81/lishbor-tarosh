@@ -11,7 +11,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-xl">
-            <img src={brandIcon.url} alt="לשבור ת'ראש" className="size-9 rounded-lg object-cover shadow-card" />
+            <img src="/lishbor-icon-new.jpg" alt="לשבור ת'ראש" className="size-9 rounded-lg shadow-card object-cover" />
             <span className="text-gradient-sunset">לשבור ת'ראש</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 text-sm">
