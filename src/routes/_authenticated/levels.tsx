@@ -39,7 +39,7 @@ function Levels() {
 
           {/* Score summary */}
           <div className="bg-card border rounded-2xl p-4 mb-5 text-center shadow-card">
-            <div className="text-muted-foreground text-base font-normal">ניקוד כולל</div>
+            <div className="text-muted-foreground text-base font-normal">נקודות שצברת עד כה:</div>
             <div className="font-display text-3xl font-extrabold text-gradient-sunset">
               {totalScore.toLocaleString("he-IL")}
             </div>
