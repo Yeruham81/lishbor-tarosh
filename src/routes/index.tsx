@@ -34,7 +34,7 @@ function Index() {
             <div key={i} className="p-6 rounded-2xl bg-card border shadow-card text-right">
               <div className="inline-flex p-3 rounded-xl bg-gradient-flame text-white mb-3">{f.icon}</div>
               <h3 className="font-display text-xl font-bold mb-1">{f.t}</h3>
-              <p className="text-sm text-muted-foreground">{f.d}</p>
+              <p className="text-muted-foreground text-base font-normal">{f.d}</p>
             </div>
           ))}
         </div>
