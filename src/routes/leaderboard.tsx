@@ -57,7 +57,7 @@ function Board({ period, currentUserId }: { period: Period; currentUserId?: stri
     enabled: period !== "all",
   });
 
-  if (isLoading) {
+  if (isLoading && period !== "all") {
     return <div className="p-8 text-center text-muted-foreground">טוען...</div>;
   }
 
