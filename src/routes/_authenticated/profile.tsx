@@ -253,7 +253,7 @@ function Profile() {
 
           {/* Account actions — single horizontal row (RTL): נתק (right) | שכח (center) | מחק (left) */}
           <div className="pt-3 border-t">
-            <div dir="rtl" className="grid grid-cols-3 gap-2">
+            <div dir="rtl" className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button onClick={onSignOut}
                 className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border bg-card hover:bg-muted transition font-medium text-sm sm:text-base">
                 <LogOut className="size-4 shrink-0" /> <span className="truncate">נתק אותי</span>
