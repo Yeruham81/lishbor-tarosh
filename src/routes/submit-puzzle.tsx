@@ -23,7 +23,7 @@ function SubmitPuzzlePage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (clue.trim().length < 3) { toast.error("הגדרה קצרה מדי"); return; }
-    if (answer.trim().length < 1) { toast.error("חסר פתרון מוצע"); return; }
+    if (answer.trim().length < 1) { toast.error("חסר הפתרון"); return; }
     setBusy(true);
     try {
       await send({ data: { clue_text: clue.trim(), suggested_answer: answer.trim(), notes: notes.trim() || undefined } });
@@ -39,24 +39,24 @@ function SubmitPuzzlePage() {
         <div className="text-center mb-6">
           <PlusCircle className="size-12 mx-auto text-primary mb-2" />
           <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">הוספת הגדרה</h1>
-          <p className="text-muted-foreground mt-2">הציעו הגדרה חדשה למשחק</p>
+          <p className="text-muted-foreground mt-2 text-base">יש לכם הגדרת היגיון טובה ומקורית? שתפו אותנו!</p>
         </div>
 
-        <div className="bg-muted/40 border rounded-2xl p-4 text-sm text-muted-foreground mb-4">
-          ההגדרות הטובות ביותר יתווספו למשחק ויזכו אתכם בנקודות בונוס 🎁
+        <div className="bg-muted/40 border rounded-2xl p-4 text-muted-foreground mb-4 text-sm">
+          ההגדרות הטובות ביותר ישולבו במשחק ויזכו אתכם בקרדיט ובנקודות בונוס! 🎁
         </div>
 
         <form onSubmit={submit} className="bg-card border rounded-3xl shadow-card p-5 sm:p-7 space-y-4">
           <div>
             <label htmlFor="clue" className="block text-sm font-medium mb-1">ההגדרה שלכם</label>
             <textarea id="clue" dir="rtl" value={clue} onChange={(e) => setClue(e.target.value)} required minLength={3} maxLength={500} rows={3}
-              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y" placeholder="לדוגמה: הולך על ארבע בבוקר, על שתיים בצהריים..." />
+              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y" placeholder="" />
           </div>
 
           <div>
-            <label htmlFor="answer" className="block text-sm font-medium mb-1">פתרון מוצע</label>
+            <label htmlFor="answer" className="block text-sm font-medium mb-1">הפתרון</label>
             <input id="answer" dir="rtl" value={answer} onChange={(e) => setAnswer(e.target.value)} required minLength={1} maxLength={200}
-              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary" placeholder="המילה או הביטוי" />
+              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary" placeholder="" />
           </div>
 
           <div>
