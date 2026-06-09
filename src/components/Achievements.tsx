@@ -69,9 +69,6 @@ export function AchievementsByCategory({ stats }: { stats: AchievementStats }) {
         <div key={g.category}>
           <div className="flex items-baseline justify-between mb-2">
             <h3 className="font-display text-lg font-bold">{g.label}</h3>
-            {g.nextRemainingLabel && (
-              <span className="text-sm text-muted-foreground">{g.nextRemainingLabel}</span>
-            )}
           </div>
           {g.items.length === 0 ? (
             <div className="text-sm text-muted-foreground py-3">אין עדיין הישגים בקטגוריה זו</div>
