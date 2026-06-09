@@ -246,7 +246,7 @@ function Play() {
         {clue && (
           <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
             {!clue.isSolved && (
-              <div className="flex gap-2 justify-center mb-4">
+              <div className="flex items-center gap-3 justify-center mb-4">
                 <button
                   onClick={onHint}
                   disabled={busy || clue.wrong.length < 2}
@@ -262,6 +262,7 @@ function Play() {
                 >
                   <SkipForward className="size-4" /> דלג
                 </button>
+                <MistakesIndicator wrongCount={clue.wrong.length} free={clue.freeWrongs ?? SCORING.FREE_WRONGS} />
               </div>
             )}
 
