@@ -282,12 +282,6 @@ function Play() {
               <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
             </div>
 
-            {/* Score for this puzzle */}
-            <div className="flex justify-center items-center gap-4 text-sm text-muted-foreground mb-4">
-              <span>שווי: <b className="text-foreground">{clue.currentScore}</b></span>
-              {clue.wrong.length > 0 && <span>טעויות: <b className="text-destructive">{clue.wrong.length}</b></span>}
-              {clue.hintsUsed > 0 && <span>רמזים: <b className="text-warning">{clue.hintsUsed}</b></span>}
-            </div>
 
             {!clue.isSolved ? (
               <div className="mb-2">
