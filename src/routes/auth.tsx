@@ -123,7 +123,7 @@ function AuthPage() {
               : "כבר רשומים? התחברו"}
           </button>
         </div>
-        <div className="text-center mt-4"><Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← חזרה לבית</Link></div>
+        <div className="text-center mt-4"><Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← חזרה למסך הבית</Link></div>
       </div>
     </AppShell>
   );
