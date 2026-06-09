@@ -73,9 +73,12 @@ function Profile() {
   const a11y: AccessibilityPrefs = (p.accessibility_prefs ?? {}) as AccessibilityPrefs;
   const mutes: MuteNotifs = (p.notification_prefs ?? {}) as MuteNotifs;
   const isEmailAuth = (p.auth_provider ?? "email") === "email";
-  const nextLevel = scoreForNextLevel(p.level);
-  const prevLevel = scoreForNextLevel(p.level - 1);
-  const progress = Math.min(100, Math.round(((p.total_score - prevLevel) / (nextLevel - prevLevel)) * 100));
+  const totalScore = p.total_score ?? 0;
+  const currentStage = stageFromScore(totalScore);
+  const nextStage = nextStageInfo(totalScore);
+  const progress = nextStage && nextStage.required > 0
+    ? Math.min(100, Math.round((totalScore / nextStage.required) * 100))
+    : 100;
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["stats"] });
   const setPref = async (patch: any) => {
