@@ -56,7 +56,15 @@ export const resetAccount = createServerFn({ method: "POST" })
         current_streak: 0,
         best_streak: 0,
         level: 1,
-      })
+        perfect_solves: 0,
+        definitions_played: 0,
+        definitions_skipped: 0,
+        hints_used_total: 0,
+        wrong_letters_total: 0,
+        current_play_days_streak: 0,
+        best_play_days_streak: 0,
+        last_play_date: null,
+      } as any)
       .eq("id", userId);
     return { ok: true };
   });
