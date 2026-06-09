@@ -418,12 +418,3 @@ function Toggle({ label, hint, icon, checked, onChange, small }: {
     </label>
   );
 }
-
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number | string }) {
-  return (
-    <div className="bg-card border rounded-2xl p-4 shadow-card">
-      <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">{icon} {label}</div>
-      <div className="font-display text-3xl font-extrabold text-gradient-sunset">{value}</div>
-    </div>
-  );
-}
