@@ -71,7 +71,7 @@ function AuthPage() {
       <div className="container mx-auto px-4 py-12 max-w-md">
         <div className="bg-card border rounded-3xl shadow-card p-6 sm:p-8">
           <h1 className="font-display text-3xl font-extrabold text-center mb-1 text-gradient-sunset">
-            {mode === "signin" ? "ברוכים השבים" : mode === "signup" ? "הצטרפו אלינו" : "שכחתי סיסמא"}
+            {mode === "signin" ? "איזה כיף שחזרתם" : mode === "signup" ? "הצטרפו אלינו" : "שכחתי סיסמא"}
           </h1>
           <p className="text-center text-muted-foreground text-sm mb-6">
             {mode === "signin" ? "התחברו כדי להמשיך לשחק"
@@ -119,7 +119,7 @@ function AuthPage() {
 
           <button type="button" onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="w-full mt-2 text-sm text-muted-foreground hover:text-foreground">
             {mode === "forgot" ? "← חזרה להתחברות"
-              : mode === "signin" ? "אין לכם חשבון? הירשמו"
+              : mode === "signin" ? "עדיין אין לכם חשבון? הירשמו"
               : "כבר רשומים? התחברו"}
           </button>
         </div>
