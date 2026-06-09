@@ -109,7 +109,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </MobileLink>
             <MobileLink to="/play">
               <Gamepad2 className="size-5" />
-              <span>שחק</span>
+              <span>משחק</span>
             </MobileLink>
             <MobileLink to="/levels">
               <BarChart3 className="size-5" />
@@ -121,7 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </MobileLink>
             <MobileLink to="/profile">
               <User className="size-5" />
-              <span>לוח</span>
+              <span>בקרה</span>
             </MobileLink>
           </div>
         </nav>
