@@ -32,7 +32,7 @@ function LB() {
         </div>
 
         <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} dir="rtl">
-          <TabsList className="grid grid-cols-4 w-full mb-4">
+          <TabsList className="grid grid-cols-3 w-full mb-4">
             {TABS.map((t) => (
               <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>
             ))}
