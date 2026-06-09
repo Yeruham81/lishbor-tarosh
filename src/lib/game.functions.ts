@@ -242,6 +242,7 @@ export const useHint = createServerFn({ method: "POST" })
       user_id: userId, clue_id: data.clueId,
       revealed_letters: revealed, wrong_guesses: wrong, hints_used: hintsUsed,
     };
+    let events: SolveEvent[] = [];
     if (solved) {
       const perfect = isPerfectSolve(wrong.length, hintsUsed);
       const earned = computeSolveScore(wrong.length, hintsUsed);
@@ -249,14 +250,16 @@ export const useHint = createServerFn({ method: "POST" })
       payload.is_perfect = perfect;
       payload.score_earned = earned;
       payload.solved_at = new Date().toISOString();
-      await applySolveResult(supabase, userId, earned, perfect, 0);
+      events = await applySolveResult(supabase, userId, earned, perfect, 0);
       await bumpSolvedCount(supabase, clue.id);
     }
     if (existing) await supabase.from("game_progress").update(payload).eq("id", existing.id);
     else await supabase.from("game_progress").insert(payload);
 
-    return publicClue(clue, revealed, wrong, hintsUsed, solved);
+    const result = publicClue(clue, revealed, wrong, hintsUsed, solved);
+    return { ...result, events };
   });
+
 
 const skipSchema = z.object({ clueId: z.string().uuid() });
 
