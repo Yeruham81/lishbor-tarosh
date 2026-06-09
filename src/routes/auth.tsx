@@ -74,7 +74,7 @@ function AuthPage() {
             {mode === "signin" ? "איזה כיף שחזרתם" : mode === "signup" ? "הצטרפו אלינו" : "שכחתי סיסמא"}
           </h1>
           <p className="text-center text-muted-foreground text-sm mb-6">
-            {mode === "signin" ? "התחברו כדי להמשיך לשחק"
+            {mode === "signin" ? "התחברו והמשיכו לשחק"
               : mode === "signup" ? "צרו חשבון חדש בחינם"
               : "הזינו את האימייל שלכם ונשלח קישור לאיפוס הסיסמה"}
           </p>
