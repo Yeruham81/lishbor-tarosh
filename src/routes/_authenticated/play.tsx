@@ -210,32 +210,26 @@ function Play() {
   };
 
   const profile = profileQ.data;
-  const nextLevelAt = profile ? scoreForNextLevel(profile.level) : 0;
-  const prevLevelAt = profile ? scoreForNextLevel(profile.level - 1) : 0;
-  const levelProgress = profile && nextLevelAt > prevLevelAt
-    ? Math.min(100, Math.max(0, ((profile.total_score - prevLevelAt) / (nextLevelAt - prevLevelAt)) * 100))
-    : 0;
+  const totalScore = profile?.total_score ?? 0;
+  const currentStage = stageFromScore(totalScore);
+  const next = nextStageInfo(totalScore);
 
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <Stat label="ניקוד" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
-          <Stat label="רמה" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
-          <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
+          <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />
+          <Stat label="שלב" value={currentStage} icon={<Star className="size-4 text-warning" />} />
+          <Stat label="רצף מושלם" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         </div>
 
-        {/* Level progress */}
+        {/* Stage progress text */}
         {profile && (
-          <div className="mb-6">
-            <div className="flex justify-between text-xs text-muted-foreground mb-1">
-              <span>רמה {profile.level}</span>
-              <span>{profile.total_score} / {nextLevelAt}</span>
-            </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div className="h-full bg-gradient-sunset transition-all duration-500" style={{ width: `${levelProgress}%` }} />
-            </div>
+          <div className="mb-6 text-center text-sm text-muted-foreground">
+            {next
+              ? <>לשלב הבא דרושות עוד <b className="text-foreground">{next.remaining.toLocaleString("he-IL")}</b> נקודות</>
+              : <>הגעתם לשלב המקסימלי הזמין</>}
           </div>
         )}
 
