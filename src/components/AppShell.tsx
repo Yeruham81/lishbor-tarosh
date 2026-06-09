@@ -15,15 +15,34 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="text-gradient-sunset">לשבור ת'ראש</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 text-sm">
-            <NavLink to="/" icon={<Home className="size-4" />}>בית</NavLink>
-            {user && <NavLink to="/play" icon={<Gamepad2 className="size-4" />}>שחק</NavLink>}
-            {user && <NavLink to="/levels" icon={<BarChart3 className="size-4" />}>איך אני</NavLink>}
-            <NavLink to="/leaderboard" icon={<Trophy className="size-4" />}>מי בראש</NavLink>
-            {user && <NavLink to="/profile" icon={<User className="size-4" />}>לוח הבקרה</NavLink>}
+            <NavLink to="/" icon={<Home className="size-4" />}>
+              בית
+            </NavLink>
+            {user && (
+              <NavLink to="/play" icon={<Gamepad2 className="size-4" />}>
+                משחק
+              </NavLink>
+            )}
+            {user && (
+              <NavLink to="/levels" icon={<BarChart3 className="size-4" />}>
+                איך אני
+              </NavLink>
+            )}
+            <NavLink to="/leaderboard" icon={<Trophy className="size-4" />}>
+              מי בראש
+            </NavLink>
+            {user && (
+              <NavLink to="/profile" icon={<User className="size-4" />}>
+                לוח הבקרה
+              </NavLink>
+            )}
           </nav>
           <div>
             {!user && (
-              <Link to="/auth" className="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-sunset text-white font-semibold text-sm shadow-glow hover:opacity-90 transition">
+              <Link
+                to="/auth"
+                className="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-sunset text-white font-semibold text-sm shadow-glow hover:opacity-90 transition"
+              >
                 התחברות
               </Link>
             )}
@@ -44,24 +63,37 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* LEFT — יציאה */}
             <div className="flex justify-start">
               {user ? (
-                <button onClick={signOut} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium">
+                <button
+                  onClick={signOut}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+                >
                   <LogOut className="size-4" /> יציאה
                 </button>
-              ) : <span />}
+              ) : (
+                <span />
+              )}
             </div>
             {/* CENTER — יצירת קשר */}
             <div className="flex justify-center">
-              <Link to="/contact" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium">
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
                 <Mail className="size-4" /> יצירת קשר
               </Link>
             </div>
             {/* RIGHT — הוספת הגדרה */}
             <div className="flex justify-end">
               {user ? (
-                <Link to="/submit-puzzle" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition">
+                <Link
+                  to="/submit-puzzle"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
+                >
                   <PlusCircle className="size-4" /> הוספת הגדרה
                 </Link>
-              ) : <span />}
+              ) : (
+                <span />
+              )}
             </div>
           </div>
           <div className="text-center text-xs text-muted-foreground">© {new Date().getFullYear()} לשבור ת'ראש</div>
@@ -71,11 +103,26 @@ export function AppShell({ children }: { children: ReactNode }) {
       {user && (
         <nav className="md:hidden sticky bottom-0 border-t bg-background/95 backdrop-blur-xl">
           <div className="grid grid-cols-5 text-xs">
-            <MobileLink to="/"><Home className="size-5" /><span>בית</span></MobileLink>
-            <MobileLink to="/play"><Gamepad2 className="size-5" /><span>שחק</span></MobileLink>
-            <MobileLink to="/levels"><BarChart3 className="size-5" /><span>איך אני</span></MobileLink>
-            <MobileLink to="/leaderboard"><Trophy className="size-5" /><span>מי בראש</span></MobileLink>
-            <MobileLink to="/profile"><User className="size-5" /><span>לוח</span></MobileLink>
+            <MobileLink to="/">
+              <Home className="size-5" />
+              <span>בית</span>
+            </MobileLink>
+            <MobileLink to="/play">
+              <Gamepad2 className="size-5" />
+              <span>שחק</span>
+            </MobileLink>
+            <MobileLink to="/levels">
+              <BarChart3 className="size-5" />
+              <span>איך אני</span>
+            </MobileLink>
+            <MobileLink to="/leaderboard">
+              <Trophy className="size-5" />
+              <span>מי בראש</span>
+            </MobileLink>
+            <MobileLink to="/profile">
+              <User className="size-5" />
+              <span>לוח</span>
+            </MobileLink>
           </div>
         </nav>
       )}
@@ -85,7 +132,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 function NavLink({ to, icon, children }: { to: string; icon: ReactNode; children: ReactNode }) {
   return (
-    <Link to={to} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-muted transition font-medium" activeProps={{ className: "bg-muted text-primary" }}>
+    <Link
+      to={to}
+      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-muted transition font-medium"
+      activeProps={{ className: "bg-muted text-primary" }}
+    >
       {icon} {children}
     </Link>
   );
@@ -93,7 +144,11 @@ function NavLink({ to, icon, children }: { to: string; icon: ReactNode; children
 
 function MobileLink({ to, children }: { to: string; children: ReactNode }) {
   return (
-    <Link to={to} className="flex flex-col items-center gap-1 py-2.5 text-muted-foreground" activeProps={{ className: "text-primary" }}>
+    <Link
+      to={to}
+      className="flex flex-col items-center gap-1 py-2.5 text-muted-foreground"
+      activeProps={{ className: "text-primary" }}
+    >
       {children}
     </Link>
   );
