@@ -76,6 +76,13 @@ function Play() {
   const [busy, setBusy] = useState(false);
   const prevRevealedCount = useRef(0);
 
+  // Auto-advance countdown (seconds remaining, or null when inactive)
+  const [countdown, setCountdown] = useState<number | null>(null);
+  // Once the user interacts with the success screen (other than "next"),
+  // we cancel the auto-advance for THIS solved clue permanently.
+  const [autoCancelled, setAutoCancelled] = useState(false);
+  const lastClueIdRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (clueQ.data && !("exhausted" in clueQ.data)) {
       setState(clueQ.data);
@@ -85,16 +92,48 @@ function Play() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clueQ.data]);
 
-  const exhausted = clueQ.data && "exhausted" in clueQ.data;
-  const clue = state && !("exhausted" in state) ? state : null;
+  // Prefer derived state from query so the first render after restore
+  // immediately shows letters without waiting for setState/useEffect.
+  const liveState: ClueState | null = state ?? (clueQ.data ?? null);
+  const exhausted = liveState && "exhausted" in liveState;
+  const clue = liveState && !("exhausted" in liveState) ? liveState : null;
 
-  // Auto-advance to next puzzle after solving (if user opted in)
+  // Reset cancellation flag whenever the active clue changes
   useEffect(() => {
-    if (!clue?.isSolved || !profileQ.data?.auto_next) return;
-    const t = setTimeout(() => { onSkip(); }, 3000);
-    return () => clearTimeout(t);
+    if (clue?.id && clue.id !== lastClueIdRef.current) {
+      lastClueIdRef.current = clue.id;
+      setAutoCancelled(false);
+      setCountdown(null);
+    }
+  }, [clue?.id]);
+
+  // Drive the auto-advance countdown after a solve, if the user opted in
+  // and they haven't cancelled by interacting with the success screen.
+  useEffect(() => {
+    if (!clue?.isSolved || !profileQ.data?.auto_next || autoCancelled) {
+      setCountdown(null);
+      return;
+    }
+    setCountdown(3);
+    const interval = setInterval(() => {
+      setCountdown((c) => (c === null ? null : c - 1));
+    }, 1000);
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clue?.isSolved, clue?.id, profileQ.data?.auto_next]);
+  }, [clue?.isSolved, clue?.id, profileQ.data?.auto_next, autoCancelled]);
+
+  useEffect(() => {
+    if (countdown === 0) {
+      setCountdown(null);
+      onSkip();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown]);
+
+  const cancelAutoAdvance = () => {
+    if (!autoCancelled) setAutoCancelled(true);
+    setCountdown(null);
+  };
 
   const onLetter = async (l: string) => {
     if (!clue || clue.isSolved || busy) return;
