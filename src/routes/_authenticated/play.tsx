@@ -258,7 +258,7 @@ function Play() {
         {clue && (
           <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-base sm:text-lg font-bold">ניקוד: {clue.currentScore}</span>
+              <span className="text-base sm:text-lg font-bold">נקודות: {clue.currentScore}</span>
               {!clue.isSolved && (
                 <div className="flex items-center gap-3">
                   <button
