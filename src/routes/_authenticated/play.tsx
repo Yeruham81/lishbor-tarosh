@@ -238,7 +238,7 @@ function Play() {
 
         {/* Stage progress text */}
         {profile && (
-          <div className="mb-6 text-center text-sm text-muted-foreground">
+          <div className="mb-6 text-center text-muted-foreground text-base font-normal">
             {next
               ? <>לשלב הבא דרושות עוד <b className="text-foreground">{next.remaining.toLocaleString("he-IL")}</b> נקודות</>
               : <>הגעתם לשלב המקסימלי הזמין</>}

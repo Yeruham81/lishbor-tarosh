@@ -39,16 +39,16 @@ function Levels() {
 
           {/* Score summary */}
           <div className="bg-card border rounded-2xl p-4 mb-5 text-center shadow-card">
-            <div className="text-sm text-muted-foreground">ניקוד כולל</div>
+            <div className="text-muted-foreground text-base font-normal">ניקוד כולל</div>
             <div className="font-display text-3xl font-extrabold text-gradient-sunset">
               {totalScore.toLocaleString("he-IL")}
             </div>
             {next ? (
-              <div className="text-sm text-muted-foreground mt-1">
+              <div className="text-muted-foreground text-base font-normal mt-1">
                 לשלב הבא דרושות עוד {next.remaining.toLocaleString("he-IL")} נקודות
               </div>
             ) : (
-              <div className="text-sm text-muted-foreground mt-1">הגעתם לשלב המקסימלי הזמין</div>
+              <div className="text-muted-foreground text-base font-normal mt-1">הגעתם לשלב המקסימלי הזמין</div>
             )}
           </div>
 
