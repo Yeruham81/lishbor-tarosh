@@ -229,7 +229,7 @@ function Play() {
         {profile && (
           <div className="mb-6">
             <div className="flex justify-between text-xs text-muted-foreground mb-1">
-              <span>רמה {profile.level}</span>
+              <span>שלב {profile.level}</span>
               <span>
                 {profile.total_score} / {nextLevelAt}
               </span>
@@ -303,6 +303,14 @@ function Play() {
               <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
             </div>
 
+            {/* Hints used (if any) */}
+            {!clue.isSolved && clue.hintsUsed > 0 && (
+              <div className="flex justify-center items-center gap-4 text-sm text-muted-foreground mb-4">
+                <span>
+                  רמזים: <b className="text-warning">{clue.hintsUsed}</b>
+                </span>
+              </div>
+            )}
 
             {!clue.isSolved ? (
               <div className="mb-2">
