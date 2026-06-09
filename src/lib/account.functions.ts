@@ -7,34 +7,33 @@ export const getStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const [{ data: profile }, { data: solves }, { count: hintsCount }] = await Promise.all([
-      // NOTE: exclude `email` — column-level SELECT was revoked from authenticated for privacy.
-      supabase.from("profiles").select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, created_at, updated_at").eq("id", userId).single(),
-      supabase
-        .from("game_progress")
-        .select("wrong_guesses, hints_used")
-        .eq("user_id", userId)
-        .eq("is_solved", true),
-      supabase
-        .from("hint_usage")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId),
-    ]);
+    // NOTE: exclude `email` — column-level SELECT was revoked from authenticated for privacy.
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, created_at, updated_at")
+      .eq("id", userId).single();
 
-    const solvedRows = (solves ?? []) as Array<{ wrong_guesses: string[] | null; hints_used: number | null }>;
-    const totalSolved = profile?.solved_count ?? solvedRows.length;
-    const perfectSolves = solvedRows.filter(
-      (r) => (r.wrong_guesses?.length ?? 0) === 0 && (r.hints_used ?? 0) === 0,
-    ).length;
-    const totalWrong = solvedRows.reduce((s, r) => s + (r.wrong_guesses?.length ?? 0), 0);
-    const totalAttempts = totalSolved + totalWrong;
-    const successRate = totalAttempts > 0 ? Math.round((totalSolved / totalAttempts) * 100) : 0;
+    const p: any = profile ?? {};
+    const totalSolved = p.solved_count ?? 0;
+    const totalSkipped = p.definitions_skipped ?? 0;
+    const totalPlayed = p.definitions_played ?? 0;
+    const successRate = totalPlayed > 0 ? Math.round((totalSolved / totalPlayed) * 100) : 0;
 
     return {
       profile,
-      perfectSolves,
+      // Per-stat exposes (kept names for backward compat too)
+      perfectSolves: p.perfect_solves ?? 0,
+      totalHints: p.hints_used_total ?? 0,
+      totalWrongLetters: p.wrong_letters_total ?? 0,
+      definitionsPlayed: totalPlayed,
+      definitionsSolved: totalSolved,
+      definitionsSkipped: totalSkipped,
+      currentPerfectStreak: p.current_streak ?? 0,
+      bestPerfectStreak: p.best_streak ?? 0,
+      currentPlayDaysStreak: p.current_play_days_streak ?? 0,
+      bestPlayDaysStreak: p.best_play_days_streak ?? 0,
+      currentStage: p.level ?? 1,
       successRate,
-      totalHints: hintsCount ?? 0,
     };
   });
 
