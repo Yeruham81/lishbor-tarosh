@@ -43,14 +43,32 @@ function Levels() {
             <div className="font-display text-3xl font-extrabold text-gradient-sunset">
               {totalScore.toLocaleString("he-IL")}
             </div>
-            {next ? (
-              <div className="text-muted-foreground text-base font-normal mt-1">
-                לשלב הבא דרושות עוד {next.remaining.toLocaleString("he-IL")} נקודות
-              </div>
-            ) : (
-              <div className="text-muted-foreground text-base font-normal mt-1">הגעתם לשלב המקסימלי הזמין</div>
-            )}
           </div>
+
+          {next ? (
+            <div className="mb-5">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                <span>שלב {currentStage}</span>
+                <span>
+                  {totalScore.toLocaleString("he-IL")} / {next.required.toLocaleString("he-IL")}
+                </span>
+              </div>
+              <div className="h-2 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-gradient-sunset transition-all duration-500"
+                  style={{
+                    width: `${(() => {
+                      const prev = STAGE_THRESHOLDS[currentStage - 1] ?? 0;
+                      const span = Math.max(1, next.required - prev);
+                      return Math.min(100, Math.max(0, ((totalScore - prev) / span) * 100));
+                    })()}%`,
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="text-muted-foreground text-base font-normal mb-5 text-center">הגעתם לשלב המקסימלי הזמין</div>
+          )}
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {visibleStages.map((lvl) => {
