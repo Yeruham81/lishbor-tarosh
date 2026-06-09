@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,8 +9,7 @@ import { WordBoxes } from "@/components/WordDisplay";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ClueRating } from "@/components/ClueRating";
 import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState } from "@/lib/game.functions";
-import { nextStageInfo, stageFromScore, SCORING, STAGE_THRESHOLDS } from "@/lib/progression";
-import { useSolveNotifications } from "@/components/SolveNotifications";
+import { scoreForNextLevel } from "@/lib/hebrew";
 import { toast } from "sonner";
 import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
 
@@ -21,8 +20,9 @@ type ClueState = Awaited<ReturnType<typeof getNextClue>>;
 function Play() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  useEffect(() => { if (!loading && !user) navigate({ to: "/auth" }); }, [user, loading, navigate]);
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [user, loading, navigate]);
 
   const fetchClue = useServerFn(getNextClue);
   const fetchClueState = useServerFn(getClueState);
@@ -31,14 +31,16 @@ function Play() {
   const doHint = useServerFn(useHint);
   const doSkip = useServerFn(skipClue);
   const qc = useQueryClient();
-  const clueQueryKey = ["clue", user?.id ?? "anon"] as const;
-  const notifications = useSolveNotifications();
 
   // localStorage key — per-user so different accounts on the same browser don't collide.
   const storageKey = user ? `play:currentClueId:${user.id}` : null;
   const readStoredClueId = () => {
     if (!storageKey || typeof window === "undefined") return null;
-    try { return window.localStorage.getItem(storageKey); } catch { return null; }
+    try {
+      return window.localStorage.getItem(storageKey);
+    } catch {
+      return null;
+    }
   };
   const writeStoredClueId = (id: string | null) => {
     if (!storageKey || typeof window === "undefined") return;
@@ -50,36 +52,32 @@ function Play() {
 
   const profileQ = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile(), enabled: !!user });
 
-  const syncClueState = async () => {
-    const storedId = readStoredClueId();
-    if (storedId) {
-      try {
-        const restored = await fetchClueState({ data: { clueId: storedId } });
-        if (restored) return restored;
-      } catch {
-        /* fall through */
-      }
-      writeStoredClueId(null);
-    }
-
-    const next = await fetchClue();
-    if (next && !("exhausted" in next)) writeStoredClueId(next.id);
-    return next;
-  };
-
   // Resume by stored clue id first (handles solved-but-not-advanced + post-refresh).
   // Falls back to getNextClue when there's no stored id or it can no longer be resolved.
   const clueQ = useQuery({
-    queryKey: clueQueryKey,
-    queryFn: syncClueState,
+    queryKey: ["clue", user?.id ?? "anon"],
+    queryFn: async () => {
+      const storedId = readStoredClueId();
+      if (storedId) {
+        try {
+          const restored = await fetchClueState({ data: { clueId: storedId } });
+          if (restored) return restored;
+        } catch {
+          /* fall through */
+        }
+        writeStoredClueId(null);
+      }
+      const next = await fetchClue();
+      if (next && !("exhausted" in next)) writeStoredClueId(next.id);
+      return next;
+    },
     enabled: !!user,
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnWindowFocus: false,
-    refetchOnMount: "always",
+    refetchOnMount: false,
     refetchOnReconnect: false,
   });
-  const { refetch: refetchClue } = clueQ;
 
   const [state, setState] = useState<ClueState | null>(null);
   const [shake, setShake] = useState(false);
@@ -94,28 +92,17 @@ function Play() {
   const lastClueIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (clueQ.data) {
+    if (clueQ.data && !("exhausted" in clueQ.data)) {
       setState(clueQ.data);
-      qc.setQueryData(clueQueryKey, clueQ.data);
-      if (!("exhausted" in clueQ.data)) {
-        prevRevealedCount.current = clueQ.data.revealed.length;
-        writeStoredClueId(clueQ.data.id);
-      } else {
-        prevRevealedCount.current = 0;
-        writeStoredClueId(null);
-      }
+      prevRevealedCount.current = clueQ.data.revealed.length;
+      writeStoredClueId(clueQ.data.id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clueQ.data]);
 
-  useEffect(() => {
-    if (!user || pathname !== "/play") return;
-    void refetchClue();
-  }, [pathname, refetchClue, user?.id]);
-
   // Prefer derived state from query so the first render after restore
   // immediately shows letters without waiting for setState/useEffect.
-  const liveState: ClueState | null = state ?? (clueQ.data ?? null);
+  const liveState: ClueState | null = state ?? clueQ.data ?? null;
   const exhausted = liveState && "exhausted" in liveState;
   const clue = liveState && !("exhausted" in liveState) ? liveState : null;
 
@@ -164,16 +151,19 @@ function Play() {
       const isCorrect = r.revealed.length > prevRevealedCount.current;
       prevRevealedCount.current = r.revealed.length;
       setState(r);
-      qc.setQueryData(clueQueryKey, r);
-      if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
-      if (r.isSolved) {
-        toast.success(`🎉 פתרת את ההגדרה!`);
-        notifications.emit((r as any).events);
-        qc.invalidateQueries({ queryKey: ["profile"] });
-        qc.invalidateQueries({ queryKey: ["stats"] });
+      if (!isCorrect) {
+        setShake(true);
+        setTimeout(() => setShake(false), 400);
       }
-    } catch (e: any) { toast.error(e.message); }
-    finally { setBusy(false); }
+      if (r.isSolved) {
+        toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
+        qc.invalidateQueries({ queryKey: ["profile"] });
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const onHint = async () => {
@@ -183,17 +173,16 @@ function Play() {
       const r = await doHint({ data: { clueId: clue.id } });
       prevRevealedCount.current = r.revealed.length;
       setState(r);
-      qc.setQueryData(clueQueryKey, r);
       if (r.isSolved) {
         toast.success("🎉 נפתר עם רמז!");
-        notifications.emit((r as any).events);
         qc.invalidateQueries({ queryKey: ["profile"] });
-        qc.invalidateQueries({ queryKey: ["stats"] });
       } else toast.info("נחשפה אות חדשה");
-    } catch (e: any) { toast.error(e.message); }
-    finally { setBusy(false); }
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setBusy(false);
+    }
   };
-
 
   const onSkip = async () => {
     if (!clue || busy) return;
@@ -209,62 +198,48 @@ function Play() {
         prevRevealedCount.current = next.revealed.length;
         setState(next);
         writeStoredClueId(next.id);
-      } else {
-        prevRevealedCount.current = 0;
-        setState(next);
       }
-      qc.setQueryData(clueQueryKey, next);
-    } catch (e: any) { toast.error(e.message); }
-    finally { setBusy(false); }
+      qc.setQueryData(["clue", user?.id ?? "anon"], next);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const profile = profileQ.data;
-  const totalScore = profile?.total_score ?? 0;
-  const currentStage = stageFromScore(totalScore);
-  const next = nextStageInfo(totalScore);
+  const nextLevelAt = profile ? scoreForNextLevel(profile.level) : 0;
+  const prevLevelAt = profile ? scoreForNextLevel(profile.level - 1) : 0;
+  const levelProgress =
+    profile && nextLevelAt > prevLevelAt
+      ? Math.min(100, Math.max(0, ((profile.total_score - prevLevelAt) / (nextLevelAt - prevLevelAt)) * 100))
+      : 0;
 
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="relative">
-            <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />
-            {notifications.scoreBurst}
-          </div>
-          <Stat label="שלב" value={currentStage} icon={<Star className="size-4 text-warning" />} />
-          <Stat label="רצף מושלם" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
+          <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
+          <Stat label="רמה" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
+          <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         </div>
 
-        {/* Stage progress bar */}
+        {/* Level progress */}
         {profile && (
           <div className="mb-6">
-            {next ? (
-              (() => {
-                const prevThreshold = STAGE_THRESHOLDS[currentStage - 1] ?? 0;
-                const span = Math.max(1, next.required - prevThreshold);
-                const pct = Math.min(100, Math.max(0, ((totalScore - prevThreshold) / span) * 100));
-                return (
-                  <>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-                      <span>שלב {currentStage}</span>
-                      <span>שלב {next.nextStage}</span>
-                    </div>
-                    <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-sunset transition-all duration-500"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <div className="text-center text-xs text-muted-foreground mt-1.5">
-                      {totalScore.toLocaleString("he-IL")} / {next.required.toLocaleString("he-IL")} נקודות
-                    </div>
-                  </>
-                );
-              })()
-            ) : (
-              <div className="text-center text-muted-foreground text-base font-normal">הגעתם לשלב המקסימלי הזמין</div>
-            )}
+            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+              <span>רמה {profile.level}</span>
+              <span>
+                {profile.total_score} / {nextLevelAt}
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full bg-gradient-sunset transition-all duration-500"
+                style={{ width: `${levelProgress}%` }}
+              />
+            </div>
           </div>
         )}
 
@@ -280,29 +255,25 @@ function Play() {
 
         {clue && (
           <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-base sm:text-lg font-bold">נקודות: {clue.currentScore}</span>
-              {!clue.isSolved && (
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={onHint}
-                    disabled={busy || clue.wrong.length < 2}
-                    title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                  >
-                    <Lightbulb className="size-4" /> רמז
-                  </button>
-                  <button
-                    onClick={onSkip}
-                    disabled={busy}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-sm hover:bg-muted transition disabled:opacity-50"
-                  >
-                    <SkipForward className="size-4" /> דלג
-                  </button>
-                  <MistakesIndicator wrongCount={clue.wrong.length} free={clue.freeWrongs ?? SCORING.FREE_WRONGS} />
-                </div>
-              )}
-            </div>
+            {!clue.isSolved && (
+              <div className="flex gap-2 justify-center mb-4">
+                <button
+                  onClick={onHint}
+                  disabled={busy || clue.wrong.length < 2}
+                  title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  <Lightbulb className="size-4" /> רמז
+                </button>
+                <button
+                  onClick={onSkip}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-sm hover:bg-muted transition disabled:opacity-50"
+                >
+                  <SkipForward className="size-4" /> דלג
+                </button>
+              </div>
+            )}
 
             {clue.category && (
               <div className="flex justify-center mb-2">
@@ -317,6 +288,22 @@ function Play() {
               <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
             </div>
 
+            {/* Score for this puzzle */}
+            <div className="flex justify-center items-center gap-4 text-sm text-muted-foreground mb-4">
+              <span>
+                שווי: <b className="text-foreground">{clue.currentScore}</b>
+              </span>
+              {clue.wrong.length > 0 && (
+                <span>
+                  טעויות: <b className="text-destructive">{clue.wrong.length}</b>
+                </span>
+              )}
+              {clue.hintsUsed > 0 && (
+                <span>
+                  רמזים: <b className="text-warning">{clue.hintsUsed}</b>
+                </span>
+              )}
+            </div>
 
             {!clue.isSolved ? (
               <div className="mb-2">
@@ -347,17 +334,18 @@ function Play() {
                 <div className="flex flex-col items-center gap-2">
                   <button
                     data-next-button="true"
-                    onClick={(e) => { e.stopPropagation(); onSkip(); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSkip();
+                    }}
                     disabled={busy}
                     className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
                   >
-                    להגדרה הבאה
+                    להגדרה הבאה ←
                   </button>
                   {countdown !== null && countdown > 0 && (
-                    <p className="text-muted-foreground text-base font-normal" aria-live="polite">
-                      {countdown === 3
-                        ? "מעבר להגדרה הבאה בעוד 3 שניות..."
-                        : `להגדרה הבאה: ${countdown}...`}
+                    <p className="text-sm text-muted-foreground" aria-live="polite">
+                      {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
                     </p>
                   )}
                 </div>
@@ -367,7 +355,7 @@ function Play() {
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
                   <ShareButtons
-                    text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 נקודות: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
+                    text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
                   />
                 </div>
               </div>
@@ -375,44 +363,18 @@ function Play() {
           </div>
         )}
       </div>
-      {notifications.stageBanner}
     </AppShell>
   );
 }
 
-
 function Stat({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) {
   return (
     <div className="bg-card border rounded-2xl p-3 text-center shadow-card">
-      <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">{icon}{label}</div>
+      <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+        {icon}
+        {label}
+      </div>
       <div className="font-display text-2xl font-extrabold text-gradient-sunset">{value}</div>
-    </div>
-  );
-}
-
-// Visual indicator for the three free mistakes. Filled dots reflect wrong letters
-// used so far (capped at `free`). After exceeding `free`, all dots remain filled.
-function MistakesIndicator({ wrongCount, free }: { wrongCount: number; free: number }) {
-  const filled = Math.min(wrongCount, free);
-  const dots = Array.from({ length: free }, (_, i) => i < filled);
-  const exceeded = wrongCount > free;
-  return (
-    <div
-      className="inline-flex items-center gap-1.5"
-      aria-label={`טעויות חופשיות שנוצלו: ${filled} מתוך ${free}`}
-      title={exceeded ? "כל טעות נוספת עולה נקודה" : `נותרו ${free - filled} טעויות חופשיות`}
-      dir="ltr"
-    >
-      {dots.map((isFilled, i) => (
-        <span
-          key={i}
-          className={`inline-block size-3 rounded-full border-2 transition ${
-            isFilled
-              ? "bg-destructive border-destructive"
-              : "bg-transparent border-muted-foreground/50"
-          }`}
-        />
-      ))}
     </div>
   );
 }
