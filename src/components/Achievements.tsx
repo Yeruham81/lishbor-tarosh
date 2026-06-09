@@ -33,6 +33,7 @@ export function buildAchievementsForStats(s: AchievementStats): AchievementView[
       ...d,
       done: v >= d.threshold,
       remaining: Math.max(0, d.threshold - v),
+      current: v,
     };
   });
 }
