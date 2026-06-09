@@ -32,6 +32,7 @@ function Play() {
   const doSkip = useServerFn(skipClue);
   const qc = useQueryClient();
   const clueQueryKey = ["clue", user?.id ?? "anon"] as const;
+  const notifications = useSolveNotifications();
 
   // localStorage key — per-user so different accounts on the same browser don't collide.
   const storageKey = user ? `play:currentClueId:${user.id}` : null;
