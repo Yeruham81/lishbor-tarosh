@@ -214,6 +214,16 @@ function Profile() {
 
         {/* Account management */}
         <Card icon={<UserCircle2 className="size-5 text-primary" />} title="ניהול החשבון">
+          {/* Nickname (permanent) — shown before avatar */}
+          <div>
+            <div className="text-sm font-medium mb-2">כינוי</div>
+            <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border bg-muted/30">
+              <span className="font-display text-lg font-bold truncate">{p.display_name ?? p.username}</span>
+              <span className="text-xs text-muted-foreground shrink-0">קבוע</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">הכינוי נקבע פעם אחת ולא ניתן לשינוי.</p>
+          </div>
+
           {/* Avatar */}
           <div>
             <div className="text-sm font-medium mb-2">תמונת פרופיל</div>
