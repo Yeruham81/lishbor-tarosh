@@ -10,12 +10,11 @@ import { Trophy, Medal, Award } from "lucide-react";
 
 export const Route = createFileRoute("/leaderboard")({ component: LB });
 
-type Period = "today" | "week" | "month" | "all";
+type Period = "today" | "week" | "month";
 const TABS: { value: Period; label: string }[] = [
   { value: "today", label: "היום" },
   { value: "week", label: "השבוע" },
   { value: "month", label: "החודש" },
-  { value: "all", label: "כל הזמנים" },
 ];
 
 function LB() {
