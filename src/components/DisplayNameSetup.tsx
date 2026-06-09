@@ -4,7 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { getDisplayNameStatus, confirmDisplayName } from "@/lib/account.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { UserCircle2 } from "lucide-react";
+import { UserCircle2, AlertTriangle } from "lucide-react";
+
+// Nickname rules (kept in sync with server-side validation in account.functions.ts):
+// 2–20 chars, Hebrew/English letters and spaces only.
+const NICK_RE = /^[A-Za-z\u0590-\u05FF ]+$/;
 
 export function DisplayNameSetup() {
   const { user } = useAuth();
@@ -22,14 +26,16 @@ export function DisplayNameSetup() {
 
   useEffect(() => {
     if (data && !data.confirmed) {
-      setName(data.suggested ?? data.current ?? "");
+      const seed = (data.suggested ?? data.current ?? "").trim();
+      // Only seed if it already matches the allowed character set
+      setName(NICK_RE.test(seed) && seed.length <= 20 ? seed : "");
     }
   }, [data]);
 
   if (!user || !data || data.confirmed) return null;
 
   const trimmed = name.trim();
-  const valid = trimmed.length >= 1 && trimmed.length <= 40;
+  const valid = trimmed.length >= 2 && trimmed.length <= 20 && NICK_RE.test(trimmed);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +43,7 @@ export function DisplayNameSetup() {
     setBusy(true);
     try {
       await doConfirm({ data: { displayName: trimmed } });
-      toast.success("שם התצוגה נשמר. ברוך הבא! 🎉");
+      toast.success("הכינוי נשמר. ברוך הבא! 🎉");
       await qc.invalidateQueries({ queryKey: ["display-name-status"] });
       await qc.invalidateQueries({ queryKey: ["profile"] });
       await qc.invalidateQueries({ queryKey: ["stats"] });
@@ -57,22 +63,29 @@ export function DisplayNameSetup() {
         <div className="text-center">
           <UserCircle2 className="size-12 mx-auto text-primary mb-2" />
           <h2 className="font-display text-2xl font-extrabold text-gradient-sunset">
-            איך לקרוא לך?
+            בחרו כינוי
           </h2>
           <p className="text-sm text-muted-foreground mt-3">
-            אפשר לבחור שם פרטי, שם מלא או כינוי
+            2–20 תווים, עברית או אנגלית, ניתן להוסיף רווחים
           </p>
         </div>
 
         <input
-          dir="rtl"
+          dir="auto"
           autoFocus
           value={name}
           onChange={(e) => setName(e.target.value)}
-          maxLength={40}
-          aria-label="שם תצוגה"
+          maxLength={20}
+          aria-label="כינוי"
           className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
         />
+
+        <div className="flex items-start gap-2 bg-warning/10 border border-warning/30 rounded-xl p-3 text-sm">
+          <AlertTriangle className="size-4 text-warning shrink-0 mt-0.5" />
+          <p className="text-foreground/90">
+            שימו לב, הכינוי הוא קבוע ולא תוכלו לשנות אותו בהמשך
+          </p>
+        </div>
 
         <button
           type="submit"
