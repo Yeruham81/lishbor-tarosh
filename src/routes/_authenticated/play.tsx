@@ -9,7 +9,7 @@ import { WordBoxes } from "@/components/WordDisplay";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ClueRating } from "@/components/ClueRating";
 import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState } from "@/lib/game.functions";
-import { nextStageInfo, stageFromScore, SCORING } from "@/lib/progression";
+import { nextStageInfo, stageFromScore, SCORING, STAGE_THRESHOLDS } from "@/lib/progression";
 import { useSolveNotifications } from "@/components/SolveNotifications";
 import { toast } from "sonner";
 import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
@@ -236,12 +236,35 @@ function Play() {
           <Stat label="רצף מושלם" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         </div>
 
-        {/* Stage progress text */}
+        {/* Stage progress bar */}
         {profile && (
-          <div className="mb-6 text-center text-muted-foreground text-base font-normal">
-            {next
-              ? <>לשלב הבא דרושות עוד <b className="text-foreground">{next.remaining.toLocaleString("he-IL")}</b> נקודות</>
-              : <>הגעתם לשלב המקסימלי הזמין</>}
+          <div className="mb-6">
+            {next ? (
+              (() => {
+                const prevThreshold = STAGE_THRESHOLDS[currentStage - 1] ?? 0;
+                const span = Math.max(1, next.required - prevThreshold);
+                const pct = Math.min(100, Math.max(0, ((totalScore - prevThreshold) / span) * 100));
+                return (
+                  <>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+                      <span>שלב {currentStage}</span>
+                      <span>שלב {next.nextStage}</span>
+                    </div>
+                    <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-sunset transition-all duration-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div className="text-center text-xs text-muted-foreground mt-1.5">
+                      {totalScore.toLocaleString("he-IL")} / {next.required.toLocaleString("he-IL")} נקודות
+                    </div>
+                  </>
+                );
+              })()
+            ) : (
+              <div className="text-center text-muted-foreground text-base font-normal">הגעתם לשלב המקסימלי הזמין</div>
+            )}
           </div>
         )}
 
