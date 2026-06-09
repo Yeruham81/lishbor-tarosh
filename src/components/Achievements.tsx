@@ -86,6 +86,7 @@ export function AchievementsByCategory({ stats }: { stats: AchievementStats }) {
 }
 
 function AchievementCard({ a }: { a: AchievementView }) {
+  const pct = a.done ? 100 : Math.min(100, Math.round((a.current / a.threshold) * 100));
   return (
     <div
       className={`p-4 rounded-2xl border shadow-card transition ${
@@ -107,6 +108,19 @@ function AchievementCard({ a }: { a: AchievementView }) {
           >
             {a.description}
           </div>
+          {!a.done && (
+            <div className="mt-2">
+              <div className="h-2 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-gradient-sunset transition-all"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 tabular-nums">
+                {a.current.toLocaleString("he-IL")} / {a.threshold.toLocaleString("he-IL")}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
