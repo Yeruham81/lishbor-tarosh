@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -20,6 +20,7 @@ type ClueState = Awaited<ReturnType<typeof getNextClue>>;
 function Play() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   useEffect(() => { if (!loading && !user) navigate({ to: "/auth" }); }, [user, loading, navigate]);
 
   const fetchClue = useServerFn(getNextClue);
@@ -103,6 +104,11 @@ function Play() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clueQ.data]);
+
+  useEffect(() => {
+    if (!user || pathname !== "/play") return;
+    void clueQ.refetch();
+  }, [pathname, user?.id]);
 
   // Prefer derived state from query so the first render after restore
   // immediately shows letters without waiting for setState/useEffect.
