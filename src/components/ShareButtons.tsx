@@ -30,15 +30,15 @@ export function ShareButtons({ text, url, title = "לשבור ת'ראש" }: Prop
     if (nav && typeof nav.share === "function") {
       try {
         await nav.share({ title, text, url: shareUrl });
-        toast.success("שותף בהצלחה!");
         return;
       } catch (e: any) {
-        // User cancelled — don't show error; fall through to copy only on real failure
-        if (e?.name === "AbortError") return;
+        if (e?.name !== "AbortError") {
+          toast.error("שיתוף נכשל");
+        }
       }
+    } else {
+      toast.info("הדפדפן אינו תומך בשיתוף ישיר");
     }
-    // Fallback
-    await copy();
   };
 
   const links = [
