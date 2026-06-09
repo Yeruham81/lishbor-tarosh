@@ -272,21 +272,43 @@ function Play() {
                 <HebrewKeyboard onLetter={onLetter} revealed={clue.revealed} wrong={clue.wrong} disabled={busy} />
               </div>
             ) : (
-              <div className="text-center py-6 animate-fade-in space-y-6">
+              <div
+                className="text-center py-6 animate-fade-in space-y-6"
+                // Any interaction inside the success screen cancels auto-advance,
+                // EXCEPT clicks on the explicit "next" button (which calls onSkip directly).
+                onPointerDownCapture={(e) => {
+                  const t = e.target as HTMLElement;
+                  if (t.closest('[data-next-button="true"]')) return;
+                  cancelAutoAdvance();
+                }}
+                onKeyDownCapture={(e) => {
+                  const t = e.target as HTMLElement;
+                  if (t.closest('[data-next-button="true"]')) return;
+                  cancelAutoAdvance();
+                }}
+              >
                 <div>
                   <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
                   <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
                   <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
                 </div>
 
-                <div className="flex justify-center">
+                <div className="flex flex-col items-center gap-2">
                   <button
-                    onClick={onSkip}
+                    data-next-button="true"
+                    onClick={(e) => { e.stopPropagation(); onSkip(); }}
                     disabled={busy}
                     className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
                   >
                     להגדרה הבאה ←
                   </button>
+                  {countdown !== null && countdown > 0 && (
+                    <p className="text-sm text-muted-foreground" aria-live="polite">
+                      {countdown === 3
+                        ? "מעבר להגדרה הבאה בעוד 3 שניות..."
+                        : `להגדרה הבאה: ${countdown}...`}
+                    </p>
+                  )}
                 </div>
 
                 <ClueRating clueId={clue.id} />
