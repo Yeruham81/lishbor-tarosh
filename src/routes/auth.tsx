@@ -120,7 +120,7 @@ function AuthPage() {
           <button type="button" onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="w-full mt-2 text-sm text-muted-foreground hover:text-foreground">
             {mode === "forgot" ? "← חזרה להתחברות"
               : mode === "signin" ? "עדיין לא נרשמתם? לחצו כאן"
-              : "כבר נרשמתם? התחברו והמשיכו לשחק"}
+              : "כבר נרשמתם? לחצו כאן כדי להתחבר"}
           </button>
         </div>
         <div className="text-center mt-4"><Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← חזרה למסך הבית</Link></div>
