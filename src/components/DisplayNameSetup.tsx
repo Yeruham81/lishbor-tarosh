@@ -43,7 +43,7 @@ export function DisplayNameSetup() {
     setBusy(true);
     try {
       await doConfirm({ data: { displayName: trimmed } });
-      toast.success("הכינוי נשמר. ברוך הבא! 🎉");
+      toast.success("הכינוי שבחרתם נשמר. ברוכים הבאים! 🎉");
       await qc.invalidateQueries({ queryKey: ["display-name-status"] });
       await qc.invalidateQueries({ queryKey: ["profile"] });
       await qc.invalidateQueries({ queryKey: ["stats"] });
