@@ -9,7 +9,7 @@ import {
   getStats, deleteAccount, resetAccount,
   updatePreferences, setAvatarPath, getAvatarUrl,
 } from "@/lib/account.functions";
-import { scoreForNextLevel } from "@/lib/hebrew";
+import { stageFromScore, nextStageInfo } from "@/lib/progression";
 import { PALETTES, type Palette } from "@/hooks/use-theme";
 import { toast } from "sonner";
 import {
