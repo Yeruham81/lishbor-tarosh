@@ -21,7 +21,7 @@ function Index() {
         </p>
         <div className="flex justify-center">
           <Link to={user ? "/play" : "/auth"} className="px-8 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 active:scale-95 transition">
-            {user ? "בואו נשחק" : "התחילו לשחק"}
+            {user ? "למשחק" : "התחילו לשחק"}
           </Link>
         </div>
 
