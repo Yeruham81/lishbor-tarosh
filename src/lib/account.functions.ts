@@ -101,7 +101,7 @@ export const confirmDisplayName = createServerFn({ method: "POST" })
       .eq("id", userId)
       .single();
     if (existing?.display_name_confirmed) {
-      throw new Error("שם התצוגה כבר אושר ולא ניתן לשנותו");
+      throw new Error("הכינוי כבר אושר ולא ניתן לשנותו");
     }
     const { error } = await supabase
       .from("profiles")
