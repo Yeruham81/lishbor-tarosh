@@ -77,6 +77,7 @@ function Play() {
     refetchOnMount: "always",
     refetchOnReconnect: false,
   });
+  const { refetch: refetchClue } = clueQ;
 
   const [state, setState] = useState<ClueState | null>(null);
   const [shake, setShake] = useState(false);
@@ -107,8 +108,8 @@ function Play() {
 
   useEffect(() => {
     if (!user || pathname !== "/play") return;
-    void clueQ.refetch();
-  }, [pathname, user?.id]);
+    void refetchClue();
+  }, [pathname, refetchClue, user?.id]);
 
   // Prefer derived state from query so the first render after restore
   // immediately shows letters without waiting for setState/useEffect.
