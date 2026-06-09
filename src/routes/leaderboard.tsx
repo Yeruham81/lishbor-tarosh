@@ -87,7 +87,7 @@ function Row({ row, rank, isMe, hasBorder }: { row: any; rank: number; isMe: boo
       </div>
       <div className="flex-1 min-w-0">
         <div className="font-bold truncate">{row.display_name ?? row.username}</div>
-        <div className="text-xs text-muted-foreground">רמה {row.level} • {row.solved_count} פתרונות • שיא רצף {row.best_streak}</div>
+        <div className="text-xs text-muted-foreground">שלב {row.level} • {row.solved_count} פתרונות • שיא רצף {row.best_streak}</div>
       </div>
       <div
         className="font-display text-2xl font-extrabold text-gradient-sunset"

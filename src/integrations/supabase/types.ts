@@ -176,6 +176,7 @@ export type Database = {
           created_at: string
           hints_used: number
           id: string
+          is_perfect: boolean
           is_solved: boolean
           revealed_letters: string[]
           score_earned: number
@@ -189,6 +190,7 @@ export type Database = {
           created_at?: string
           hints_used?: number
           id?: string
+          is_perfect?: boolean
           is_solved?: boolean
           revealed_letters?: string[]
           score_earned?: number
@@ -202,6 +204,7 @@ export type Database = {
           created_at?: string
           hints_used?: number
           id?: string
+          is_perfect?: boolean
           is_solved?: boolean
           revealed_letters?: string[]
           score_earned?: number
@@ -264,60 +267,84 @@ export type Database = {
           auth_provider: string | null
           auto_next: boolean
           avatar_url: string | null
+          best_play_days_streak: number
           best_streak: number
           created_at: string
+          current_play_days_streak: number
           current_streak: number
+          definitions_played: number
+          definitions_skipped: number
           display_name: string | null
           display_name_confirmed: boolean
           email: string | null
+          hints_used_total: number
           id: string
           is_private: boolean
+          last_play_date: string | null
           level: number
           notification_prefs: Json
+          perfect_solves: number
           solved_count: number
           total_score: number
           updated_at: string
           username: string
+          wrong_letters_total: number
         }
         Insert: {
           accessibility_prefs?: Json
           auth_provider?: string | null
           auto_next?: boolean
           avatar_url?: string | null
+          best_play_days_streak?: number
           best_streak?: number
           created_at?: string
+          current_play_days_streak?: number
           current_streak?: number
+          definitions_played?: number
+          definitions_skipped?: number
           display_name?: string | null
           display_name_confirmed?: boolean
           email?: string | null
+          hints_used_total?: number
           id: string
           is_private?: boolean
+          last_play_date?: string | null
           level?: number
           notification_prefs?: Json
+          perfect_solves?: number
           solved_count?: number
           total_score?: number
           updated_at?: string
           username: string
+          wrong_letters_total?: number
         }
         Update: {
           accessibility_prefs?: Json
           auth_provider?: string | null
           auto_next?: boolean
           avatar_url?: string | null
+          best_play_days_streak?: number
           best_streak?: number
           created_at?: string
+          current_play_days_streak?: number
           current_streak?: number
+          definitions_played?: number
+          definitions_skipped?: number
           display_name?: string | null
           display_name_confirmed?: boolean
           email?: string | null
+          hints_used_total?: number
           id?: string
           is_private?: boolean
+          last_play_date?: string | null
           level?: number
           notification_prefs?: Json
+          perfect_solves?: number
           solved_count?: number
           total_score?: number
           updated_at?: string
           username?: string
+          wrong_letters_total?: number
         }
         Relationships: []
       }

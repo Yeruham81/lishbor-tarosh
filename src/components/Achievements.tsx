@@ -1,97 +1,136 @@
 import { Trophy, Lock } from "lucide-react";
+import {
+  ACHIEVEMENT_TIERS,
+  CATEGORY_LABELS,
+  CATEGORY_REMAINING_LABEL,
+  buildAchievementDefs,
+  type AchievementCategory,
+  type AchievementDef,
+} from "@/lib/progression";
 
-export type Achievement = {
-  id: string;
-  title: string;
-  desc: string;
-  done: boolean;
-  progress?: { cur: number; max: number };
+export type AchievementView = AchievementDef & { done: boolean; remaining: number };
+
+export type AchievementStats = {
+  solvedCount: number;
+  perfectSolves: number;
+  playDaysStreak: number; // use current_play_days_streak (consecutive)
+  bestPlayDaysStreak?: number;
 };
 
-export function buildAchievements(
-  p: { solved_count: number; best_streak: number; total_score: number },
-  perfectSolves: number,
-): Achievement[] {
-  const solveTiers = [1, 10, 50, 100, 250, 500];
-  const streakTiers = [3, 5, 10, 20];
-  const perfectTiers = [1, 10, 50];
-  const list: Achievement[] = [];
-  for (const n of solveTiers) {
-    list.push({
-      id: `solve-${n}`,
-      title: n === 1 ? "פתירת הגדרה ראשונה" : `פתירת ${n} הגדרות`,
-      desc: n === 1 ? "ההגדרה הראשונה שלכם!" : `פתרו ${n} הגדרות בסך הכל`,
-      done: p.solved_count >= n,
-      progress: { cur: Math.min(p.solved_count, n), max: n },
-    });
-  }
-  for (const n of perfectTiers) {
-    list.push({
-      id: `perfect-${n}`,
-      title: n === 1 ? "פתירה מושלמת ראשונה" : `${n} פתירות מושלמות`,
-      desc: "ללא טעויות וללא רמזים",
-      done: perfectSolves >= n,
-      progress: { cur: Math.min(perfectSolves, n), max: n },
-    });
-  }
-  for (const n of streakTiers) {
-    list.push({
-      id: `streak-${n}`,
-      title: `רצף של ${n}`,
-      desc: `פתרו ${n} הגדרות ברצף`,
-      done: p.best_streak >= n,
-      progress: { cur: Math.min(p.best_streak, n), max: n },
-    });
-  }
-  return list;
+function valueFor(category: AchievementCategory, s: AchievementStats): number {
+  if (category === "solved") return s.solvedCount;
+  if (category === "perfect") return s.perfectSolves;
+  // For consecutive-day achievements, use the best run reached so they don't
+  // un-complete when the user misses a day.
+  return Math.max(s.playDaysStreak, s.bestPlayDaysStreak ?? 0);
 }
 
-export function AchievementsGrid({ items }: { items: Achievement[] }) {
+export function buildAchievementsForStats(s: AchievementStats): AchievementView[] {
+  const defs = buildAchievementDefs();
+  return defs.map((d) => {
+    const v = valueFor(d.category, s);
+    return {
+      ...d,
+      done: v >= d.threshold,
+      remaining: Math.max(0, d.threshold - v),
+    };
+  });
+}
+
+// Group achievements by category. Within each category, show:
+//  - All already-completed tiers
+//  - PLUS the next not-yet-completed tier (with remaining-only label)
+// Hide further locked tiers to keep the screen clean.
+export function groupAchievementsForDisplay(
+  s: AchievementStats,
+): { category: AchievementCategory; label: string; items: AchievementView[]; nextRemainingLabel: string | null }[] {
+  const all = buildAchievementsForStats(s);
+  const cats: AchievementCategory[] = ["solved", "perfect", "play_days"];
+  return cats.map((cat) => {
+    const inCat = all.filter((a) => a.category === cat).sort((a, b) => a.threshold - b.threshold);
+    const completed = inCat.filter((a) => a.done);
+    const nextLocked = inCat.find((a) => !a.done);
+    const items = nextLocked ? [...completed, nextLocked] : completed;
+    return {
+      category: cat,
+      label: CATEGORY_LABELS[cat],
+      items,
+      nextRemainingLabel: nextLocked ? CATEGORY_REMAINING_LABEL[cat](nextLocked.remaining) : null,
+    };
+  });
+}
+
+export function AchievementsByCategory({ stats }: { stats: AchievementStats }) {
+  const groups = groupAchievementsForDisplay(stats);
   return (
-    <div className="grid sm:grid-cols-2 gap-3">
-      {items.map((a) => (
-        <div
-          key={a.id}
-          className={`p-4 rounded-2xl border shadow-card transition ${
-            a.done ? "bg-gradient-sunset text-white border-transparent" : "bg-card"
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            <div
-              className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${
-                a.done ? "bg-white/20" : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {a.done ? <Trophy className="size-5" /> : <Lock className="size-4" />}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-bold">{a.title}</div>
-              <div
-                className={`text-xs ${
-                  a.done ? "text-white/80" : "text-muted-foreground"
-                }`}
-              >
-                {a.desc}
-              </div>
-              {a.progress && !a.done && (
-                <div className="mt-2">
-                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-sunset"
-                      style={{
-                        width: `${(a.progress.cur / a.progress.max) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  <div className="text-[11px] text-muted-foreground mt-1">
-                    {a.progress.cur} / {a.progress.max}
-                  </div>
-                </div>
-              )}
-            </div>
+    <div className="space-y-6">
+      {groups.map((g) => (
+        <div key={g.category}>
+          <div className="flex items-baseline justify-between mb-2">
+            <h3 className="font-display text-lg font-bold">{g.label}</h3>
+            {g.nextRemainingLabel && (
+              <span className="text-sm text-muted-foreground">{g.nextRemainingLabel}</span>
+            )}
           </div>
+          {g.items.length === 0 ? (
+            <div className="text-sm text-muted-foreground py-3">אין עדיין הישגים בקטגוריה זו</div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-3">
+              {g.items.map((a) => (
+                <AchievementCard key={a.id} a={a} />
+              ))}
+            </div>
+          )}
         </div>
       ))}
     </div>
   );
 }
+
+function AchievementCard({ a }: { a: AchievementView }) {
+  return (
+    <div
+      className={`p-4 rounded-2xl border shadow-card transition ${
+        a.done ? "bg-gradient-sunset text-white border-transparent" : "bg-card"
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${
+            a.done ? "bg-white/20" : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {a.done ? <Trophy className="size-5" /> : <Lock className="size-4" />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-bold">{a.title}</div>
+          <div
+            className={`text-xs ${a.done ? "text-white/80" : "text-muted-foreground"}`}
+          >
+            {a.description}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---- Back-compat: keep legacy export names so existing imports compile ----
+export type Achievement = AchievementView;
+export function buildAchievements(
+  p: { solved_count: number; best_streak?: number; total_score?: number; current_play_days_streak?: number; best_play_days_streak?: number },
+  perfectSolves: number,
+): AchievementView[] {
+  return buildAchievementsForStats({
+    solvedCount: p.solved_count ?? 0,
+    perfectSolves,
+    playDaysStreak: p.current_play_days_streak ?? 0,
+    bestPlayDaysStreak: p.best_play_days_streak ?? 0,
+  });
+}
+export function AchievementsGrid({ items: _items }: { items: AchievementView[] }) {
+  // Legacy flat grid no longer used; kept as a no-op placeholder.
+  return null;
+}
+// Tier counts for screens that show total counts.
+export const ACHIEVEMENT_TIER_COUNTS = ACHIEVEMENT_TIERS;

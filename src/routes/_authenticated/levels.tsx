@@ -6,9 +6,9 @@ import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { getProfile } from "@/lib/game.functions";
 import { getStats } from "@/lib/account.functions";
-import { scoreForNextLevel } from "@/lib/hebrew";
-import { buildAchievements, AchievementsGrid } from "@/components/Achievements";
-import { Lock, Check, Award } from "lucide-react";
+import { STAGE_THRESHOLDS, stageFromScore, nextStageInfo } from "@/lib/progression";
+import { AchievementsByCategory } from "@/components/Achievements";
+import { Check, Award } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/levels")({ component: Levels });
 
@@ -20,31 +20,51 @@ function Levels() {
   const fetchStats = useServerFn(getStats);
   const { data: p } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile(), enabled: !!user });
   const { data: stats } = useQuery({ queryKey: ["stats"], queryFn: () => fetchStats(), enabled: !!user });
-  const cur = p?.level ?? 1;
 
-  const achievements = p && stats
-    ? buildAchievements(p, stats.perfectSolves)
-    : [];
-  const completed = achievements.filter((a) => a.done).length;
+  const totalScore = p?.total_score ?? 0;
+  const currentStage = stageFromScore(totalScore);
+  const next = nextStageInfo(totalScore);
+
+  // Visible stages: 1..currentStage AND one locked stage beyond (next), if exists.
+  const visibleStages: number[] = [];
+  for (let s = 1; s <= currentStage; s++) visibleStages.push(s);
+  if (next) visibleStages.push(next.nextStage);
 
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-8 max-w-2xl space-y-10">
         <section>
-          <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">רמות</h1>
-          <p className="text-center text-muted-foreground mb-6">פתרו הגדרות כדי לעלות ברמות ולשחרר הגדרות מאתגרות יותר</p>
+          <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">שלבים</h1>
+          <p className="text-center text-muted-foreground mb-4">פתרו הגדרות וצברו ניקוד כדי להתקדם בשלבים</p>
+
+          {/* Score summary */}
+          <div className="bg-card border rounded-2xl p-4 mb-5 text-center shadow-card">
+            <div className="text-sm text-muted-foreground">ניקוד כולל</div>
+            <div className="font-display text-3xl font-extrabold text-gradient-sunset">
+              {totalScore.toLocaleString("he-IL")}
+            </div>
+            {next ? (
+              <div className="text-sm text-muted-foreground mt-1">
+                לשלב הבא דרושות עוד {next.remaining.toLocaleString("he-IL")} נקודות
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground mt-1">הגעתם לשלב המקסימלי הזמין</div>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {Array.from({ length: 15 }).map((_, i) => {
-              const lvl = i + 1;
-              const required = scoreForNextLevel(lvl - 1);
-              const unlocked = cur >= lvl;
-              const current = cur === lvl;
-              // Future levels: keep hidden until reached.
+            {visibleStages.map((lvl) => {
+              const unlocked = lvl <= currentStage;
+              const current = lvl === currentStage && unlocked;
+              const required = STAGE_THRESHOLDS[lvl - 1] ?? 0; // threshold to reach this stage
               if (!unlocked) {
                 return (
-                  <div key={lvl} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border bg-muted/30 min-h-[140px]">
-                    <Lock className="size-6 text-muted-foreground" />
-                    <div className="text-xs text-muted-foreground">נדרשים {required} נק׳</div>
+                  <div key={lvl} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border bg-muted/30 min-h-[140px] text-center">
+                    <div className="size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-lg bg-muted text-muted-foreground">
+                      {lvl}
+                    </div>
+                    <div className="font-bold">שלב {lvl}</div>
+                    <div className="text-xs text-muted-foreground">דרושות {required.toLocaleString("he-IL")} נקודות</div>
                   </div>
                 );
               }
@@ -58,8 +78,7 @@ function Levels() {
                   <div className={`size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-lg ${current ? "bg-white/20" : "bg-gradient-sunset text-white"}`}>
                     {lvl}
                   </div>
-                  <div className="font-bold">רמה {lvl}</div>
-                  <div className={`text-xs ${current ? "text-white/80" : "text-muted-foreground"}`}>נדרשים {required} נק׳</div>
+                  <div className="font-bold">שלב {lvl}</div>
                   {current ? (
                     <Link to="/play" className="px-3 py-1.5 rounded-lg bg-white text-primary font-bold text-sm">המשך</Link>
                   ) : (
@@ -76,14 +95,18 @@ function Levels() {
             <h2 className="font-display text-2xl font-bold flex items-center gap-2">
               <Award className="size-6 text-primary" /> אתגרים
             </h2>
-            {achievements.length > 0 && (
-              <span className="text-sm text-muted-foreground">{completed}/{achievements.length} הושלמו</span>
-            )}
           </div>
-          {achievements.length === 0 ? (
+          {!stats ? (
             <div className="text-center text-muted-foreground py-6">טוען אתגרים...</div>
           ) : (
-            <AchievementsGrid items={achievements} />
+            <AchievementsByCategory
+              stats={{
+                solvedCount: stats.definitionsSolved ?? 0,
+                perfectSolves: stats.perfectSolves ?? 0,
+                playDaysStreak: stats.currentPlayDaysStreak ?? 0,
+                bestPlayDaysStreak: stats.bestPlayDaysStreak ?? 0,
+              }}
+            />
           )}
         </section>
       </div>

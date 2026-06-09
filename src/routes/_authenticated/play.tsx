@@ -9,7 +9,7 @@ import { WordBoxes } from "@/components/WordDisplay";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ClueRating } from "@/components/ClueRating";
 import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState } from "@/lib/game.functions";
-import { scoreForNextLevel } from "@/lib/hebrew";
+import { nextStageInfo, stageFromScore, SCORING } from "@/lib/progression";
 import { toast } from "sonner";
 import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
 
@@ -210,32 +210,26 @@ function Play() {
   };
 
   const profile = profileQ.data;
-  const nextLevelAt = profile ? scoreForNextLevel(profile.level) : 0;
-  const prevLevelAt = profile ? scoreForNextLevel(profile.level - 1) : 0;
-  const levelProgress = profile && nextLevelAt > prevLevelAt
-    ? Math.min(100, Math.max(0, ((profile.total_score - prevLevelAt) / (nextLevelAt - prevLevelAt)) * 100))
-    : 0;
+  const totalScore = profile?.total_score ?? 0;
+  const currentStage = stageFromScore(totalScore);
+  const next = nextStageInfo(totalScore);
 
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <Stat label="ניקוד" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
-          <Stat label="רמה" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
-          <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
+          <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />
+          <Stat label="שלב" value={currentStage} icon={<Star className="size-4 text-warning" />} />
+          <Stat label="רצף מושלם" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         </div>
 
-        {/* Level progress */}
+        {/* Stage progress text */}
         {profile && (
-          <div className="mb-6">
-            <div className="flex justify-between text-xs text-muted-foreground mb-1">
-              <span>רמה {profile.level}</span>
-              <span>{profile.total_score} / {nextLevelAt}</span>
-            </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div className="h-full bg-gradient-sunset transition-all duration-500" style={{ width: `${levelProgress}%` }} />
-            </div>
+          <div className="mb-6 text-center text-sm text-muted-foreground">
+            {next
+              ? <>לשלב הבא דרושות עוד <b className="text-foreground">{next.remaining.toLocaleString("he-IL")}</b> נקודות</>
+              : <>הגעתם לשלב המקסימלי הזמין</>}
           </div>
         )}
 
@@ -252,7 +246,7 @@ function Play() {
         {clue && (
           <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
             {!clue.isSolved && (
-              <div className="flex gap-2 justify-center mb-4">
+              <div className="flex items-center gap-3 justify-center mb-4">
                 <button
                   onClick={onHint}
                   disabled={busy || clue.wrong.length < 2}
@@ -268,6 +262,7 @@ function Play() {
                 >
                   <SkipForward className="size-4" /> דלג
                 </button>
+                <MistakesIndicator wrongCount={clue.wrong.length} free={clue.freeWrongs ?? SCORING.FREE_WRONGS} />
               </div>
             )}
 
@@ -357,6 +352,33 @@ function Stat({ label, value, icon }: { label: string; value: number | string; i
     <div className="bg-card border rounded-2xl p-3 text-center shadow-card">
       <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">{icon}{label}</div>
       <div className="font-display text-2xl font-extrabold text-gradient-sunset">{value}</div>
+    </div>
+  );
+}
+
+// Visual indicator for the three free mistakes. Filled dots reflect wrong letters
+// used so far (capped at `free`). After exceeding `free`, all dots remain filled.
+function MistakesIndicator({ wrongCount, free }: { wrongCount: number; free: number }) {
+  const filled = Math.min(wrongCount, free);
+  const dots = Array.from({ length: free }, (_, i) => i < filled);
+  const exceeded = wrongCount > free;
+  return (
+    <div
+      className="inline-flex items-center gap-1.5"
+      aria-label={`טעויות חופשיות שנוצלו: ${filled} מתוך ${free}`}
+      title={exceeded ? "כל טעות נוספת עולה נקודה" : `נותרו ${free - filled} טעויות חופשיות`}
+      dir="ltr"
+    >
+      {dots.map((isFilled, i) => (
+        <span
+          key={i}
+          className={`inline-block size-3 rounded-full border-2 transition ${
+            isFilled
+              ? "bg-destructive border-destructive"
+              : "bg-transparent border-muted-foreground/50"
+          }`}
+        />
+      ))}
     </div>
   );
 }
