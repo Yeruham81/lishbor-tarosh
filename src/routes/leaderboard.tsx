@@ -10,11 +10,12 @@ import { Trophy, Medal, Award } from "lucide-react";
 
 export const Route = createFileRoute("/leaderboard")({ component: LB });
 
-type Period = "today" | "week" | "month";
+type Period = "today" | "week" | "month" | "all";
 const TABS: { value: Period; label: string }[] = [
   { value: "today", label: "היום" },
   { value: "week", label: "השבוע" },
   { value: "month", label: "החודש" },
+  { value: "all", label: "כל הזמנים" },
 ];
 
 function LB() {
@@ -32,7 +33,7 @@ function LB() {
         </div>
 
         <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} dir="rtl">
-          <TabsList className="grid grid-cols-3 w-full mb-4">
+          <TabsList className="grid grid-cols-4 w-full mb-4">
             {TABS.map((t) => (
               <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>
             ))}
@@ -52,15 +53,15 @@ function Board({ period, currentUserId }: { period: Period; currentUserId?: stri
   const fetchLB = useServerFn(getLeaderboardByPeriod);
   const { data, isLoading } = useQuery({
     queryKey: ["lb", period],
-    queryFn: () => fetchLB({ data: { period } }),
-    enabled: true,
+    queryFn: () => fetchLB({ data: { period: period as "today" | "week" | "month" } }),
+    enabled: period !== "all",
   });
 
-  if (isLoading) {
+  if (isLoading && period !== "all") {
     return <div className="p-8 text-center text-muted-foreground">טוען...</div>;
   }
 
-  const rows = data ?? [];
+  const rows = period === "all" ? [] : (data ?? []);
   if (rows.length === 0) {
     return <div className="bg-card border rounded-3xl shadow-card p-8 text-center text-muted-foreground">אין עדיין שחקנים בתקופה זו</div>;
   }
