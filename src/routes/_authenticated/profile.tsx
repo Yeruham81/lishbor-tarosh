@@ -13,7 +13,7 @@ import { stageFromScore, nextStageInfo } from "@/lib/progression";
 import { PALETTES, type Palette } from "@/hooks/use-theme";
 import { toast } from "sonner";
 import {
-  Trophy, Flame, Target, Award, Percent, Sparkles, Lightbulb, CheckCircle2,
+  Award,
   Sun, Moon, Palette as PaletteIcon, Trash2, Eraser, UserCircle2, KeyRound,
   EyeOff, BellOff, Gamepad2, Accessibility, Camera, X, Type, LogOut, RotateCcw,
 } from "lucide-react";
