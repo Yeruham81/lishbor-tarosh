@@ -341,7 +341,7 @@ function Play() {
                     disabled={busy}
                     className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
                   >
-                    להגדרה הבאה ←
+                    להגדרה הבאה
                   </button>
                   {countdown !== null && countdown > 0 && (
                     <p className="text-sm text-muted-foreground" aria-live="polite">
