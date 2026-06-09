@@ -17,7 +17,7 @@ function Index() {
           <span className="text-gradient-sunset">לשבור ת'ראש</span>
         </h1>
         <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          כי זה לא רק מה שאתם יודעים - זה גם איך אתם חושבים
+          כי זה לא רק מה אתם יודעים - זה גם איך אתם חושבים
         </p>
         <div className="flex justify-center">
           <Link to={user ? "/play" : "/auth"} className="px-8 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 active:scale-95 transition">
