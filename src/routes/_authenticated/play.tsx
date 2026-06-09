@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -20,6 +20,7 @@ type ClueState = Awaited<ReturnType<typeof getNextClue>>;
 function Play() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   useEffect(() => { if (!loading && !user) navigate({ to: "/auth" }); }, [user, loading, navigate]);
 
   const fetchClue = useServerFn(getNextClue);
@@ -29,6 +30,7 @@ function Play() {
   const doHint = useServerFn(useHint);
   const doSkip = useServerFn(skipClue);
   const qc = useQueryClient();
+  const clueQueryKey = ["clue", user?.id ?? "anon"] as const;
 
   // localStorage key — per-user so different accounts on the same browser don't collide.
   const storageKey = user ? `play:currentClueId:${user.id}` : null;
@@ -46,23 +48,28 @@ function Play() {
 
   const profileQ = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile(), enabled: !!user });
 
+  const syncClueState = async () => {
+    const storedId = readStoredClueId();
+    if (storedId) {
+      try {
+        const restored = await fetchClueState({ data: { clueId: storedId } });
+        if (restored) return restored;
+      } catch {
+        /* fall through */
+      }
+      writeStoredClueId(null);
+    }
+
+    const next = await fetchClue();
+    if (next && !("exhausted" in next)) writeStoredClueId(next.id);
+    return next;
+  };
+
   // Resume by stored clue id first (handles solved-but-not-advanced + post-refresh).
   // Falls back to getNextClue when there's no stored id or it can no longer be resolved.
   const clueQ = useQuery({
-    queryKey: ["clue", user?.id ?? "anon"],
-    queryFn: async () => {
-      const storedId = readStoredClueId();
-      if (storedId) {
-        try {
-          const restored = await fetchClueState({ data: { clueId: storedId } });
-          if (restored) return restored;
-        } catch { /* fall through */ }
-        writeStoredClueId(null);
-      }
-      const next = await fetchClue();
-      if (next && !("exhausted" in next)) writeStoredClueId(next.id);
-      return next;
-    },
+    queryKey: clueQueryKey,
+    queryFn: syncClueState,
     enabled: !!user,
     staleTime: Infinity,
     gcTime: Infinity,
@@ -82,15 +89,33 @@ function Play() {
   // we cancel the auto-advance for THIS solved clue permanently.
   const [autoCancelled, setAutoCancelled] = useState(false);
   const lastClueIdRef = useRef<string | null>(null);
+  const hasEnteredPlayRef = useRef(false);
 
   useEffect(() => {
-    if (clueQ.data && !("exhausted" in clueQ.data)) {
+    if (clueQ.data) {
       setState(clueQ.data);
-      prevRevealedCount.current = clueQ.data.revealed.length;
-      writeStoredClueId(clueQ.data.id);
+      qc.setQueryData(clueQueryKey, clueQ.data);
+      if (!("exhausted" in clueQ.data)) {
+        prevRevealedCount.current = clueQ.data.revealed.length;
+        writeStoredClueId(clueQ.data.id);
+      } else {
+        prevRevealedCount.current = 0;
+        writeStoredClueId(null);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clueQ.data]);
+
+  useEffect(() => {
+    if (!user || pathname !== "/play") return;
+
+    if (hasEnteredPlayRef.current) {
+      void clueQ.refetch();
+      return;
+    }
+
+    hasEnteredPlayRef.current = true;
+  }, [user, pathname, clueQ]);
 
   // Prefer derived state from query so the first render after restore
   // immediately shows letters without waiting for setState/useEffect.
@@ -143,6 +168,7 @@ function Play() {
       const isCorrect = r.revealed.length > prevRevealedCount.current;
       prevRevealedCount.current = r.revealed.length;
       setState(r);
+      qc.setQueryData(clueQueryKey, r);
       if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
       if (r.isSolved) {
         toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
@@ -159,6 +185,7 @@ function Play() {
       const r = await doHint({ data: { clueId: clue.id } });
       prevRevealedCount.current = r.revealed.length;
       setState(r);
+      qc.setQueryData(clueQueryKey, r);
       if (r.isSolved) { toast.success("🎉 נפתר עם רמז!"); qc.invalidateQueries({ queryKey: ["profile"] }); }
       else toast.info("נחשפה אות חדשה");
     } catch (e: any) { toast.error(e.message); }
@@ -179,8 +206,11 @@ function Play() {
         prevRevealedCount.current = next.revealed.length;
         setState(next);
         writeStoredClueId(next.id);
+      } else {
+        prevRevealedCount.current = 0;
+        setState(next);
       }
-      qc.setQueryData(["clue", user?.id ?? "anon"], next);
+      qc.setQueryData(clueQueryKey, next);
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
   };
