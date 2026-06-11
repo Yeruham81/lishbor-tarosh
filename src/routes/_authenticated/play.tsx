@@ -12,6 +12,7 @@ import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState }
 import { scoreForNextLevel } from "@/lib/hebrew";
 import { toast } from "sonner";
 import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
 
