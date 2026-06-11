@@ -364,7 +364,7 @@ function Play() {
 
                 <ClueRating clueId={clue.id} />
 
-                <div className="space-y-3">
+                <div className="space-y-3 mt-4 sm:mt-0">
                   <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
                   <ShareButtons
                     text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
