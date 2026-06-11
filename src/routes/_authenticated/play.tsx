@@ -310,7 +310,7 @@ function Play() {
               </div>
             ) : (
               <div
-                className="text-center py-6 animate-fade-in space-y-6"
+                className="text-center pt-2 pb-6 animate-fade-in space-y-6"
                 // Any interaction inside the success screen cancels auto-advance,
                 // EXCEPT clicks on the explicit "next" button (which calls onSkip directly).
                 onPointerDownCapture={(e) => {
@@ -326,11 +326,11 @@ function Play() {
               >
                 {clue.explanation && clue.explanation.trim() && (
                   <Accordion type="single" collapsible className="text-right">
-                    <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
-                      <AccordionTrigger className="text-base font-medium hover:no-underline">
+                    <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-3">
+                      <AccordionTrigger className="text-base font-medium hover:no-underline py-2">
                         לא סגורים על הפתרון? קבלו הסבר:
                       </AccordionTrigger>
-                      <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
+                      <AccordionContent className="text-sm text-foreground/85 whitespace-pre-wrap leading-relaxed text-center pb-3">
                         {clue.explanation}
                       </AccordionContent>
                     </AccordionItem>
