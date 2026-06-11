@@ -220,7 +220,7 @@ function Play() {
     <AppShell>
       <div className="container mx-auto px-4 py-3 max-w-3xl">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-3 mb-1.5">
           <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
           <Stat label="שלב נוכחי" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
           <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
@@ -228,7 +228,8 @@ function Play() {
 
         {/* Level progress */}
         {profile && (
-          <div className="mb-6">
+          <div className="mb-3">
+
             <div className="flex justify-between text-xs text-muted-foreground mb-1">
               <span>שלב {profile.level}</span>
               <span>
