@@ -12,8 +12,14 @@ export function ClueRating({ clueId }: { clueId: string }) {
 
   useEffect(() => {
     let active = true;
-    fetchMine({ data: { clueId } }).then((r) => { if (active) setRating(r.rating); }).catch(() => {});
-    return () => { active = false; };
+    fetchMine({ data: { clueId } })
+      .then((r) => {
+        if (active) setRating(r.rating);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
   }, [clueId, fetchMine]);
 
   const click = async (v: 1 | -1) => {
@@ -24,8 +30,12 @@ export function ClueRating({ clueId }: { clueId: string }) {
     try {
       await rate({ data: { clueId, rating: v } });
       toast.success(v === 1 ? "תודה על המשוב 💛" : "תודה, נשתפר 🙏");
-    } catch (e: any) { setRating(prev); toast.error(e.message); }
-    finally { setBusy(false); }
+    } catch (e: any) {
+      setRating(prev);
+      toast.error(e.message);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const btn = (active: boolean, color: string) =>
@@ -35,7 +45,7 @@ export function ClueRating({ clueId }: { clueId: string }) {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <p className="text-xs text-muted-foreground">מה דעתכם על ההגדרה?</p>
+      <p className="text-sm text-muted-foreground">מה דעתכם על ההגדרה?</p>
       <div className="flex gap-2">
         <button onClick={() => click(1)} disabled={busy} className={btn(rating === 1, "bg-gradient-sunset")}>
           <ThumbsUp className="size-4" /> אהבתי
