@@ -45,7 +45,7 @@ export function ClueRating({ clueId }: { clueId: string }) {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <p className="text-sm text-muted-foreground">מה דעתכם על ההגדרה?</p>
+      <p className="text-xs text-muted-foreground font-medium">מה דעתכם על ההגדרה?</p>
       <div className="flex gap-2">
         <button onClick={() => click(1)} disabled={busy} className={btn(rating === 1, "bg-gradient-sunset")}>
           <ThumbsUp className="size-4" /> אהבתי
