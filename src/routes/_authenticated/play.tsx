@@ -337,32 +337,35 @@ function Play() {
                   </Accordion>
                 )}
 
-                <div>
-                  <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
-                  <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
-                  <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
-                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center sm:gap-8">
+                  {/* Right column (celebration) — appears first in DOM but sits on the right in RTL */}
+                  <div className="sm:flex-1 sm:text-center">
+                    <div className="text-5xl sm:text-6xl mb-2 animate-letter-pop">🎉</div>
+                    <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                    <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+                  </div>
 
-                <div className="flex flex-col items-center gap-2">
-                  <button
-                    data-next-button="true"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSkip();
-                    }}
-                    disabled={busy}
-                    className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
-                  >
-                    להגדרה הבאה
-                  </button>
-                  {countdown !== null && countdown > 0 && (
-                    <p className="text-sm text-muted-foreground" aria-live="polite">
-                      {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
-                    </p>
-                  )}
+                  {/* Left column (actions) */}
+                  <div className="sm:flex-1 flex flex-col items-center gap-3 mt-4 sm:mt-0">
+                    <button
+                      data-next-button="true"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSkip();
+                      }}
+                      disabled={busy}
+                      className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
+                    >
+                      להגדרה הבאה
+                    </button>
+                    {countdown !== null && countdown > 0 && (
+                      <p className="text-sm text-muted-foreground" aria-live="polite">
+                        {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
+                      </p>
+                    )}
+                    <ClueRating clueId={clue.id} />
+                  </div>
                 </div>
-
-                <ClueRating clueId={clue.id} />
 
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
@@ -370,6 +373,7 @@ function Play() {
                     text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
                   />
                 </div>
+
               </div>
             )}
           </div>
