@@ -320,7 +320,7 @@ function Play() {
               </div>
             ) : (
               <div
-                className="text-center py-6 animate-fade-in space-y-3 sm:space-y-6"
+                className="text-center py-6 animate-fade-in space-y-3 sm:space-y-10"
                 // Any interaction inside the success screen cancels auto-advance,
                 // EXCEPT clicks on the explicit "next" button (which calls onSkip directly).
                 onPointerDownCapture={(e) => {
