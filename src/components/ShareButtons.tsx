@@ -1,4 +1,4 @@
-import { MessageCircle, Facebook, Twitter, Share2, Copy, Check } from "lucide-react";
+import { MessageCircle, Facebook, Twitter, Share2, Copy, Check, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
