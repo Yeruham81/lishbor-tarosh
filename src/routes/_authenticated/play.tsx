@@ -218,7 +218,7 @@ function Play() {
 
   return (
     <AppShell>
-      <div className="container mx-auto px-4 py-3 max-w-3xl">
+      <div className="container mx-auto px-4 pt-2 pb-6 max-w-3xl">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
@@ -297,22 +297,21 @@ function Play() {
               </div>
             )}
 
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
-
-            {/* Word boxes */}
-            <div className="my-6">
-              <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
-            </div>
-
             {!clue.isSolved ? (
-              <div className="mb-2">
-                <HebrewKeyboard onLetter={onLetter} revealed={clue.revealed} wrong={clue.wrong} disabled={busy} />
-              </div>
+              <>
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
+
+                <div className="my-6">
+                  <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
+                </div>
+
+                <div className="mb-2">
+                  <HebrewKeyboard onLetter={onLetter} revealed={clue.revealed} wrong={clue.wrong} disabled={busy} />
+                </div>
+              </>
             ) : (
               <div
-                className="text-center py-6 animate-fade-in space-y-3"
-                // Any interaction inside the success screen cancels auto-advance,
-                // EXCEPT clicks on the explicit "next" button (which calls onSkip directly).
+                className="py-6 animate-fade-in"
                 onPointerDownCapture={(e) => {
                   const t = e.target as HTMLElement;
                   if (t.closest('[data-next-button="true"]')) return;
@@ -324,51 +323,72 @@ function Play() {
                   cancelAutoAdvance();
                 }}
               >
-                {clue.explanation && clue.explanation.trim() && (
-                  <Accordion type="single" collapsible className="text-right">
-                    <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
-                      <AccordionTrigger className="text-sm font-medium hover:no-underline">
-                        הסבר לפתרון:
-                      </AccordionTrigger>
-                      <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
-                        {clue.explanation}
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                )}
+                <div dir="ltr" className="grid gap-5 sm:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)] sm:gap-6 sm:items-start">
+                  <div dir="rtl" className="min-w-0 space-y-5 text-center">
+                    <div>
+                      <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
+                      <div className="my-6">
+                        <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
+                      </div>
+                    </div>
 
-                <div>
-                  <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
-                  <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
-                  <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
-                </div>
+                    <div className="sm:hidden">
+                      <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
+                      <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                      <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+                    </div>
 
-                <div className="flex flex-col items-center gap-2">
-                  <button
-                    data-next-button="true"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSkip();
-                    }}
-                    disabled={busy}
-                    className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
-                  >
-                    להגדרה הבאה
-                  </button>
-                  {countdown !== null && countdown > 0 && (
-                    <p className="text-sm text-muted-foreground" aria-live="polite">
-                      {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
-                    </p>
-                  )}
-                </div>
+                    {clue.explanation && clue.explanation.trim() && (
+                      <Accordion type="single" collapsible className="text-right">
+                        <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
+                          <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                            הסבר לפתרון:
+                          </AccordionTrigger>
+                          <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
+                            {clue.explanation}
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    )}
 
-                <ClueRating clueId={clue.id} />
+                    <div dir="ltr" className="grid gap-4 sm:grid-cols-2 sm:items-center">
+                      <div className="flex flex-col items-center sm:items-start gap-2">
+                        <button
+                          data-next-button="true"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSkip();
+                          }}
+                          disabled={busy}
+                          className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
+                        >
+                          להגדרה הבאה
+                        </button>
+                        {countdown !== null && countdown > 0 && (
+                          <p className="text-sm text-muted-foreground text-center sm:text-start" aria-live="polite">
+                            {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
+                          </p>
+                        )}
+                      </div>
 
-                <div className="space-y-3">
-                  <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
-                  <ShareButtons
-                    text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
-                  />
+                      <div className="flex justify-center sm:justify-end" dir="rtl">
+                        <ClueRating clueId={clue.id} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
+                      <ShareButtons
+                        text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
+                      />
+                    </div>
+                  </div>
+
+                  <div dir="rtl" className="hidden sm:flex min-h-[220px] flex-col items-center justify-center rounded-2xl border bg-muted/20 px-6 py-8 text-center">
+                    <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
+                    <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                    <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+                  </div>
                 </div>
               </div>
             )}
