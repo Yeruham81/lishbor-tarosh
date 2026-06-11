@@ -218,9 +218,9 @@ function Play() {
 
   return (
     <AppShell>
-      <div className="container mx-auto px-4 py-3 max-w-3xl">
+      <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-1.5">
+        <div className="grid grid-cols-3 gap-3 mb-4">
           <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
           <Stat label="שלב נוכחי" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
           <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
@@ -228,8 +228,7 @@ function Play() {
 
         {/* Level progress */}
         {profile && (
-          <div className="mb-3">
-
+          <div className="mb-6">
             <div className="flex justify-between text-xs text-muted-foreground mb-1">
               <span>שלב {profile.level}</span>
               <span>
@@ -256,16 +255,7 @@ function Play() {
         )}
 
         {clue && (
-          <div className="relative bg-card border rounded-3xl shadow-card p-5 sm:p-8">
-            {/* Desktop/tablet celebration panel — absolutely positioned in the empty left space
-                so it aligns with the clue/answer block without pushing content down. */}
-            {clue.isSolved && (
-              <div className="hidden sm:flex flex-col items-center text-center absolute left-6 top-12 w-40 animate-fade-in pointer-events-none">
-                <div className="text-4xl mb-1 animate-letter-pop">🎉</div>
-                <h3 className="font-display text-xl font-bold mb-1">כל הכבוד!</h3>
-                <p className="text-sm text-muted-foreground">+{clue.currentScore} נקודות</p>
-              </div>
-            )}
+          <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
             {!clue.isSolved && (
               <div className="grid grid-cols-3 items-center mb-4">
                 <div className="text-sm text-muted-foreground justify-self-start">
@@ -320,7 +310,7 @@ function Play() {
               </div>
             ) : (
               <div
-                className="text-center py-6 animate-fade-in space-y-3 sm:space-y-10"
+                className="text-center py-6 animate-fade-in space-y-3"
                 // Any interaction inside the success screen cancels auto-advance,
                 // EXCEPT clicks on the explicit "next" button (which calls onSkip directly).
                 onPointerDownCapture={(e) => {
@@ -337,7 +327,7 @@ function Play() {
                 {clue.explanation && clue.explanation.trim() && (
                   <Accordion type="single" collapsible className="text-right">
                     <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
-                      <AccordionTrigger className="text-base font-medium hover:no-underline">
+                      <AccordionTrigger className="text-sm font-medium hover:no-underline">
                         לא סגורים על הפתרון? קבלו הסבר:
                       </AccordionTrigger>
                       <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
@@ -347,39 +337,32 @@ function Play() {
                   </Accordion>
                 )}
 
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center sm:gap-8">
-                  {/* Mobile-only celebration (desktop version is absolutely positioned above) */}
-                  <div className="sm:hidden">
-                    <div className="text-5xl mb-2 animate-letter-pop">🎉</div>
-                    <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
-                    <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
-                  </div>
-
-                  {/* Right column in RTL (rating) — first in DOM */}
-                  <div className="sm:flex-1 flex justify-center order-2 sm:order-1 mt-4 sm:mt-0">
-                    <ClueRating clueId={clue.id} />
-                  </div>
-
-                  {/* Left column in RTL (primary CTA) */}
-                  <div className="sm:flex-1 flex flex-col items-center gap-2 order-1 sm:order-2 mt-4 sm:mt-0">
-                    <button
-                      data-next-button="true"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSkip();
-                      }}
-                      disabled={busy}
-                      className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
-                    >
-                      להגדרה הבאה
-                    </button>
-                    {countdown !== null && countdown > 0 && (
-                      <p className="text-sm text-muted-foreground" aria-live="polite">
-                        {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
-                      </p>
-                    )}
-                  </div>
+                <div>
+                  <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
+                  <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                  <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
                 </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <button
+                    data-next-button="true"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSkip();
+                    }}
+                    disabled={busy}
+                    className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
+                  >
+                    להגדרה הבאה
+                  </button>
+                  {countdown !== null && countdown > 0 && (
+                    <p className="text-sm text-muted-foreground" aria-live="polite">
+                      {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
+                    </p>
+                  )}
+                </div>
+
+                <ClueRating clueId={clue.id} />
 
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
@@ -387,7 +370,6 @@ function Play() {
                     text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
                   />
                 </div>
-
               </div>
             )}
           </div>
