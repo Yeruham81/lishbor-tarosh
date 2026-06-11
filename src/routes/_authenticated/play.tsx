@@ -328,7 +328,7 @@ function Play() {
                   <Accordion type="single" collapsible className="text-right">
                     <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
                       <AccordionTrigger className="text-base font-medium hover:no-underline">
-                        לא סגורים על הפתרון? קבלו הסבר
+                        לא סגורים על הפתרון? קבלו הסבר:
                       </AccordionTrigger>
                       <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
                         {clue.explanation}
