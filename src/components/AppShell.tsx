@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </NavLink>
             {user && (
               <NavLink to="/profile" icon={<User className="size-4" />}>
-                לוח הבקרה
+                פרופיל
               </NavLink>
             )}
           </nav>
