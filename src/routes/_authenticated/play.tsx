@@ -260,10 +260,10 @@ function Play() {
             {/* Desktop/tablet celebration panel — absolutely positioned in the empty left space
                 so it aligns with the clue/answer block without pushing content down. */}
             {clue.isSolved && (
-              <div className="hidden sm:flex flex-col items-center text-center absolute left-6 top-24 w-40 animate-fade-in pointer-events-none">
-                <div className="text-5xl mb-2 animate-letter-pop">🎉</div>
-                <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
-                <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+              <div className="hidden sm:flex flex-col items-center text-center absolute left-6 top-12 w-40 animate-fade-in pointer-events-none">
+                <div className="text-4xl mb-1 animate-letter-pop">🎉</div>
+                <h3 className="font-display text-xl font-bold mb-1">כל הכבוד!</h3>
+                <p className="text-sm text-muted-foreground">+{clue.currentScore} נקודות</p>
               </div>
             )}
             {!clue.isSolved && (
