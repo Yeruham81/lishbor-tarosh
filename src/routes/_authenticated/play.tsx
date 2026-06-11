@@ -304,7 +304,6 @@ function Play() {
               <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
             </div>
 
-
             {!clue.isSolved ? (
               <div className="mb-2">
                 <HebrewKeyboard onLetter={onLetter} revealed={clue.revealed} wrong={clue.wrong} disabled={busy} />
@@ -331,7 +330,7 @@ function Play() {
                       <AccordionTrigger className="text-base font-medium hover:no-underline">
                         לא סגורים על הפתרון? קבלו הסבר
                       </AccordionTrigger>
-                      <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-right">
+                      <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
                         {clue.explanation}
                       </AccordionContent>
                     </AccordionItem>
@@ -343,7 +342,6 @@ function Play() {
                   <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
                   <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
                 </div>
-
 
                 <div className="flex flex-col items-center gap-2">
                   <button
