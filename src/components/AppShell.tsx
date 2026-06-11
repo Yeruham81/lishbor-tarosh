@@ -121,7 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </MobileLink>
             <MobileLink to="/profile">
               <User className="size-5" />
-              <span>בקרה</span>
+              <span>פרופיל</span>
             </MobileLink>
           </div>
         </nav>
