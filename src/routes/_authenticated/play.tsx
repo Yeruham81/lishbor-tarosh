@@ -311,7 +311,7 @@ function Play() {
               </>
             ) : (
               <div
-                className="py-6 animate-fade-in"
+                className="py-6 animate-fade-in space-y-4"
                 onPointerDownCapture={(e) => {
                   const t = e.target as HTMLElement;
                   if (t.closest('[data-next-button="true"]')) return;
@@ -323,64 +323,17 @@ function Play() {
                   cancelAutoAdvance();
                 }}
               >
+                <div className="sm:hidden text-center">
+                  <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
+                  <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                  <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+                </div>
+
                 <div dir="ltr" className="grid gap-5 sm:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)] sm:gap-6 sm:items-start">
-                  <div dir="rtl" className="min-w-0 space-y-5 text-center">
-                    <div>
-                      <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
-                      <div className="my-6">
-                        <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
-                      </div>
-                    </div>
-
-                    <div className="sm:hidden">
-                      <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
-                      <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
-                      <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
-                    </div>
-
-                    {clue.explanation && clue.explanation.trim() && (
-                      <Accordion type="single" collapsible className="text-right">
-                        <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
-                          <AccordionTrigger className="text-sm font-medium hover:no-underline">
-                            הסבר לפתרון:
-                          </AccordionTrigger>
-                          <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
-                            {clue.explanation}
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    )}
-
-                    <div dir="ltr" className="grid gap-4 sm:grid-cols-2 sm:items-center">
-                      <div className="flex flex-col items-center sm:items-start gap-2">
-                        <button
-                          data-next-button="true"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSkip();
-                          }}
-                          disabled={busy}
-                          className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
-                        >
-                          להגדרה הבאה
-                        </button>
-                        {countdown !== null && countdown > 0 && (
-                          <p className="text-sm text-muted-foreground text-center sm:text-start" aria-live="polite">
-                            {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex justify-center sm:justify-end" dir="rtl">
-                        <ClueRating clueId={clue.id} />
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
-                      <ShareButtons
-                        text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
-                      />
+                  <div dir="rtl" className="min-w-0 text-center">
+                    <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
+                    <div className="my-6">
+                      <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
                     </div>
                   </div>
 
@@ -389,6 +342,51 @@ function Play() {
                     <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
                     <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
                   </div>
+                </div>
+
+                {clue.explanation && clue.explanation.trim() && (
+                  <Accordion type="single" collapsible className="text-right">
+                    <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
+                      <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                        הסבר לפתרון:
+                      </AccordionTrigger>
+                      <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
+                        {clue.explanation}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
+
+                <div className="grid gap-4 sm:grid-cols-2 sm:items-center">
+                  <div className="order-2 sm:order-1 flex justify-center sm:justify-end">
+                    <ClueRating clueId={clue.id} />
+                  </div>
+
+                  <div className="order-1 sm:order-2 flex flex-col items-center sm:items-start gap-2">
+                    <button
+                      data-next-button="true"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSkip();
+                      }}
+                      disabled={busy}
+                      className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
+                    >
+                      להגדרה הבאה
+                    </button>
+                    {countdown !== null && countdown > 0 && (
+                      <p className="text-sm text-muted-foreground text-center sm:text-start" aria-live="polite">
+                        {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-center">
+                  <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
+                  <ShareButtons
+                    text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
+                  />
                 </div>
               </div>
             )}
