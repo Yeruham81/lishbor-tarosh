@@ -26,7 +26,7 @@ export type SolveEvent =
 
 type ClueRow = {
   id: string; clue: string; answer: string; category: string | null;
-  difficulty: number; base_points: number;
+  difficulty: number; base_points: number; explanation?: string | null;
 };
 
 function publicClue(clue: ClueRow, revealed: string[], wrong: string[], hintsUsed: number, isSolved: boolean) {
@@ -43,6 +43,7 @@ function publicClue(clue: ClueRow, revealed: string[], wrong: string[], hintsUse
     wrong,
     hintsUsed,
     isSolved,
+    explanation: clue.explanation ?? null,
     // Value the player will earn (or has earned) for this definition right now.
     currentScore: currentSolveValue(wrong.length, hintsUsed),
     // Visual mistake indicators config (so UI doesn't hard-code FREE_WRONGS).
