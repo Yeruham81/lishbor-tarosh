@@ -220,7 +220,7 @@ function Play() {
     <AppShell>
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-3 mb-2">
           <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
           <Stat label="שלב נוכחי" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
           <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
@@ -228,7 +228,7 @@ function Play() {
 
         {/* Level progress */}
         {profile && (
-          <div className="mb-6">
+          <div className="mb-3">
             <div className="flex justify-between text-xs text-muted-foreground mb-1">
               <span>שלב {profile.level}</span>
               <span>
@@ -310,7 +310,7 @@ function Play() {
               </div>
             ) : (
               <div
-                className="text-center py-6 animate-fade-in space-y-6"
+                className="text-center pt-2 pb-6 animate-fade-in space-y-6"
                 // Any interaction inside the success screen cancels auto-advance,
                 // EXCEPT clicks on the explicit "next" button (which calls onSkip directly).
                 onPointerDownCapture={(e) => {
@@ -326,11 +326,11 @@ function Play() {
               >
                 {clue.explanation && clue.explanation.trim() && (
                   <Accordion type="single" collapsible className="text-right">
-                    <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
-                      <AccordionTrigger className="text-base font-medium hover:no-underline">
+                    <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-3">
+                      <AccordionTrigger className="text-base font-medium hover:no-underline py-2">
                         לא סגורים על הפתרון? קבלו הסבר:
                       </AccordionTrigger>
-                      <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
+                      <AccordionContent className="text-sm text-foreground/85 whitespace-pre-wrap leading-relaxed text-center pb-3">
                         {clue.explanation}
                       </AccordionContent>
                     </AccordionItem>
