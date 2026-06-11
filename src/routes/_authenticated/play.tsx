@@ -256,7 +256,16 @@ function Play() {
         )}
 
         {clue && (
-          <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
+          <div className="relative bg-card border rounded-3xl shadow-card p-5 sm:p-8">
+            {/* Desktop/tablet celebration panel — absolutely positioned in the empty left space
+                so it aligns with the clue/answer block without pushing content down. */}
+            {clue.isSolved && (
+              <div className="hidden sm:flex flex-col items-center text-center absolute left-6 top-24 w-40 animate-fade-in pointer-events-none">
+                <div className="text-5xl mb-2 animate-letter-pop">🎉</div>
+                <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+              </div>
+            )}
             {!clue.isSolved && (
               <div className="grid grid-cols-3 items-center mb-4">
                 <div className="text-sm text-muted-foreground justify-self-start">
@@ -339,15 +348,20 @@ function Play() {
                 )}
 
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center sm:gap-8">
-                  {/* Right column (celebration) — appears first in DOM but sits on the right in RTL */}
-                  <div className="sm:flex-1 sm:text-center">
-                    <div className="text-5xl sm:text-6xl mb-2 animate-letter-pop">🎉</div>
+                  {/* Mobile-only celebration (desktop version is absolutely positioned above) */}
+                  <div className="sm:hidden">
+                    <div className="text-5xl mb-2 animate-letter-pop">🎉</div>
                     <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
                     <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
                   </div>
 
-                  {/* Left column (actions) */}
-                  <div className="sm:flex-1 flex flex-col items-center gap-3 mt-4 sm:mt-0">
+                  {/* Right column in RTL (rating) — first in DOM */}
+                  <div className="sm:flex-1 flex justify-center order-2 sm:order-1 mt-4 sm:mt-0">
+                    <ClueRating clueId={clue.id} />
+                  </div>
+
+                  {/* Left column in RTL (primary CTA) */}
+                  <div className="sm:flex-1 flex flex-col items-center gap-2 order-1 sm:order-2 mt-4 sm:mt-0">
                     <button
                       data-next-button="true"
                       onClick={(e) => {
@@ -364,7 +378,6 @@ function Play() {
                         {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
                       </p>
                     )}
-                    <ClueRating clueId={clue.id} />
                   </div>
                 </div>
 
