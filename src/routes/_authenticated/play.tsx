@@ -325,11 +325,25 @@ function Play() {
                   cancelAutoAdvance();
                 }}
               >
+                {clue.explanation && clue.explanation.trim() && (
+                  <Accordion type="single" collapsible className="text-right">
+                    <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
+                      <AccordionTrigger className="text-base font-medium hover:no-underline">
+                        לא סגורים על הפתרון? קבלו הסבר
+                      </AccordionTrigger>
+                      <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-right">
+                        {clue.explanation}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
+
                 <div>
                   <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
                   <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
                   <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
                 </div>
+
 
                 <div className="flex flex-col items-center gap-2">
                   <button
