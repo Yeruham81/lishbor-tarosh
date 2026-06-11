@@ -218,7 +218,7 @@ function Play() {
 
   return (
     <AppShell>
-      <div className="container mx-auto px-4 py-6 max-w-3xl">
+      <div className="container mx-auto px-4 py-3 max-w-3xl">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
@@ -291,22 +291,14 @@ function Play() {
               </div>
             )}
 
-            {/* Top area: on sm+ when solved, show celebration to the left of the clue/answer */}
+            {/* Top area: on sm+ when solved, show celebration to the right of the clue/answer */}
             <div
               className={
                 clue.isSolved
-                  ? "sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-6 sm:items-start"
+                  ? "sm:grid sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] sm:gap-6 sm:items-start"
                   : ""
               }
             >
-              {clue.isSolved && (
-                <div className="hidden sm:flex flex-col items-center justify-center text-center animate-fade-in py-2">
-                  <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
-                  <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
-                  <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
-                </div>
-              )}
-
               <div className="min-w-0">
                 {clue.category && (
                   <div className="flex justify-center mb-2">
@@ -321,6 +313,14 @@ function Play() {
                   <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
                 </div>
               </div>
+
+              {clue.isSolved && (
+                <div className="hidden sm:flex flex-col items-center justify-center text-center animate-fade-in py-2">
+                  <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
+                  <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                  <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+                </div>
+              )}
             </div>
 
             {!clue.isSolved ? (
