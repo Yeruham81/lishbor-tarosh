@@ -1,4 +1,4 @@
-import { MessageCircle, Facebook, Twitter, Share2, Copy, Check } from "lucide-react";
+import { MessageCircle, Facebook, Twitter, Share2, Copy, Check, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -43,6 +43,7 @@ export function ShareButtons({ text, url, title = "לשבור ת'ראש" }: Prop
 
   const links = [
     { label: "WhatsApp", icon: <MessageCircle className="size-4" />, href: `https://wa.me/?text=${enc(fullText)}`, cls: "bg-[#25D366] text-white" },
+    { label: "Telegram", icon: <Send className="size-4" />, href: `https://t.me/share/url?url=${enc(shareUrl)}&text=${enc(text)}`, cls: "bg-[#0088cc] text-white" },
     { label: "Facebook", icon: <Facebook className="size-4" />, href: `https://www.facebook.com/sharer/sharer.php?u=${enc(shareUrl)}&quote=${enc(text)}`, cls: "bg-[#1877F2] text-white" },
     { label: "X", icon: <Twitter className="size-4" />, href: `https://twitter.com/intent/tweet?text=${enc(fullText)}`, cls: "bg-foreground text-background" },
   ];
