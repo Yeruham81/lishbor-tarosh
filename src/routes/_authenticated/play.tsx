@@ -373,15 +373,3 @@ function Play() {
     </AppShell>
   );
 }
-
-function Stat({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) {
-  return (
-    <div className="bg-card border rounded-2xl p-3 text-center shadow-card">
-      <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-        {icon}
-        {label}
-      </div>
-      <div className="font-display text-2xl font-extrabold text-gradient-sunset">{value}</div>
-    </div>
-  );
-}
