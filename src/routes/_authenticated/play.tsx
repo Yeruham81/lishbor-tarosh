@@ -9,10 +9,10 @@ import { WordBoxes } from "@/components/WordDisplay";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ClueRating } from "@/components/ClueRating";
 import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState } from "@/lib/game.functions";
-import { scoreForNextLevel } from "@/lib/hebrew";
 import { toast } from "sonner";
-import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
+import { Lightbulb, SkipForward } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { GameTopBar } from "@/components/GameTopBar";
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
 
@@ -209,40 +209,12 @@ function Play() {
   };
 
   const profile = profileQ.data;
-  const nextLevelAt = profile ? scoreForNextLevel(profile.level) : 0;
-  const prevLevelAt = profile ? scoreForNextLevel(profile.level - 1) : 0;
-  const levelProgress =
-    profile && nextLevelAt > prevLevelAt
-      ? Math.min(100, Math.max(0, ((profile.total_score - prevLevelAt) / (nextLevelAt - prevLevelAt)) * 100))
-      : 0;
 
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-3 max-w-3xl">
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
-          <Stat label="שלב נוכחי" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
-          <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
-        </div>
+        <GameTopBar profile={profile} helpVariant="help" />
 
-        {/* Level progress */}
-        {profile && (
-          <div className="mb-6">
-            <div className="flex justify-between text-xs text-muted-foreground mb-1">
-              <span>שלב {profile.level}</span>
-              <span>
-                {profile.total_score} / {nextLevelAt}
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full bg-gradient-sunset transition-all duration-500"
-                style={{ width: `${levelProgress}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען הגדרה...</div>}
         {clueQ.error && <div className="text-center py-20 text-destructive">{(clueQ.error as Error).message}</div>}
@@ -398,17 +370,5 @@ function Play() {
         )}
       </div>
     </AppShell>
-  );
-}
-
-function Stat({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) {
-  return (
-    <div className="bg-card border rounded-2xl p-3 text-center shadow-card">
-      <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-        {icon}
-        {label}
-      </div>
-      <div className="font-display text-2xl font-extrabold text-gradient-sunset">{value}</div>
-    </div>
   );
 }

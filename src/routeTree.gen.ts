@@ -20,6 +20,7 @@ import { Route as ChallengeTokenRouteImport } from './routes/challenge.$token'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPlayRouteImport } from './routes/_authenticated/play'
 import { Route as AuthenticatedLevelsRouteImport } from './routes/_authenticated/levels'
+import { Route as AuthenticatedInstructionsRouteImport } from './routes/_authenticated/instructions'
 
 const SubmitPuzzleRoute = SubmitPuzzleRouteImport.update({
   id: '/submit-puzzle',
@@ -75,6 +76,12 @@ const AuthenticatedLevelsRoute = AuthenticatedLevelsRouteImport.update({
   path: '/levels',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedInstructionsRoute =
+  AuthenticatedInstructionsRouteImport.update({
+    id: '/instructions',
+    path: '/instructions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
+  '/instructions': typeof AuthenticatedInstructionsRoute
   '/levels': typeof AuthenticatedLevelsRoute
   '/play': typeof AuthenticatedPlayRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -95,6 +103,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
+  '/instructions': typeof AuthenticatedInstructionsRoute
   '/levels': typeof AuthenticatedLevelsRoute
   '/play': typeof AuthenticatedPlayRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -109,6 +118,7 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
+  '/_authenticated/instructions': typeof AuthenticatedInstructionsRoute
   '/_authenticated/levels': typeof AuthenticatedLevelsRoute
   '/_authenticated/play': typeof AuthenticatedPlayRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -123,6 +133,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/submit-puzzle'
+    | '/instructions'
     | '/levels'
     | '/play'
     | '/profile'
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/submit-puzzle'
+    | '/instructions'
     | '/levels'
     | '/play'
     | '/profile'
@@ -148,6 +160,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/submit-puzzle'
+    | '/_authenticated/instructions'
     | '/_authenticated/levels'
     | '/_authenticated/play'
     | '/_authenticated/profile'
@@ -244,16 +257,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLevelsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/instructions': {
+      id: '/_authenticated/instructions'
+      path: '/instructions'
+      fullPath: '/instructions'
+      preLoaderRoute: typeof AuthenticatedInstructionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedInstructionsRoute: typeof AuthenticatedInstructionsRoute
   AuthenticatedLevelsRoute: typeof AuthenticatedLevelsRoute
   AuthenticatedPlayRoute: typeof AuthenticatedPlayRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedInstructionsRoute: AuthenticatedInstructionsRoute,
   AuthenticatedLevelsRoute: AuthenticatedLevelsRoute,
   AuthenticatedPlayRoute: AuthenticatedPlayRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
