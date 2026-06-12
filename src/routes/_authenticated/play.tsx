@@ -10,7 +10,6 @@ import { ShareButtons } from "@/components/ShareButtons";
 import { ClueRating } from "@/components/ClueRating";
 import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState } from "@/lib/game.functions";
 import { toast } from "sonner";
-import { toast } from "sonner";
 import { Lightbulb, SkipForward } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { GameTopBar } from "@/components/GameTopBar";
