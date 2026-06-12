@@ -92,8 +92,9 @@ function Instructions() {
 
             <TabsContent value="tips" className="text-right leading-relaxed space-y-4">
               <h2 className="font-display text-xl font-bold">טיפים מנצחים</h2>
-              <p className="text-muted-foreground">
-                התחילו מהאותיות הנפוצות בעברית — א', י', ה', ו', מ', ל', ר', נ'. סביר שלפחות כמה מהן יופיעו בתשובה.
+              <p className="text-muted-foreground whitespace-pre-line">
+                קראו את ההגדרה היטב
+                כל מילה חשובה ויכולה לרמז על הפתרון
               </p>
               <p className="text-muted-foreground">
                 שימו לב לאורך המילים: מילה בת שתי אותיות לרוב היא מילת קישור או מילית. ניתן להסתמך על המבנה כדי לכוון
