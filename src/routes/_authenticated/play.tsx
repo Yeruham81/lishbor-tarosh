@@ -11,8 +11,9 @@ import { ClueRating } from "@/components/ClueRating";
 import { getNextClue, guessLetter, useHint, skipClue, getProfile, getClueState } from "@/lib/game.functions";
 import { scoreForNextLevel } from "@/lib/hebrew";
 import { toast } from "sonner";
-import { Lightbulb, SkipForward, Trophy, Flame, Star } from "lucide-react";
+import { Lightbulb, SkipForward } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { GameTopBar } from "@/components/GameTopBar";
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
 
