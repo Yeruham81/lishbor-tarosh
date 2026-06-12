@@ -93,12 +93,10 @@ function Instructions() {
             <TabsContent value="tips" className="text-right leading-relaxed space-y-4">
               <h2 className="font-display text-xl font-bold">טיפים מנצחים</h2>
               <p className="text-muted-foreground whitespace-pre-line">
-                קראו את ההגדרה היטב
-                כל מילה חשובה ויכולה לרמז על הפתרון
+                קראו את ההגדרה היטב&nbsp;- כל מילה חשובה ויכולה לרמז על הפתרון.
               </p>
               <p className="text-muted-foreground">
-                שימו לב לאורך המילים: מילה בת שתי אותיות לרוב היא מילת קישור או מילית. ניתן להסתמך על המבנה כדי לכוון
-                לתשובה.
+                שימו לב לאורך הפתרון - למשל מילה בת שתי אותיות היא לרוב מילת קישור או מילית. מספר המילים והמבנה שלהן יכולים לכוון אתכם לתשובה.
               </p>
               <p className="text-muted-foreground">
                 אם תקועים אחרי שתי טעויות — זה הזמן הנכון לרמז. הרמז עולה רק 2 נקודות והוא יכול לחסוך טעות יקרה.
