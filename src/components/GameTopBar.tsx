@@ -22,23 +22,39 @@ export function GameTopBar({
       ? Math.min(100, Math.max(0, ((profile.total_score - prevLevelAt) / (nextLevelAt - prevLevelAt)) * 100))
       : 0;
 
+  const HelpButton = ({ className, iconClassName }: { className: string; iconClassName: string }) => (
+    <Link
+      to={helpVariant === "help" ? "/instructions" : "/play"}
+      aria-label={helpVariant === "help" ? "הוראות" : "חזרה למשחק"}
+      className={className}
+    >
+      {helpVariant === "help" ? (
+        <HelpCircle className={iconClassName} />
+      ) : (
+        <X className={iconClassName} />
+      )}
+    </Link>
+  );
+
   return (
     <>
-      <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 mb-4 items-stretch">
+      {/* Mobile-only sticky header with help/close button on the left */}
+      <div className="sm:hidden sticky top-0 z-40 -mx-4 px-4 py-2 bg-background/90 backdrop-blur border-b border-border mb-2 flex items-center">
+        <HelpButton
+          className="size-9 flex items-center justify-center rounded-xl bg-muted/70 hover:bg-muted border border-border shadow transition"
+          iconClassName="size-5 text-foreground"
+        />
+      </div>
+
+      {/* Stats row: 3 evenly distributed on mobile; original 4-col layout (with help button) on desktop */}
+      <div className="grid grid-cols-3 gap-2 mb-3 sm:grid-cols-[1fr_1fr_1fr_auto] sm:gap-3 sm:mb-4 items-stretch">
         <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
         <Stat label="שלב נוכחי" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
         <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
-        <Link
-          to={helpVariant === "help" ? "/instructions" : "/play"}
-          aria-label={helpVariant === "help" ? "הוראות" : "חזרה למשחק"}
-          className="aspect-square h-full min-h-[48px] flex items-center justify-center rounded-2xl bg-muted/70 hover:bg-muted border border-border shadow-lg hover:shadow-xl transition"
-        >
-          {helpVariant === "help" ? (
-            <HelpCircle className="size-7 text-foreground" />
-          ) : (
-            <X className="size-7 text-foreground" />
-          )}
-        </Link>
+        <HelpButton
+          className="hidden sm:flex aspect-square h-full min-h-[48px] items-center justify-center rounded-2xl bg-muted/70 hover:bg-muted border border-border shadow-lg hover:shadow-xl transition"
+          iconClassName="size-7 text-foreground"
+        />
       </div>
 
       {profile && (
@@ -60,6 +76,7 @@ export function GameTopBar({
     </>
   );
 }
+
 
 function Stat({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) {
   return (
