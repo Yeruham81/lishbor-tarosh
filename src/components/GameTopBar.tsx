@@ -31,12 +31,12 @@ export function GameTopBar({
         <Link
           to={helpVariant === "help" ? "/instructions" : "/play"}
           aria-label={helpVariant === "help" ? "הוראות" : "חזרה למשחק"}
-          className="aspect-square h-full min-h-[64px] flex items-center justify-center rounded-2xl bg-muted/70 hover:bg-muted border border-border shadow-lg hover:shadow-xl transition"
+          className="aspect-square h-full min-h-[48px] flex items-center justify-center rounded-2xl bg-muted/70 hover:bg-muted border border-border shadow-lg hover:shadow-xl transition"
         >
           {helpVariant === "help" ? (
-            <HelpCircle className="size-6 text-foreground" />
+            <HelpCircle className="size-7 text-foreground" />
           ) : (
-            <X className="size-6 text-foreground" />
+            <X className="size-7 text-foreground" />
           )}
         </Link>
       </div>
@@ -63,7 +63,7 @@ export function GameTopBar({
 
 function Stat({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) {
   return (
-    <div className="bg-card border rounded-2xl p-3 text-center shadow-card">
+    <div className="bg-card border rounded-2xl p-2 text-center shadow-card">
       <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
         {icon}
         {label}
