@@ -200,7 +200,7 @@ export const adminRejectSubmission = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.rpc("admin_reject_submission", {
-      _submission_id: data.id, _notes: data.notes ?? null,
+      _submission_id: data.id, _notes: data.notes ?? undefined,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -285,7 +285,7 @@ export const adminAdjustPoints = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: total, error } = await supabaseAdmin.rpc("admin_adjust_points", {
-      _user_id: data.user_id, _delta: data.delta, _reason: data.reason ?? null,
+      _user_id: data.user_id, _delta: data.delta, _reason: data.reason ?? undefined,
     });
     if (error) throw new Error(error.message);
     return { total };
