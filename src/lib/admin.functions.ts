@@ -4,7 +4,13 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // ---- helpers ------------------------------------------------------------
 async function assertAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+  console.log("ASSERT ADMIN USER ID:", userId);
+
+  const { data, error } = await supabase.rpc("has_role", {
+    _user_id: userId,
+    _role: "admin",
+  });
+
   if (error) throw new Error(error.message);
   if (!data) throw new Error("forbidden");
 }
