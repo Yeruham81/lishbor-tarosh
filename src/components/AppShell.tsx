@@ -1,11 +1,15 @@
 import { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail, PlusCircle } from "lucide-react";
+import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail, PlusCircle, HelpCircle, X } from "lucide-react";
 import brandIcon from "@/assets/lishbor-icon.jpg.asset.json";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const onPlay = pathname === "/play";
+  const onInstructions = pathname === "/instructions";
+  const showMobileHelp = !!user && (onPlay || onInstructions);
   return (
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl">
