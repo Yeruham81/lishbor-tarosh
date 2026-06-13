@@ -3,15 +3,21 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // ---- helpers ------------------------------------------------------------
-async function assertAdmin(supabase: any, userId: string) {
-  console.log("ASSERT ADMIN USER ID:", userId);
+async function assertAdmin(supabase: any) {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  const { data, error } = await supabase.rpc("has_role", {
-    _user_id: userId,
+  if (error) throw new Error(error.message);
+  if (!user) throw new Error("unauthenticated");
+
+  const { data, error: roleError } = await supabase.rpc("has_role", {
+    _user_id: user.id,
     _role: "admin",
   });
 
-  if (error) throw new Error(error.message);
+  if (roleError) throw new Error(roleError.message);
   if (!data) throw new Error("forbidden");
 }
 
@@ -33,7 +39,7 @@ export const adminListDefinitions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => listDefinitionsSchema.parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin.from("clues").select("*", { count: "exact" });
     if (data.status) q = q.eq("status", data.status);
@@ -66,7 +72,7 @@ export const adminUpsertDefinition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => clueUpsertSchema.parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // Soft warning: detect duplicates
     const { data: dupes } = await supabaseAdmin
@@ -122,7 +128,7 @@ export const adminSetDefinitionStatus = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("clues").update({ status: data.status }).eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -133,7 +139,7 @@ export const adminSoftDeleteDefinition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.rpc("admin_soft_delete_clue", { _clue_id: data.id });
     if (error) throw new Error(error.message);
@@ -144,7 +150,7 @@ export const adminRestoreDefinition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("clues")
@@ -167,7 +173,7 @@ export const adminListSubmissions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => subListSchema.parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin.from("puzzle_submissions").select("*", { count: "exact" });
     if (data.status !== "all") q = q.eq("status", data.status);
@@ -191,7 +197,7 @@ export const adminEditSubmission = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("puzzle_submissions")
@@ -219,7 +225,7 @@ export const adminApproveSubmission = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: clueId, error } = await supabaseAdmin.rpc("admin_approve_submission", {
       _submission_id: data.id,
@@ -241,7 +247,7 @@ export const adminRejectSubmission = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.rpc("admin_reject_submission", {
       _submission_id: data.id,
@@ -266,7 +272,7 @@ export const adminListMessages = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin.from("feedback").select("*", { count: "exact" });
     if (data.status !== "all") q = q.eq("status", data.status);
@@ -289,7 +295,7 @@ export const adminUpdateMessage = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const patch: any = {};
     if (data.status) patch.status = data.status;
@@ -320,7 +326,7 @@ export const adminListPlayers = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin.from("profiles").select("*", { count: "exact" });
     if (data.blocked !== undefined) q = q.eq("is_blocked", data.blocked);
@@ -344,7 +350,7 @@ export const adminAdjustPoints = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: total, error } = await supabaseAdmin.rpc("admin_adjust_points", {
       _user_id: data.user_id,
@@ -366,7 +372,7 @@ export const adminSetBlocked = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.rpc("admin_set_user_blocked", {
       _user_id: data.user_id,
@@ -382,7 +388,7 @@ export const adminSetBlocked = createServerFn({ method: "POST" })
 export const adminGetSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin.from("app_settings").select("*");
     if (error) throw new Error(error.message);
@@ -406,7 +412,7 @@ export const adminSetSetting = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("app_settings").upsert({
       key: data.key,
@@ -442,7 +448,7 @@ export const adminKpis = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ activeWindowDays: z.number().int().min(1).max(365).default(7) }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: kpis, error } = await supabaseAdmin.rpc("admin_kpis", { _active_window_days: data.activeWindowDays });
     if (error) throw new Error(error.message);
@@ -453,7 +459,7 @@ export const adminDailyActiveUsers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ days: z.number().int().min(1).max(180).default(30) }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin.rpc("admin_daily_active_users", { _days: data.days });
     if (error) throw new Error(error.message);
@@ -464,7 +470,7 @@ export const adminSubmissionTrends = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ days: z.number().int().min(1).max(180).default(30) }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin.rpc("admin_submission_trends", { _days: data.days });
     if (error) throw new Error(error.message);
@@ -474,7 +480,7 @@ export const adminSubmissionTrends = createServerFn({ method: "POST" })
 export const adminCategoryPerformance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin.rpc("admin_category_performance");
     if (error) throw new Error(error.message);
@@ -501,7 +507,7 @@ export const adminContentHealth = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin.from("clue_health").select("*").limit(data.limit);
     if (data.flag) q = q.eq(data.flag, true);
@@ -536,7 +542,7 @@ export const adminImportDefinitions = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     let inserted = 0,
@@ -600,7 +606,7 @@ export const adminExport = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     if (data.dataset === "definitions" || data.dataset === "snapshot") {
