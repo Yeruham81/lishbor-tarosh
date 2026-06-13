@@ -25,6 +25,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin.submissions'
 import { Route as AuthenticatedAdminPlayersRouteImport } from './routes/_authenticated/admin.players'
+import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminDefinitionsRouteImport } from './routes/_authenticated/admin.definitions'
 
 const SubmitPuzzleRoute = SubmitPuzzleRouteImport.update({
@@ -109,6 +110,12 @@ const AuthenticatedAdminPlayersRoute =
     path: '/players',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminMessagesRoute =
+  AuthenticatedAdminMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminDefinitionsRoute =
   AuthenticatedAdminDefinitionsRouteImport.update({
     id: '/definitions',
@@ -130,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/challenge/$token': typeof ChallengeTokenRoute
   '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
+  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/players': typeof AuthenticatedAdminPlayersRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -147,6 +155,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/challenge/$token': typeof ChallengeTokenRoute
   '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
+  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/players': typeof AuthenticatedAdminPlayersRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -167,6 +176,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/challenge/$token': typeof ChallengeTokenRoute
   '/_authenticated/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
+  '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/players': typeof AuthenticatedAdminPlayersRoute
   '/_authenticated/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/challenge/$token'
     | '/admin/definitions'
+    | '/admin/messages'
     | '/admin/players'
     | '/admin/submissions'
     | '/admin/'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/challenge/$token'
     | '/admin/definitions'
+    | '/admin/messages'
     | '/admin/players'
     | '/admin/submissions'
     | '/admin'
@@ -223,6 +235,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/challenge/$token'
     | '/_authenticated/admin/definitions'
+    | '/_authenticated/admin/messages'
     | '/_authenticated/admin/players'
     | '/_authenticated/admin/submissions'
     | '/_authenticated/admin/'
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPlayersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/messages': {
+      id: '/_authenticated/admin/messages'
+      path: '/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AuthenticatedAdminMessagesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/definitions': {
       id: '/_authenticated/admin/definitions'
       path: '/definitions'
@@ -365,6 +385,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDefinitionsRoute: typeof AuthenticatedAdminDefinitionsRoute
+  AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminPlayersRoute: typeof AuthenticatedAdminPlayersRoute
   AuthenticatedAdminSubmissionsRoute: typeof AuthenticatedAdminSubmissionsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -372,6 +393,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDefinitionsRoute: AuthenticatedAdminDefinitionsRoute,
+  AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
   AuthenticatedAdminPlayersRoute: AuthenticatedAdminPlayersRoute,
   AuthenticatedAdminSubmissionsRoute: AuthenticatedAdminSubmissionsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
