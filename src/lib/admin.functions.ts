@@ -520,3 +520,16 @@ export const adminExport = createServerFn({ method: "POST" })
     }
     return {};
   });
+
+// ============================================================
+// LAST-SEEN PING (any signed-in user)
+// ============================================================
+export const touchLastSeen = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("profiles")
+      .update({ last_seen_at: new Date().toISOString() })
+      .eq("id", context.userId);
+    return { ok: true };
+  });
