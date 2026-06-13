@@ -132,8 +132,14 @@ export const getNextClue = createServerFn({ method: "GET" })
       is_solved: false,
     });
 
+    // Track that this clue was displayed (content-health metric).
+    await supabaseAdmin.from("clues")
+      .update({ times_displayed: (pick.times_displayed ?? 0) + 1 })
+      .eq("id", pick.id);
+
     // Count this as a definition played (first time we serve it)
     await bumpPlayCounters(supabase, userId);
+
 
     return await loadProgress(supabase, userId, pick);
   });
