@@ -272,11 +272,11 @@ export const skipClue = createServerFn({ method: "POST" })
     await supabase.from("game_progress").delete()
       .eq("user_id", userId).eq("clue_id", data.clueId).eq("is_solved", false);
     // Skip breaks the perfect streak and counts the definition as skipped. No score change.
-    const { data: p } = await supabase.from("profiles")
+    const { data: p } = await supabaseAdmin.from("profiles")
       .select("definitions_skipped, current_streak")
       .eq("id", userId).single();
     if (p) {
-      await supabase.from("profiles").update({
+      await supabaseAdmin.from("profiles").update({
         current_streak: 0,
         definitions_skipped: (p.definitions_skipped ?? 0) + 1,
       }).eq("id", userId);
