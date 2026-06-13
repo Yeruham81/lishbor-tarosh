@@ -44,7 +44,7 @@ function Instructions() {
         <GameTopBar profile={profileQ.data} helpVariant="close" />
 
         <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-center mb-6">איך משחקים?</h1>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-center mb-6">ככה זה עובד</h1>
 
           <Tabs value={tab} onValueChange={onTabChange} dir="rtl">
             <TabsList className="grid w-full grid-cols-3 mb-6">
@@ -54,7 +54,7 @@ function Instructions() {
             </TabsList>
 
             <TabsContent value="rules" className="text-right leading-relaxed space-y-4">
-              <h2 className="font-display text-xl font-bold">ככה זה עובד</h2>
+              <h2 className="font-display text-xl font-bold">איך משחקים?</h2>
               <p className="text-muted-foreground">
                 המשחק יציג לכם בכל פעם הגדרת היגיון שעליכם לפתור בעזרת המקלדת העברית שעל המסך.
               </p>
