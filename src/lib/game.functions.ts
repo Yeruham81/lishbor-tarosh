@@ -412,9 +412,10 @@ export const getProfile = createServerFn({ method: "GET" })
     // Sensitive columns are column-revoked from `authenticated`; read via admin scoped to owner.
     const { data } = await supabaseAdmin
       .from("profiles")
-      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, created_at, updated_at")
+      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, highest_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, last_seen_at, age, is_blocked, created_at, updated_at")
       .eq("id", context.userId).single();
     return data;
+
   });
 
 export const getLeaderboard = createServerFn({ method: "GET" })
