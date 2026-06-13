@@ -44,7 +44,7 @@ function Instructions() {
         <GameTopBar profile={profileQ.data} helpVariant="close" />
 
         <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-center mb-6">מסך ההוראות</h1>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-center mb-6">איך משחקים?</h1>
 
           <Tabs value={tab} onValueChange={onTabChange} dir="rtl">
             <TabsList className="grid w-full grid-cols-3 mb-6">
