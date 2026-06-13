@@ -352,7 +352,9 @@ async function applySolveResult(
     perfect_solves: newPerfectTotal,
     wrong_letters_total: (p.wrong_letters_total ?? 0) + newWrongLetters,
     level: newStage,
+    last_seen_at: new Date().toISOString(),
   }).eq("id", userId);
+
 
   const events: SolveEvent[] = [{ kind: "score", points: points + bonus }];
   if (bonus > 0) events.push({ kind: "perfect_bonus", points: bonus, streak: newPerfectStreak });
