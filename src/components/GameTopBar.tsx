@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Trophy, Flame, Star, HelpCircle, X } from "lucide-react";
-import { scoreForNextLevel } from "@/lib/hebrew";
+import { STAGE_THRESHOLDS, stageFromScore, nextStageInfo } from "@/lib/progression";
 
 type Profile = {
   total_score: number;
@@ -15,18 +15,22 @@ export function GameTopBar({
   profile: Profile;
   helpVariant: "help" | "close";
 }) {
-  const nextLevelAt = profile ? scoreForNextLevel(profile.level) : 0;
-  const prevLevelAt = profile ? scoreForNextLevel((profile?.level ?? 1) - 1) : 0;
-  const levelProgress =
-    profile && nextLevelAt > prevLevelAt
-      ? Math.min(100, Math.max(0, ((profile.total_score - prevLevelAt) / (nextLevelAt - prevLevelAt)) * 100))
-      : 0;
+  const totalScore = profile?.total_score ?? 0;
+  const currentStage = stageFromScore(totalScore);
+  const next = nextStageInfo(totalScore);
+  const progressPct = next
+    ? (() => {
+        const prev = STAGE_THRESHOLDS[currentStage - 1] ?? 0;
+        const span = Math.max(1, next.required - prev);
+        return Math.min(100, Math.max(0, ((totalScore - prev) / span) * 100));
+      })()
+    : 100;
 
   return (
     <>
       <div className="grid grid-cols-3 md:grid-cols-[1fr_1fr_1fr_auto] gap-3 mb-4 items-stretch">
-        <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
-        <Stat label="שלב נוכחי" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
+        <Stat label="ניקוד כולל" value={totalScore} icon={<Trophy className="size-4" />} />
+        <Stat label="שלב נוכחי" value={currentStage} icon={<Star className="size-4 text-warning" />} />
         <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         <Link
           to={helpVariant === "help" ? "/instructions" : "/play"}
@@ -44,15 +48,17 @@ export function GameTopBar({
       {profile && (
         <div className="mb-6">
           <div className="flex justify-between text-xs text-muted-foreground mb-1">
-            <span>שלב {profile.level}</span>
+            <span>שלב {currentStage}</span>
             <span>
-              {profile.total_score} / {nextLevelAt}
+              {next
+                ? `${totalScore.toLocaleString("he-IL")} / ${next.required.toLocaleString("he-IL")}`
+                : totalScore.toLocaleString("he-IL")}
             </span>
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden">
             <div
               className="h-full bg-gradient-sunset transition-all duration-500"
-              style={{ width: `${levelProgress}%` }}
+              style={{ width: `${progressPct}%` }}
             />
           </div>
         </div>
