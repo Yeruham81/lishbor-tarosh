@@ -163,7 +163,7 @@ export const guessLetter = createServerFn({ method: "POST" })
     const letter = normalizeLetter(data.letter);
     const answer = normalizeWord(clue.answer);
 
-    const { data: existing } = await supabase.from("game_progress").select("*")
+    const { data: existing } = await supabaseAdmin.from("game_progress").select("*")
       .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
 
     if (existing?.is_solved) {
@@ -218,7 +218,7 @@ export const useHint = createServerFn({ method: "POST" })
     const { data: clue } = await supabaseAdmin.from("clues").select("*").eq("id", data.clueId).single();
     if (!clue) throw new Error("הגדרה לא נמצאה");
     const answer = normalizeWord(clue.answer);
-    const { data: existing } = await supabase.from("game_progress").select("*")
+    const { data: existing } = await supabaseAdmin.from("game_progress").select("*")
       .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
     if (existing?.is_solved) return publicClue(clue, existing.revealed_letters, existing.wrong_guesses, existing.hints_used, true);
 
