@@ -22,7 +22,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-const NAV = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
+const NAV: NavItem[] = [
   { to: "/admin", label: "לוח בקרה", icon: LayoutDashboard, exact: true },
   { to: "/admin/definitions", label: "הגדרות", icon: FileText },
   { to: "/admin/submissions", label: "הצעות שחקנים", icon: Inbox },
@@ -30,7 +31,7 @@ const NAV = [
   { to: "/admin/messages", label: "פניות", icon: Mail },
   { to: "/admin/taxonomy", label: "טקסונומיה", icon: Tags },
   { to: "/admin/settings", label: "הגדרות מערכת", icon: SettingsIcon },
-] as const;
+];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
