@@ -51,8 +51,8 @@ function publicClue(clue: ClueRow, revealed: string[], wrong: string[], hintsUse
   };
 }
 
-async function loadProgress(supabase: any, userId: string, clue: ClueRow) {
-  const { data: prog } = await supabase.from("game_progress").select("*")
+async function loadProgress(_supabase: any, userId: string, clue: ClueRow) {
+  const { data: prog } = await supabaseAdmin.from("game_progress").select("*")
     .eq("user_id", userId).eq("clue_id", clue.id).maybeSingle();
   const revealed: string[] = prog?.revealed_letters ?? [];
   const wrong: string[] = (prog?.wrong_guesses ?? []).filter((w: string) => !w.startsWith("__"));
@@ -135,7 +135,7 @@ export const getClueState = createServerFn({ method: "POST" })
     const { data: clue } = await supabaseAdmin
       .from("clues").select("*").eq("id", data.clueId).eq("is_active", true).maybeSingle();
     if (!clue) return null;
-    const { data: prog } = await supabase.from("game_progress").select("*")
+    const { data: prog } = await supabaseAdmin.from("game_progress").select("*")
       .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
     if (!prog) return null;
     return publicClue(
