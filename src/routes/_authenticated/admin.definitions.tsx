@@ -130,7 +130,7 @@ function DefinitionsPage() {
             <SortableHead>הגדרה</SortableHead>
             <SortableHead>פתרון</SortableHead>
             <TableHead>קטגוריה</TableHead>
-            <SortableHead>קושי</TableHead>
+            <SortableHead>קושי</SortableHead>
             <TableHead>סטטוס</TableHead>
             <SortableHead>לייקים</SortableHead>
             <SortableHead>נפתר</SortableHead>
