@@ -34,7 +34,7 @@ export function HebrewKeyboard({ onLetter, disabled, revealed, wrong }: Props) {
                 key={l}
                 disabled={disabled || used}
                 onClick={() => onLetter(l)}
-                className={`flex-1 max-w-[12%] aspect-[5/6] min-h-[40px] sm:min-h-[48px] rounded-lg font-display font-bold text-base sm:text-xl transition shadow-key
+                className={`flex-1 max-w-[12%] aspect-[5/6] sm:aspect-square min-h-[40px] sm:min-h-[48px] rounded-lg font-display font-bold text-base sm:text-xl transition shadow-key
                   ${isCorrect ? "bg-success text-success-foreground" : ""}
                   ${isWrong ? "bg-destructive/80 text-destructive-foreground opacity-60" : ""}
                   ${!used ? "bg-card hover:bg-primary hover:text-primary-foreground active:scale-95" : ""}
