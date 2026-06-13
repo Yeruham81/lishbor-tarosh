@@ -356,8 +356,8 @@ async function applySolveResult(
 }
 
 
-async function applyWrongLetter(supabase: any, userId: string, totalWrongInClue: number) {
-  const { data: p } = await supabase.from("profiles")
+async function applyWrongLetter(_supabase: any, userId: string, totalWrongInClue: number) {
+  const { data: p } = await supabaseAdmin.from("profiles")
     .select("current_streak, wrong_letters_total")
     .eq("id", userId).single();
   if (!p) return;
@@ -366,15 +366,15 @@ async function applyWrongLetter(supabase: any, userId: string, totalWrongInClue:
   if (totalWrongInClue > SCORING.FREE_WRONGS && (p.current_streak ?? 0) > 0) {
     patch.current_streak = 0;
   }
-  await supabase.from("profiles").update(patch).eq("id", userId);
+  await supabaseAdmin.from("profiles").update(patch).eq("id", userId);
 }
 
-async function applyHintUsed(supabase: any, userId: string) {
-  const { data: p } = await supabase.from("profiles")
+async function applyHintUsed(_supabase: any, userId: string) {
+  const { data: p } = await supabaseAdmin.from("profiles")
     .select("current_streak, hints_used_total")
     .eq("id", userId).single();
   if (!p) return;
-  await supabase.from("profiles").update({
+  await supabaseAdmin.from("profiles").update({
     current_streak: 0,
     hints_used_total: (p.hints_used_total ?? 0) + 1,
   }).eq("id", userId);
