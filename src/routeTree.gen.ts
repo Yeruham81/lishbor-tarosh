@@ -25,6 +25,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
 import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin.submissions'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminPlayersRouteImport } from './routes/_authenticated/admin.players'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminDefinitionsRouteImport } from './routes/_authenticated/admin.definitions'
@@ -111,6 +112,12 @@ const AuthenticatedAdminSubmissionsRoute =
     path: '/submissions',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPlayersRoute =
   AuthenticatedAdminPlayersRouteImport.update({
     id: '/players',
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/players': typeof AuthenticatedAdminPlayersRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -165,6 +173,7 @@ export interface FileRoutesByTo {
   '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/players': typeof AuthenticatedAdminPlayersRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -187,6 +196,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/players': typeof AuthenticatedAdminPlayersRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/admin/definitions'
     | '/admin/messages'
     | '/admin/players'
+    | '/admin/settings'
     | '/admin/submissions'
     | '/admin/taxonomy'
     | '/admin/'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/admin/definitions'
     | '/admin/messages'
     | '/admin/players'
+    | '/admin/settings'
     | '/admin/submissions'
     | '/admin/taxonomy'
     | '/admin'
@@ -249,6 +261,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/definitions'
     | '/_authenticated/admin/messages'
     | '/_authenticated/admin/players'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/submissions'
     | '/_authenticated/admin/taxonomy'
     | '/_authenticated/admin/'
@@ -379,6 +392,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSubmissionsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/players': {
       id: '/_authenticated/admin/players'
       path: '/players'
@@ -407,6 +427,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDefinitionsRoute: typeof AuthenticatedAdminDefinitionsRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminPlayersRoute: typeof AuthenticatedAdminPlayersRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSubmissionsRoute: typeof AuthenticatedAdminSubmissionsRoute
   AuthenticatedAdminTaxonomyRoute: typeof AuthenticatedAdminTaxonomyRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -416,6 +437,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDefinitionsRoute: AuthenticatedAdminDefinitionsRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
   AuthenticatedAdminPlayersRoute: AuthenticatedAdminPlayersRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSubmissionsRoute: AuthenticatedAdminSubmissionsRoute,
   AuthenticatedAdminTaxonomyRoute: AuthenticatedAdminTaxonomyRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
