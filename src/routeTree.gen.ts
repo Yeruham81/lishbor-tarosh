@@ -23,6 +23,7 @@ import { Route as AuthenticatedLevelsRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedInstructionsRouteImport } from './routes/_authenticated/instructions'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminDefinitionsRouteImport } from './routes/_authenticated/admin.definitions'
 
 const SubmitPuzzleRoute = SubmitPuzzleRouteImport.update({
   id: '/submit-puzzle',
@@ -94,6 +95,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminDefinitionsRoute =
+  AuthenticatedAdminDefinitionsRouteImport.update({
+    id: '/definitions',
+    path: '/definitions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/play': typeof AuthenticatedPlayRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/challenge/$token': typeof ChallengeTokenRoute
+  '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -122,6 +130,7 @@ export interface FileRoutesByTo {
   '/play': typeof AuthenticatedPlayRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/challenge/$token': typeof ChallengeTokenRoute
+  '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -139,6 +148,7 @@ export interface FileRoutesById {
   '/_authenticated/play': typeof AuthenticatedPlayRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/challenge/$token': typeof ChallengeTokenRoute
+  '/_authenticated/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/play'
     | '/profile'
     | '/challenge/$token'
+    | '/admin/definitions'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | '/play'
     | '/profile'
     | '/challenge/$token'
+    | '/admin/definitions'
     | '/admin'
   id:
     | '__root__'
@@ -186,6 +198,7 @@ export interface FileRouteTypes {
     | '/_authenticated/play'
     | '/_authenticated/profile'
     | '/challenge/$token'
+    | '/_authenticated/admin/definitions'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -300,14 +313,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/definitions': {
+      id: '/_authenticated/admin/definitions'
+      path: '/definitions'
+      fullPath: '/admin/definitions'
+      preLoaderRoute: typeof AuthenticatedAdminDefinitionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminDefinitionsRoute: typeof AuthenticatedAdminDefinitionsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminDefinitionsRoute: AuthenticatedAdminDefinitionsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
