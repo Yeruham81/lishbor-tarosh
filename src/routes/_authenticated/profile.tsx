@@ -256,15 +256,27 @@ function Profile() {
             <div dir="rtl" className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button onClick={onSignOut}
                 className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border bg-card hover:bg-muted transition font-medium text-sm sm:text-base">
-                <LogOut className="size-4 shrink-0" /> <span className="truncate">נתק אותי</span>
+                <LogOut className="size-4 shrink-0" />
+                <div className="flex flex-col items-center min-w-0 leading-tight">
+                  <span className="truncate">נתק אותי</span>
+                  <span className="truncate text-[10px] font-normal opacity-70">התנתקות ויציאה מהמשחק</span>
+                </div>
               </button>
               <button onClick={onForgetMe} disabled={resetting}
                 className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border border-warning/40 text-warning hover:bg-warning hover:text-warning-foreground transition font-medium text-sm sm:text-base disabled:opacity-50">
-                <Eraser className="size-4 shrink-0" /> <span className="truncate">{resetting ? "מאפס..." : "שכח אותי"}</span>
+                <Eraser className="size-4 shrink-0" />
+                <div className="flex flex-col items-center min-w-0 leading-tight">
+                  <span className="truncate">{resetting ? "מאפס..." : "שכח אותי"}</span>
+                  <span className="truncate text-[10px] font-normal opacity-70">איפוס ההיסטוריה והניקוד</span>
+                </div>
               </button>
               <button onClick={onDelete} disabled={deleting}
                 className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground transition font-medium text-sm sm:text-base disabled:opacity-50">
-                <Trash2 className="size-4 shrink-0" /> <span className="truncate">{deleting ? "מוחק..." : "מחק אותי"}</span>
+                <Trash2 className="size-4 shrink-0" />
+                <div className="flex flex-col items-center min-w-0 leading-tight">
+                  <span className="truncate">{deleting ? "מוחק..." : "מחק אותי"}</span>
+                  <span className="truncate text-[10px] font-normal opacity-70">מחיקת הפרופיל לצמיתות</span>
+                </div>
               </button>
             </div>
           </div>
