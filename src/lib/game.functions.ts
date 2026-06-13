@@ -65,7 +65,7 @@ export const getNextClue = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
 
     // 1) Resume in-progress (not solved) puzzle if any
-    const { data: inProgress } = await supabase
+    const { data: inProgress } = await supabaseAdmin
       .from("game_progress")
       .select("clue_id, updated_at")
       .eq("user_id", userId)
@@ -80,10 +80,10 @@ export const getNextClue = createServerFn({ method: "GET" })
     }
 
     // 2) Pick a fresh clue scaled to stage, excluding already-solved
-    const { data: profile } = await supabase.from("profiles").select("level").eq("id", userId).single();
+    const { data: profile } = await supabaseAdmin.from("profiles").select("level").eq("id", userId).single();
     const maxDiff = Math.min(5, Math.ceil(((profile?.level ?? 1) + 1) / 2));
 
-    const { data: solvedRows } = await supabase
+    const { data: solvedRows } = await supabaseAdmin
       .from("game_progress").select("clue_id").eq("user_id", userId).eq("is_solved", true);
     const solvedIds = (solvedRows ?? []).map((r: any) => r.clue_id);
 
