@@ -21,7 +21,7 @@ function SettingsPage() {
   const setFn = useServerFn(adminSetSetting);
   const exportFn = useServerFn(adminExport);
 
-  const settings = useQuery({ queryKey: ["admin", "settings"], queryFn: () => getFn({}) });
+  const settings = useQuery({ queryKey: ["admin", "settings"], queryFn: () => getFn() });
   const data: any = settings.data ?? {};
 
   const updateSetting = useMutation({
