@@ -259,7 +259,7 @@ function Profile() {
                 <LogOut className="size-4 shrink-0" />
                 <div className="flex flex-col items-center min-w-0 leading-tight">
                   <span className="truncate">נתק אותי</span>
-                  <span className="truncate text-[10px] font-normal opacity-70">התנתקות ויציאה מהמשחק</span>
+                  <span className="truncate text-[12px] font-normal opacity-70">התנתקות ויציאה מהמשחק</span>
                 </div>
               </button>
               <button onClick={onForgetMe} disabled={resetting}
