@@ -29,7 +29,7 @@ export function WordBoxes({ wordLengths, mask, shake }: Props) {
               className={`w-9 h-11 sm:w-12 sm:h-14 rounded-lg flex items-center justify-center font-display font-extrabold text-xl sm:text-2xl border-b-4 transition-all
                 ${ch
                   ? "bg-card border-primary text-foreground shadow-card animate-letter-pop"
-                  : "bg-muted/30 border-border/60"}`}
+                  : "bg-muted border-border shadow-sm"}`}
             >
               {ch ?? ""}
             </div>
