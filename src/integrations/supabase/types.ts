@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           challenger_hints: number
@@ -82,6 +103,7 @@ export type Database = {
           category: string | null
           clue: string
           created_at: string
+          deleted_at: string | null
           difficulty: number
           dislikes_count: number
           explanation: string | null
@@ -92,6 +114,8 @@ export type Database = {
           likes_count: number
           skip_count: number
           solved_count: number
+          status: Database["public"]["Enums"]["clue_status"]
+          times_displayed: number
           type: string | null
           updated_at: string
         }
@@ -102,6 +126,7 @@ export type Database = {
           category?: string | null
           clue: string
           created_at?: string
+          deleted_at?: string | null
           difficulty?: number
           dislikes_count?: number
           explanation?: string | null
@@ -112,6 +137,8 @@ export type Database = {
           likes_count?: number
           skip_count?: number
           solved_count?: number
+          status?: Database["public"]["Enums"]["clue_status"]
+          times_displayed?: number
           type?: string | null
           updated_at?: string
         }
@@ -122,6 +149,7 @@ export type Database = {
           category?: string | null
           clue?: string
           created_at?: string
+          deleted_at?: string | null
           difficulty?: number
           dislikes_count?: number
           explanation?: string | null
@@ -132,6 +160,8 @@ export type Database = {
           likes_count?: number
           skip_count?: number
           solved_count?: number
+          status?: Database["public"]["Enums"]["clue_status"]
+          times_displayed?: number
           type?: string | null
           updated_at?: string
         }
@@ -143,9 +173,14 @@ export type Database = {
           created_at: string
           id: string
           message: string
+          read_at: string | null
+          replied_at: string | null
+          replied_by: string | null
+          reply_text: string | null
           status: string
           subject: string | null
           type: Database["public"]["Enums"]["feedback_type"]
+          updated_at: string
           user_id: string | null
         }
         Insert: {
@@ -153,9 +188,14 @@ export type Database = {
           created_at?: string
           id?: string
           message: string
+          read_at?: string | null
+          replied_at?: string | null
+          replied_by?: string | null
+          reply_text?: string | null
           status?: string
           subject?: string | null
           type?: Database["public"]["Enums"]["feedback_type"]
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
@@ -163,9 +203,14 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string
+          read_at?: string | null
+          replied_at?: string | null
+          replied_by?: string | null
+          reply_text?: string | null
           status?: string
           subject?: string | null
           type?: Database["public"]["Enums"]["feedback_type"]
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
@@ -218,6 +263,13 @@ export type Database = {
             foreignKeyName: "game_progress_clue_id_fkey"
             columns: ["clue_id"]
             isOneToOne: false
+            referencedRelation: "clue_health"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_progress_clue_id_fkey"
+            columns: ["clue_id"]
+            isOneToOne: false
             referencedRelation: "clues"
             referencedColumns: ["id"]
           },
@@ -256,6 +308,13 @@ export type Database = {
             foreignKeyName: "hint_usage_clue_id_fkey"
             columns: ["clue_id"]
             isOneToOne: false
+            referencedRelation: "clue_health"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hint_usage_clue_id_fkey"
+            columns: ["clue_id"]
+            isOneToOne: false
             referencedRelation: "clues"
             referencedColumns: ["id"]
           },
@@ -264,6 +323,7 @@ export type Database = {
       profiles: {
         Row: {
           accessibility_prefs: Json
+          age: number | null
           auth_provider: string | null
           auto_next: boolean
           avatar_url: string | null
@@ -279,6 +339,7 @@ export type Database = {
           email: string | null
           hints_used_total: number
           id: string
+          is_blocked: boolean
           is_private: boolean
           last_play_date: string | null
           level: number
@@ -292,6 +353,7 @@ export type Database = {
         }
         Insert: {
           accessibility_prefs?: Json
+          age?: number | null
           auth_provider?: string | null
           auto_next?: boolean
           avatar_url?: string | null
@@ -307,6 +369,7 @@ export type Database = {
           email?: string | null
           hints_used_total?: number
           id: string
+          is_blocked?: boolean
           is_private?: boolean
           last_play_date?: string | null
           level?: number
@@ -320,6 +383,7 @@ export type Database = {
         }
         Update: {
           accessibility_prefs?: Json
+          age?: number | null
           auth_provider?: string | null
           auto_next?: boolean
           avatar_url?: string | null
@@ -335,6 +399,7 @@ export type Database = {
           email?: string | null
           hints_used_total?: number
           id?: string
+          is_blocked?: boolean
           is_private?: boolean
           last_play_date?: string | null
           level?: number
@@ -350,36 +415,78 @@ export type Database = {
       }
       puzzle_submissions: {
         Row: {
+          admin_notes: string | null
+          approved_clue_id: string | null
+          category: string | null
           clue_text: string
           created_at: string
+          edited_answer: string | null
+          edited_category: string | null
+          edited_clue: string | null
           id: string
           notes: string | null
+          points_awarded: number
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: string
           suggested_answer: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          admin_notes?: string | null
+          approved_clue_id?: string | null
+          category?: string | null
           clue_text: string
           created_at?: string
+          edited_answer?: string | null
+          edited_category?: string | null
+          edited_clue?: string | null
           id?: string
           notes?: string | null
+          points_awarded?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           suggested_answer: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          admin_notes?: string | null
+          approved_clue_id?: string | null
+          category?: string | null
           clue_text?: string
           created_at?: string
+          edited_answer?: string | null
+          edited_category?: string | null
+          edited_clue?: string | null
           id?: string
           notes?: string | null
+          points_awarded?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           suggested_answer?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "puzzle_submissions_approved_clue_id_fkey"
+            columns: ["approved_clue_id"]
+            isOneToOne: false
+            referencedRelation: "clue_health"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "puzzle_submissions_approved_clue_id_fkey"
+            columns: ["approved_clue_id"]
+            isOneToOne: false
+            referencedRelation: "clues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -404,9 +511,111 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      clue_health: {
+        Row: {
+          answer: string | null
+          clue: string | null
+          deleted_at: string | null
+          dislikes_count: number | null
+          high_dislikes: boolean | null
+          id: string | null
+          likes_count: number | null
+          low_success_rate: boolean | null
+          missing_explanation: boolean | null
+          missing_hint: boolean | null
+          never_shown: boolean | null
+          skip_count: number | null
+          solved_count: number | null
+          status: Database["public"]["Enums"]["clue_status"] | null
+          success_rate: number | null
+          times_displayed: number | null
+          very_high_failure: boolean | null
+        }
+        Insert: {
+          answer?: string | null
+          clue?: string | null
+          deleted_at?: string | null
+          dislikes_count?: number | null
+          high_dislikes?: never
+          id?: string | null
+          likes_count?: number | null
+          low_success_rate?: never
+          missing_explanation?: never
+          missing_hint?: never
+          never_shown?: never
+          skip_count?: number | null
+          solved_count?: number | null
+          status?: Database["public"]["Enums"]["clue_status"] | null
+          success_rate?: never
+          times_displayed?: number | null
+          very_high_failure?: never
+        }
+        Update: {
+          answer?: string | null
+          clue?: string | null
+          deleted_at?: string | null
+          dislikes_count?: number | null
+          high_dislikes?: never
+          id?: string | null
+          likes_count?: number | null
+          low_success_rate?: never
+          missing_explanation?: never
+          missing_hint?: never
+          never_shown?: never
+          skip_count?: number | null
+          solved_count?: number | null
+          status?: Database["public"]["Enums"]["clue_status"] | null
+          success_rate?: never
+          times_displayed?: number | null
+          very_high_failure?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      admin_adjust_points: {
+        Args: { _delta: number; _reason?: string; _user_id: string }
+        Returns: number
+      }
+      admin_approve_submission: {
+        Args: { _difficulty?: number; _points?: number; _submission_id: string }
+        Returns: string
+      }
+      admin_category_performance: {
+        Args: never
+        Returns: {
+          avg_success: number
+          category: string
+          total: number
+          total_solves: number
+        }[]
+      }
+      admin_daily_active_users: {
+        Args: { _days?: number }
+        Returns: {
+          day: string
+          users: number
+        }[]
+      }
+      admin_kpis: { Args: { _active_window_days?: number }; Returns: Json }
+      admin_reject_submission: {
+        Args: { _notes?: string; _submission_id: string }
+        Returns: undefined
+      }
+      admin_set_user_blocked: {
+        Args: { _blocked: boolean; _user_id: string }
+        Returns: undefined
+      }
+      admin_soft_delete_clue: { Args: { _clue_id: string }; Returns: undefined }
+      admin_submission_trends: {
+        Args: { _days?: number }
+        Returns: {
+          approved: number
+          day: string
+          rejected: number
+          submitted: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -414,9 +623,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_blocked: { Args: { _uid: string }; Returns: boolean }
+      is_submissions_enabled: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
+      clue_status: "draft" | "active" | "inactive" | "archived" | "hidden"
       feedback_type: "bug" | "feature" | "complaint" | "idea" | "other"
     }
     CompositeTypes: {
@@ -546,6 +758,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      clue_status: ["draft", "active", "inactive", "archived", "hidden"],
       feedback_type: ["bug", "feature", "complaint", "idea", "other"],
     },
   },
