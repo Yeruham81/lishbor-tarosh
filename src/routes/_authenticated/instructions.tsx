@@ -54,7 +54,7 @@ function Instructions() {
             </TabsList>
 
             <TabsContent value="rules" className="text-right leading-relaxed space-y-4">
-              <h2 className="font-display text-xl font-bold">איך משחקים?</h2>
+              <h2 className="font-display text-xl font-bold">ככה זה עובד</h2>
               <p className="text-muted-foreground">
                 המשחק יציג לכם בכל פעם הגדרת היגיון שעליכם לפתור בעזרת המקלדת העברית שעל המסך.
               </p>
