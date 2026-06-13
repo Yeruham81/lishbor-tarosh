@@ -41,7 +41,16 @@ export function AppShell({ children }: { children: ReactNode }) {
               </NavLink>
             )}
           </nav>
-          <div>
+          <div className="flex items-center gap-2">
+            {showMobileHelp && (
+              <Link
+                to={onInstructions ? "/play" : "/instructions"}
+                aria-label={onInstructions ? "חזרה למשחק" : "הוראות"}
+                className="md:hidden inline-flex items-center justify-center size-9 rounded-lg bg-muted/70 hover:bg-muted border border-border transition"
+              >
+                {onInstructions ? <X className="size-5" /> : <HelpCircle className="size-5" />}
+              </Link>
+            )}
             {!user && (
               <Link
                 to="/auth"
