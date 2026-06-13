@@ -231,7 +231,7 @@ export const useHint = createServerFn({ method: "POST" })
     const hintsUsed = (existing?.hints_used ?? 0) + 1;
     const wrong = (existing?.wrong_guesses ?? []).filter((w: string) => !w.startsWith("__"));
 
-    await supabase.from("hint_usage").insert({
+    await supabaseAdmin.from("hint_usage").insert({
       user_id: userId, clue_id: data.clueId, letter, position: answer.indexOf(letter), cost: SCORING.HINT_PENALTY,
     });
 
