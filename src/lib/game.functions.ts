@@ -74,8 +74,15 @@ export const getNextClue = createServerFn({ method: "GET" })
       .limit(1)
       .maybeSingle();
 
+    const nowIso = new Date().toISOString();
+    const applyScheduleFilter = (q: any) =>
+      q.or(`publish_at.is.null,publish_at.lte.${nowIso}`)
+       .or(`expire_at.is.null,expire_at.gt.${nowIso}`);
+
     if (inProgress?.clue_id) {
-      const { data: clue } = await supabaseAdmin.from("clues").select("*").eq("id", inProgress.clue_id).eq("is_active", true).maybeSingle();
+      const { data: clue } = await applyScheduleFilter(
+        supabaseAdmin.from("clues").select("*").eq("id", inProgress.clue_id).eq("is_active", true)
+      ).maybeSingle();
       if (clue) return await loadProgress(supabase, userId, clue);
     }
 
@@ -87,15 +94,19 @@ export const getNextClue = createServerFn({ method: "GET" })
       .from("game_progress").select("clue_id").eq("user_id", userId).eq("is_solved", true);
     const solvedIds = (solvedRows ?? []).map((r: any) => r.clue_id);
 
-    let query = supabaseAdmin.from("clues").select("*")
-      .eq("is_active", true).lte("difficulty", maxDiff).limit(100);
+    let query = applyScheduleFilter(
+      supabaseAdmin.from("clues").select("*").eq("is_active", true).lte("difficulty", maxDiff).limit(100)
+    );
     if (solvedIds.length) query = query.not("id", "in", `(${solvedIds.join(",")})`);
 
     let { data: clues } = await query;
     if (!clues || clues.length === 0) {
-      const { data: any } = await supabaseAdmin.from("clues").select("*").eq("is_active", true).limit(100);
+      const { data: any } = await applyScheduleFilter(
+        supabaseAdmin.from("clues").select("*").eq("is_active", true).limit(100)
+      );
       clues = (any ?? []).filter((c: any) => !solvedIds.includes(c.id));
     }
+
     if (!clues || clues.length === 0) return { exhausted: true as const };
 
     const pick = clues[Math.floor(Math.random() * clues.length)];
