@@ -167,8 +167,8 @@ export const updatePreferences = createServerFn({ method: "POST" })
     if (typeof data.auto_next === "boolean") patch.auto_next = data.auto_next;
     if (data.notification_prefs) patch.notification_prefs = data.notification_prefs;
     if (data.accessibility_prefs) {
-      // merge with existing
-      const { data: cur } = await supabase
+      // merge with existing (accessibility_prefs is column-revoked from authenticated)
+      const { data: cur } = await supabaseAdmin
         .from("profiles")
         .select("accessibility_prefs")
         .eq("id", userId)
