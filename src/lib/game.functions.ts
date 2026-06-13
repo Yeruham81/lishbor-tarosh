@@ -51,8 +51,8 @@ function publicClue(clue: ClueRow, revealed: string[], wrong: string[], hintsUse
   };
 }
 
-async function loadProgress(supabase: any, userId: string, clue: ClueRow) {
-  const { data: prog } = await supabase.from("game_progress").select("*")
+async function loadProgress(_supabase: any, userId: string, clue: ClueRow) {
+  const { data: prog } = await supabaseAdmin.from("game_progress").select("*")
     .eq("user_id", userId).eq("clue_id", clue.id).maybeSingle();
   const revealed: string[] = prog?.revealed_letters ?? [];
   const wrong: string[] = (prog?.wrong_guesses ?? []).filter((w: string) => !w.startsWith("__"));
@@ -65,7 +65,7 @@ export const getNextClue = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
 
     // 1) Resume in-progress (not solved) puzzle if any
-    const { data: inProgress } = await supabase
+    const { data: inProgress } = await supabaseAdmin
       .from("game_progress")
       .select("clue_id, updated_at")
       .eq("user_id", userId)
@@ -80,10 +80,10 @@ export const getNextClue = createServerFn({ method: "GET" })
     }
 
     // 2) Pick a fresh clue scaled to stage, excluding already-solved
-    const { data: profile } = await supabase.from("profiles").select("level").eq("id", userId).single();
+    const { data: profile } = await supabaseAdmin.from("profiles").select("level").eq("id", userId).single();
     const maxDiff = Math.min(5, Math.ceil(((profile?.level ?? 1) + 1) / 2));
 
-    const { data: solvedRows } = await supabase
+    const { data: solvedRows } = await supabaseAdmin
       .from("game_progress").select("clue_id").eq("user_id", userId).eq("is_solved", true);
     const solvedIds = (solvedRows ?? []).map((r: any) => r.clue_id);
 
@@ -135,7 +135,7 @@ export const getClueState = createServerFn({ method: "POST" })
     const { data: clue } = await supabaseAdmin
       .from("clues").select("*").eq("id", data.clueId).eq("is_active", true).maybeSingle();
     if (!clue) return null;
-    const { data: prog } = await supabase.from("game_progress").select("*")
+    const { data: prog } = await supabaseAdmin.from("game_progress").select("*")
       .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
     if (!prog) return null;
     return publicClue(
@@ -163,7 +163,7 @@ export const guessLetter = createServerFn({ method: "POST" })
     const letter = normalizeLetter(data.letter);
     const answer = normalizeWord(clue.answer);
 
-    const { data: existing } = await supabase.from("game_progress").select("*")
+    const { data: existing } = await supabaseAdmin.from("game_progress").select("*")
       .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
 
     if (existing?.is_solved) {
@@ -218,7 +218,7 @@ export const useHint = createServerFn({ method: "POST" })
     const { data: clue } = await supabaseAdmin.from("clues").select("*").eq("id", data.clueId).single();
     if (!clue) throw new Error("הגדרה לא נמצאה");
     const answer = normalizeWord(clue.answer);
-    const { data: existing } = await supabase.from("game_progress").select("*")
+    const { data: existing } = await supabaseAdmin.from("game_progress").select("*")
       .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
     if (existing?.is_solved) return publicClue(clue, existing.revealed_letters, existing.wrong_guesses, existing.hints_used, true);
 
