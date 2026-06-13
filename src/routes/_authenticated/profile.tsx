@@ -267,7 +267,7 @@ function Profile() {
                 <Eraser className="size-4 shrink-0" />
                 <div className="flex flex-col items-center min-w-0 leading-tight">
                   <span className="truncate">{resetting ? "מאפס..." : "שכח אותי"}</span>
-                  <span className="truncate text-[10px] font-normal opacity-70">איפוס ההיסטוריה והניקוד</span>
+                  <span className="truncate text-[12px] font-normal opacity-70">איפוס ההיסטוריה והניקוד</span>
                 </div>
               </button>
               <button onClick={onDelete} disabled={deleting}
