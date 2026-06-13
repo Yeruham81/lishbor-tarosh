@@ -443,7 +443,7 @@ export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
       since = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     }
 
-    const { data: progress } = await supabase
+    const { data: progress } = await supabaseAdmin
       .from("game_progress")
       .select("user_id, score_earned")
       .eq("is_solved", true)
