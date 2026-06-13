@@ -24,14 +24,14 @@ export function GameTopBar({
 
   return (
     <>
-      <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 mb-4 items-stretch">
+      <div className="grid grid-cols-3 md:grid-cols-[1fr_1fr_1fr_auto] gap-3 mb-4 items-stretch">
         <Stat label="ניקוד כולל" value={profile?.total_score ?? 0} icon={<Trophy className="size-4" />} />
         <Stat label="שלב נוכחי" value={profile?.level ?? 1} icon={<Star className="size-4 text-warning" />} />
         <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
         <Link
           to={helpVariant === "help" ? "/instructions" : "/play"}
           aria-label={helpVariant === "help" ? "הוראות" : "חזרה למשחק"}
-          className="aspect-square h-full min-h-[48px] flex items-center justify-center rounded-2xl bg-muted/70 hover:bg-muted border border-border shadow-lg hover:shadow-xl transition"
+          className="hidden md:flex aspect-square h-full min-h-[48px] items-center justify-center rounded-2xl bg-muted/70 hover:bg-muted border border-border shadow-lg hover:shadow-xl transition"
         >
           {helpVariant === "help" ? (
             <HelpCircle className="size-7 text-foreground" />
