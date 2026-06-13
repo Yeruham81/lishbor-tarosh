@@ -3,95 +3,81 @@ import { ReactNode } from "react";
 import { PageHeader } from "@/components/admin/AdminUI";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
+import { useServerFn } from "@tanstack/react-start";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { adminGetSettings, adminSetSetting, adminExport } from "@/lib/admin.functions";
+import { downloadXLSX } from "@/lib/admin-export";
+import { Download } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
   component: SettingsPage,
 });
 
 function SettingsPage() {
+  const qc = useQueryClient();
+  const getFn = useServerFn(adminGetSettings);
+  const setFn = useServerFn(adminSetSetting);
+  const exportFn = useServerFn(adminExport);
+
+  const settings = useQuery({ queryKey: ["admin", "settings"], queryFn: () => getFn({}) });
+  const data: any = settings.data ?? {};
+
+  const updateSetting = useMutation({
+    mutationFn: (v: { key: string; value: any }) => setFn({ data: v }),
+    onSuccess: () => { toast.success("ההגדרה נשמרה"); qc.invalidateQueries({ queryKey: ["admin", "settings"] }); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const runSnapshot = async (dataset: "definitions" | "submissions" | "players" | "snapshot") => {
+    try {
+      const res: any = await exportFn({ data: { dataset, includeDeleted: true } });
+      const sheets: Record<string, any[]> = {};
+      if (res.definitions) sheets.definitions = res.definitions;
+      if (res.submissions) sheets.submissions = res.submissions;
+      if (res.players) sheets.players = res.players;
+      if (Object.keys(sheets).length === 0) { toast.message("אין נתונים"); return; }
+      downloadXLSX(sheets, `backup-${dataset}`);
+      toast.success("הגיבוי הורד");
+    } catch (e: any) { toast.error(e.message); }
+  };
+
+  const submissionsEnabled = boolish(data.allow_player_submissions, true);
+
   return (
     <div>
-      <PageHeader
-        title="הגדרות מערכת"
-        description="ניהול הגדרות כלליות של המשחק"
-        actions={<Button>שמור שינויים</Button>}
-      />
+      <PageHeader title="הגדרות מערכת" description="ניהול הגדרות כלליות של המשחק" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Section title="הגדרות משחק" description="פרמטרים בסיסיים של המשחק">
-          <Toggle label="הצגת רמזים" hint="לאפשר לשחקנים לבקש רמזים" defaultChecked />
-          <Toggle label="הצגת אנימציות" hint="אפקטים ויזואליים במהלך משחק" defaultChecked />
-          <Toggle label="מצב לילה אוטומטי" hint="התאמה לשעות הערב" />
-          <Separator />
-          <Field label="הגדרות בטור יומי">
-            <Input type="number" defaultValue={5} />
-          </Field>
-          <Field label="זמן ברירת מחדל לשאלה (שניות)">
-            <Input type="number" defaultValue={90} />
-          </Field>
-        </Section>
-
         <Section title="הגדרות הצעות" description="ניהול הגשת הגדרות מהקהילה">
-          <Toggle label="לאפשר הצעות שחקנים" hint="טופס /submit-puzzle פתוח" defaultChecked />
-          <Toggle label="דרישת אישור לפני פרסום" defaultChecked />
-          <Toggle label="התראת מייל למנהל בהצעה חדשה" defaultChecked />
-          <Separator />
-          <Field label="מינימום תווים בהגדרה">
-            <Input type="number" defaultValue={5} />
-          </Field>
-          <Field label="מקסימום הצעות פתוחות לשחקן">
-            <Input type="number" defaultValue={10} />
-          </Field>
+          <Toggle
+            label="לאפשר הצעות שחקנים"
+            hint="טופס הגשת הגדרה זמין לשחקנים"
+            checked={submissionsEnabled}
+            disabled={settings.isLoading || updateSetting.isPending}
+            onCheckedChange={(v) => updateSetting.mutate({ key: "allow_player_submissions", value: v })}
+          />
         </Section>
 
-        <Section title="הגדרות תגמולים" description="ניקוד, רצפים והישגים">
-          <Field label="נקודות בסיס לפתרון">
-            <Input type="number" defaultValue={10} />
-          </Field>
-          <Field label="קנס לטעות (מעבר ל-3)">
-            <Input type="number" defaultValue={1} />
-          </Field>
-          <Field label="קנס לרמז">
-            <Input type="number" defaultValue={2} />
-          </Field>
-          <Separator />
-          <Toggle label="בונוס לרצפים מושלמים" defaultChecked />
-          <Toggle label="הענקת הישגים אוטומטית" defaultChecked />
-        </Section>
-
-        <Section title="הגדרות יצירת קשר" description="ניהול פניות והודעות">
-          <Field label="אימייל ליצירת קשר">
-            <Input type="email" defaultValue="hello@lishbor.app" />
-          </Field>
-          <Field label="הודעת תגובה אוטומטית">
-            <Textarea
-              rows={4}
-              defaultValue="תודה שפנית אלינו, נחזור אליך בהקדם."
-            />
-          </Field>
-          <Separator />
-          <Toggle label="הצגת טופס יצירת קשר" defaultChecked />
-          <Toggle label="התראת מייל בהודעה חדשה" defaultChecked />
+        <Section title="גיבוי וייצוא מלא" description="הורדת תמונת מצב של המערכת">
+          <BackupRow label="הגדרות (כולל מחוקות)" onClick={() => runSnapshot("definitions")} />
+          <BackupRow label="הצעות שחקנים" onClick={() => runSnapshot("submissions")} />
+          <BackupRow label="שחקנים" onClick={() => runSnapshot("players")} />
+          <BackupRow label="תמונת מצב מלאה (כל הנתונים)" onClick={() => runSnapshot("snapshot")} />
         </Section>
       </div>
     </div>
   );
 }
 
-function Section({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: ReactNode;
-}) {
+function boolish(v: any, fallback: boolean) {
+  if (v === true || v === "true") return true;
+  if (v === false || v === "false") return false;
+  return fallback;
+}
+
+function Section({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
   return (
     <Card>
       <CardHeader>
@@ -103,23 +89,27 @@ function Section({
   );
 }
 
-function Toggle({ label, hint, defaultChecked }: { label: string; hint?: string; defaultChecked?: boolean }) {
+function Toggle({
+  label, hint, checked, onCheckedChange, disabled,
+}: { label: string; hint?: string; checked: boolean; onCheckedChange: (v: boolean) => void; disabled?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
         <div className="text-sm font-medium">{label}</div>
         {hint && <div className="text-xs text-muted-foreground mt-0.5">{hint}</div>}
       </div>
-      <Switch defaultChecked={defaultChecked} />
+      <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} />
     </div>
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function BackupRow({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[1fr_220px] items-center gap-2">
-      <Label className="text-sm">{label}</Label>
-      <div>{children}</div>
+    <div className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-muted/50 transition">
+      <span className="text-sm">{label}</span>
+      <Button variant="outline" size="sm" onClick={onClick}>
+        <Download className="size-4 ml-1" /> הורדה
+      </Button>
     </div>
   );
 }
