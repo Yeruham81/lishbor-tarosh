@@ -318,8 +318,10 @@ async function bumpPlayCounters(_supabase: any, userId: string) {
     current_play_days_streak: newStreak,
     best_play_days_streak: Math.max(p.best_play_days_streak ?? 0, newStreak),
     definitions_played: (p.definitions_played ?? 0) + 1,
+    last_seen_at: new Date().toISOString(),
   }).eq("id", userId);
 }
+
 
 // Apply solve outcome: score, perfect streak, stage progression, counters.
 // Returns notification events that should be surfaced to the player.
