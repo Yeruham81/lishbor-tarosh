@@ -289,14 +289,14 @@ export const skipClue = createServerFn({ method: "POST" })
 // ---- Profile mutators ----
 
 // Track that the user played today (consecutive play-days streak).
-async function bumpPlayCounters(supabase: any, userId: string) {
+async function bumpPlayCounters(_supabase: any, userId: string) {
   const today = todayIsoDate();
-  const { data: p } = await supabase.from("profiles")
+  const { data: p } = await supabaseAdmin.from("profiles")
     .select("last_play_date, current_play_days_streak, best_play_days_streak, definitions_played")
     .eq("id", userId).single();
   if (!p) return;
   const newStreak = nextPlayDaysStreak(p.last_play_date, p.current_play_days_streak ?? 0, today);
-  await supabase.from("profiles").update({
+  await supabaseAdmin.from("profiles").update({
     last_play_date: today,
     current_play_days_streak: newStreak,
     best_play_days_streak: Math.max(p.best_play_days_streak ?? 0, newStreak),
