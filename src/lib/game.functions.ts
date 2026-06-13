@@ -231,7 +231,7 @@ export const useHint = createServerFn({ method: "POST" })
     const hintsUsed = (existing?.hints_used ?? 0) + 1;
     const wrong = (existing?.wrong_guesses ?? []).filter((w: string) => !w.startsWith("__"));
 
-    await supabase.from("hint_usage").insert({
+    await supabaseAdmin.from("hint_usage").insert({
       user_id: userId, clue_id: data.clueId, letter, position: answer.indexOf(letter), cost: SCORING.HINT_PENALTY,
     });
 
@@ -272,11 +272,11 @@ export const skipClue = createServerFn({ method: "POST" })
     await supabase.from("game_progress").delete()
       .eq("user_id", userId).eq("clue_id", data.clueId).eq("is_solved", false);
     // Skip breaks the perfect streak and counts the definition as skipped. No score change.
-    const { data: p } = await supabase.from("profiles")
+    const { data: p } = await supabaseAdmin.from("profiles")
       .select("definitions_skipped, current_streak")
       .eq("id", userId).single();
     if (p) {
-      await supabase.from("profiles").update({
+      await supabaseAdmin.from("profiles").update({
         current_streak: 0,
         definitions_skipped: (p.definitions_skipped ?? 0) + 1,
       }).eq("id", userId);
@@ -289,14 +289,14 @@ export const skipClue = createServerFn({ method: "POST" })
 // ---- Profile mutators ----
 
 // Track that the user played today (consecutive play-days streak).
-async function bumpPlayCounters(supabase: any, userId: string) {
+async function bumpPlayCounters(_supabase: any, userId: string) {
   const today = todayIsoDate();
-  const { data: p } = await supabase.from("profiles")
+  const { data: p } = await supabaseAdmin.from("profiles")
     .select("last_play_date, current_play_days_streak, best_play_days_streak, definitions_played")
     .eq("id", userId).single();
   if (!p) return;
   const newStreak = nextPlayDaysStreak(p.last_play_date, p.current_play_days_streak ?? 0, today);
-  await supabase.from("profiles").update({
+  await supabaseAdmin.from("profiles").update({
     last_play_date: today,
     current_play_days_streak: newStreak,
     best_play_days_streak: Math.max(p.best_play_days_streak ?? 0, newStreak),
@@ -307,9 +307,9 @@ async function bumpPlayCounters(supabase: any, userId: string) {
 // Apply solve outcome: score, perfect streak, stage progression, counters.
 // Returns notification events that should be surfaced to the player.
 async function applySolveResult(
-  supabase: any, userId: string, points: number, perfect: boolean, newWrongLetters: number,
+  _supabase: any, userId: string, points: number, perfect: boolean, newWrongLetters: number,
 ): Promise<SolveEvent[]> {
-  const { data: p } = await supabase.from("profiles")
+  const { data: p } = await supabaseAdmin.from("profiles")
     .select("total_score, current_streak, best_streak, solved_count, perfect_solves, wrong_letters_total, current_play_days_streak, best_play_days_streak")
     .eq("id", userId).single();
   if (!p) return [];
@@ -325,7 +325,7 @@ async function applySolveResult(
   const newPerfectTotal = oldPerfect + (perfect ? 1 : 0);
   const playDays = Math.max(p.current_play_days_streak ?? 0, p.best_play_days_streak ?? 0);
 
-  await supabase.from("profiles").update({
+  await supabaseAdmin.from("profiles").update({
     total_score: newScore,
     current_streak: newPerfectStreak,
     best_streak: Math.max(p.best_streak ?? 0, newPerfectStreak),
@@ -356,8 +356,8 @@ async function applySolveResult(
 }
 
 
-async function applyWrongLetter(supabase: any, userId: string, totalWrongInClue: number) {
-  const { data: p } = await supabase.from("profiles")
+async function applyWrongLetter(_supabase: any, userId: string, totalWrongInClue: number) {
+  const { data: p } = await supabaseAdmin.from("profiles")
     .select("current_streak, wrong_letters_total")
     .eq("id", userId).single();
   if (!p) return;
@@ -366,15 +366,15 @@ async function applyWrongLetter(supabase: any, userId: string, totalWrongInClue:
   if (totalWrongInClue > SCORING.FREE_WRONGS && (p.current_streak ?? 0) > 0) {
     patch.current_streak = 0;
   }
-  await supabase.from("profiles").update(patch).eq("id", userId);
+  await supabaseAdmin.from("profiles").update(patch).eq("id", userId);
 }
 
-async function applyHintUsed(supabase: any, userId: string) {
-  const { data: p } = await supabase.from("profiles")
+async function applyHintUsed(_supabase: any, userId: string) {
+  const { data: p } = await supabaseAdmin.from("profiles")
     .select("current_streak, hints_used_total")
     .eq("id", userId).single();
   if (!p) return;
-  await supabase.from("profiles").update({
+  await supabaseAdmin.from("profiles").update({
     current_streak: 0,
     hints_used_total: (p.hints_used_total ?? 0) + 1,
   }).eq("id", userId);
@@ -388,7 +388,8 @@ async function bumpSolvedCount(supabase: any, clueId: string) {
 export const getProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase
+    // Sensitive columns are column-revoked from `authenticated`; read via admin scoped to owner.
+    const { data } = await supabaseAdmin
       .from("profiles")
       .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, created_at, updated_at")
       .eq("id", context.userId).single();

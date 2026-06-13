@@ -6,9 +6,10 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 export const getStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    // NOTE: exclude `email` — column-level SELECT was revoked from authenticated for privacy.
-    const { data: profile } = await supabase
+    const { userId } = context;
+    // Sensitive personal columns are column-revoked from `authenticated`;
+    // read via admin scoped to owner.
+    const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, created_at, updated_at")
       .eq("id", userId).single();
@@ -166,8 +167,8 @@ export const updatePreferences = createServerFn({ method: "POST" })
     if (typeof data.auto_next === "boolean") patch.auto_next = data.auto_next;
     if (data.notification_prefs) patch.notification_prefs = data.notification_prefs;
     if (data.accessibility_prefs) {
-      // merge with existing
-      const { data: cur } = await supabase
+      // merge with existing (accessibility_prefs is column-revoked from authenticated)
+      const { data: cur } = await supabaseAdmin
         .from("profiles")
         .select("accessibility_prefs")
         .eq("id", userId)
