@@ -77,25 +77,25 @@ export const adminUpsertDefinition = createServerFn({ method: "POST" })
       throw new Error("duplicate_definition_and_answer");
     }
 
+    const payload = {
+      clue: data.clue, answer: data.answer, alt_answer: data.alt_answer,
+      category: data.category, type: data.type, difficulty: data.difficulty,
+      hint: data.hint, explanation: data.explanation, status: data.status,
+      internal_notes: data.internal_notes,
+      publish_at: data.publish_at, expire_at: data.expire_at,
+    };
     if (data.id) {
       const { data: updated, error } = await supabaseAdmin
-        .from("clues").update({
-          clue: data.clue, answer: data.answer, alt_answer: data.alt_answer,
-          category: data.category, type: data.type, difficulty: data.difficulty,
-          hint: data.hint, explanation: data.explanation, status: data.status,
-        }).eq("id", data.id).select().single();
+        .from("clues").update(payload).eq("id", data.id).select().single();
       if (error) throw new Error(error.message);
       return { row: updated, warnings };
     }
     const { data: inserted, error } = await supabaseAdmin
-      .from("clues").insert({
-        clue: data.clue, answer: data.answer, alt_answer: data.alt_answer,
-        category: data.category, type: data.type, difficulty: data.difficulty,
-        hint: data.hint, explanation: data.explanation, status: data.status,
-      }).select().single();
+      .from("clues").insert(payload).select().single();
     if (error) throw new Error(error.message);
     return { row: inserted, warnings };
   });
+
 
 export const adminSetDefinitionStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
