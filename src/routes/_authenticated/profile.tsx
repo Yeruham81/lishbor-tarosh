@@ -275,7 +275,7 @@ function Profile() {
                 <Trash2 className="size-4 shrink-0" />
                 <div className="flex flex-col items-center min-w-0 leading-tight">
                   <span className="truncate">{deleting ? "מוחק..." : "מחק אותי"}</span>
-                  <span className="truncate text-[10px] font-normal opacity-70">מחיקת הפרופיל לצמיתות</span>
+                  <span className="truncate text-[12px] font-normal opacity-70">מחיקת הפרופיל לצמיתות</span>
                 </div>
               </button>
             </div>
