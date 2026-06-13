@@ -152,6 +152,7 @@ function Play() {
       const isCorrect = r.revealed.length > prevRevealedCount.current;
       prevRevealedCount.current = r.revealed.length;
       setState(r);
+      qc.setQueryData(["clue", user?.id ?? "anon"], r);
       if (!isCorrect) {
         setShake(true);
         setTimeout(() => setShake(false), 400);
@@ -174,6 +175,7 @@ function Play() {
       const r = await doHint({ data: { clueId: clue.id } });
       prevRevealedCount.current = r.revealed.length;
       setState(r);
+      qc.setQueryData(["clue", user?.id ?? "anon"], r);
       if (r.isSolved) {
         toast.success("🎉 נפתר עם רמז!");
         qc.invalidateQueries({ queryKey: ["profile"] });
