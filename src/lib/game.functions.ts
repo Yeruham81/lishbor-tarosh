@@ -112,7 +112,7 @@ export const getNextClue = createServerFn({ method: "GET" })
       }
     }
 
-    await supabase.from("game_progress").insert({
+    await supabaseAdmin.from("game_progress").insert({
       user_id: userId,
       clue_id: pick.id,
       revealed_letters: initialRevealed,
@@ -200,8 +200,8 @@ export const guessLetter = createServerFn({ method: "POST" })
       await applyWrongLetter(supabase, userId, wrong.length);
     }
 
-    if (existing) await supabase.from("game_progress").update(payload).eq("id", existing.id);
-    else await supabase.from("game_progress").insert(payload);
+    if (existing) await supabaseAdmin.from("game_progress").update(payload).eq("id", existing.id);
+    else await supabaseAdmin.from("game_progress").insert(payload);
 
     const result = publicClue(clue, revealed, wrong, hintsUsed, solved);
     return { ...result, events };
@@ -254,8 +254,8 @@ export const useHint = createServerFn({ method: "POST" })
       events = await applySolveResult(supabase, userId, earned, perfect, 0);
       await bumpSolvedCount(supabase, clue.id);
     }
-    if (existing) await supabase.from("game_progress").update(payload).eq("id", existing.id);
-    else await supabase.from("game_progress").insert(payload);
+    if (existing) await supabaseAdmin.from("game_progress").update(payload).eq("id", existing.id);
+    else await supabaseAdmin.from("game_progress").insert(payload);
 
     const result = publicClue(clue, revealed, wrong, hintsUsed, solved);
     return { ...result, events };
@@ -269,7 +269,7 @@ export const skipClue = createServerFn({ method: "POST" })
   .inputValidator((d) => skipSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await supabase.from("game_progress").delete()
+    await supabaseAdmin.from("game_progress").delete()
       .eq("user_id", userId).eq("clue_id", data.clueId).eq("is_solved", false);
     // Skip breaks the perfect streak and counts the definition as skipped. No score change.
     const { data: p } = await supabaseAdmin.from("profiles")
@@ -443,7 +443,7 @@ export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
       since = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     }
 
-    const { data: progress } = await supabase
+    const { data: progress } = await supabaseAdmin
       .from("game_progress")
       .select("user_id, score_earned")
       .eq("is_solved", true)
