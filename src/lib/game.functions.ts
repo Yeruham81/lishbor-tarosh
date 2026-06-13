@@ -74,8 +74,15 @@ export const getNextClue = createServerFn({ method: "GET" })
       .limit(1)
       .maybeSingle();
 
+    const nowIso = new Date().toISOString();
+    const applyScheduleFilter = (q: any) =>
+      q.or(`publish_at.is.null,publish_at.lte.${nowIso}`)
+       .or(`expire_at.is.null,expire_at.gt.${nowIso}`);
+
     if (inProgress?.clue_id) {
-      const { data: clue } = await supabaseAdmin.from("clues").select("*").eq("id", inProgress.clue_id).eq("is_active", true).maybeSingle();
+      const { data: clue } = await applyScheduleFilter(
+        supabaseAdmin.from("clues").select("*").eq("id", inProgress.clue_id).eq("is_active", true)
+      ).maybeSingle();
       if (clue) return await loadProgress(supabase, userId, clue);
     }
 
@@ -87,15 +94,19 @@ export const getNextClue = createServerFn({ method: "GET" })
       .from("game_progress").select("clue_id").eq("user_id", userId).eq("is_solved", true);
     const solvedIds = (solvedRows ?? []).map((r: any) => r.clue_id);
 
-    let query = supabaseAdmin.from("clues").select("*")
-      .eq("is_active", true).lte("difficulty", maxDiff).limit(100);
+    let query = applyScheduleFilter(
+      supabaseAdmin.from("clues").select("*").eq("is_active", true).lte("difficulty", maxDiff).limit(100)
+    );
     if (solvedIds.length) query = query.not("id", "in", `(${solvedIds.join(",")})`);
 
     let { data: clues } = await query;
     if (!clues || clues.length === 0) {
-      const { data: any } = await supabaseAdmin.from("clues").select("*").eq("is_active", true).limit(100);
+      const { data: any } = await applyScheduleFilter(
+        supabaseAdmin.from("clues").select("*").eq("is_active", true).limit(100)
+      );
       clues = (any ?? []).filter((c: any) => !solvedIds.includes(c.id));
     }
+
     if (!clues || clues.length === 0) return { exhausted: true as const };
 
     const pick = clues[Math.floor(Math.random() * clues.length)];
@@ -121,8 +132,14 @@ export const getNextClue = createServerFn({ method: "GET" })
       is_solved: false,
     });
 
+    // Track that this clue was displayed (content-health metric).
+    await supabaseAdmin.from("clues")
+      .update({ times_displayed: (pick.times_displayed ?? 0) + 1 })
+      .eq("id", pick.id);
+
     // Count this as a definition played (first time we serve it)
     await bumpPlayCounters(supabase, userId);
+
 
     return await loadProgress(supabase, userId, pick);
   });
@@ -301,8 +318,10 @@ async function bumpPlayCounters(_supabase: any, userId: string) {
     current_play_days_streak: newStreak,
     best_play_days_streak: Math.max(p.best_play_days_streak ?? 0, newStreak),
     definitions_played: (p.definitions_played ?? 0) + 1,
+    last_seen_at: new Date().toISOString(),
   }).eq("id", userId);
 }
+
 
 // Apply solve outcome: score, perfect streak, stage progression, counters.
 // Returns notification events that should be surfaced to the player.
@@ -333,7 +352,9 @@ async function applySolveResult(
     perfect_solves: newPerfectTotal,
     wrong_letters_total: (p.wrong_letters_total ?? 0) + newWrongLetters,
     level: newStage,
+    last_seen_at: new Date().toISOString(),
   }).eq("id", userId);
+
 
   const events: SolveEvent[] = [{ kind: "score", points: points + bonus }];
   if (bonus > 0) events.push({ kind: "perfect_bonus", points: bonus, streak: newPerfectStreak });
@@ -391,9 +412,10 @@ export const getProfile = createServerFn({ method: "GET" })
     // Sensitive columns are column-revoked from `authenticated`; read via admin scoped to owner.
     const { data } = await supabaseAdmin
       .from("profiles")
-      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, created_at, updated_at")
+      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, highest_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, last_seen_at, age, is_blocked, created_at, updated_at")
       .eq("id", context.userId).single();
     return data;
+
   });
 
 export const getLeaderboard = createServerFn({ method: "GET" })

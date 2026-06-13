@@ -51,7 +51,11 @@ const clueUpsertSchema = z.object({
   hint: z.string().max(1000).optional().nullable(),
   explanation: z.string().max(2000).optional().nullable(),
   status: z.enum(CLUE_STATUSES).default("active"),
+  internal_notes: z.string().max(4000).optional().nullable(),
+  publish_at: z.string().datetime().optional().nullable(),
+  expire_at: z.string().datetime().optional().nullable(),
 });
+
 
 export const adminUpsertDefinition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -73,25 +77,25 @@ export const adminUpsertDefinition = createServerFn({ method: "POST" })
       throw new Error("duplicate_definition_and_answer");
     }
 
+    const payload = {
+      clue: data.clue, answer: data.answer, alt_answer: data.alt_answer,
+      category: data.category, type: data.type, difficulty: data.difficulty,
+      hint: data.hint, explanation: data.explanation, status: data.status,
+      internal_notes: data.internal_notes,
+      publish_at: data.publish_at, expire_at: data.expire_at,
+    };
     if (data.id) {
       const { data: updated, error } = await supabaseAdmin
-        .from("clues").update({
-          clue: data.clue, answer: data.answer, alt_answer: data.alt_answer,
-          category: data.category, type: data.type, difficulty: data.difficulty,
-          hint: data.hint, explanation: data.explanation, status: data.status,
-        }).eq("id", data.id).select().single();
+        .from("clues").update(payload).eq("id", data.id).select().single();
       if (error) throw new Error(error.message);
       return { row: updated, warnings };
     }
     const { data: inserted, error } = await supabaseAdmin
-      .from("clues").insert({
-        clue: data.clue, answer: data.answer, alt_answer: data.alt_answer,
-        category: data.category, type: data.type, difficulty: data.difficulty,
-        hint: data.hint, explanation: data.explanation, status: data.status,
-      }).select().single();
+      .from("clues").insert(payload).select().single();
     if (error) throw new Error(error.message);
     return { row: inserted, warnings };
   });
+
 
 export const adminSetDefinitionStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -515,4 +519,17 @@ export const adminExport = createServerFn({ method: "POST" })
       return { messages: rows ?? [] };
     }
     return {};
+  });
+
+// ============================================================
+// LAST-SEEN PING (any signed-in user)
+// ============================================================
+export const touchLastSeen = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("profiles")
+      .update({ last_seen_at: new Date().toISOString() })
+      .eq("id", context.userId);
+    return { ok: true };
   });

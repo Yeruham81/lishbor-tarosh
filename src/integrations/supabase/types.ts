@@ -99,6 +99,7 @@ export type Database = {
         Row: {
           alt_answer: string | null
           answer: string
+          approved_from_submission_id: string | null
           base_points: number
           category: string | null
           clue: string
@@ -106,12 +107,15 @@ export type Database = {
           deleted_at: string | null
           difficulty: number
           dislikes_count: number
+          expire_at: string | null
           explanation: string | null
           external_id: string | null
           hint: string | null
           id: string
+          internal_notes: string | null
           is_active: boolean
           likes_count: number
+          publish_at: string | null
           skip_count: number
           solved_count: number
           status: Database["public"]["Enums"]["clue_status"]
@@ -122,6 +126,7 @@ export type Database = {
         Insert: {
           alt_answer?: string | null
           answer: string
+          approved_from_submission_id?: string | null
           base_points?: number
           category?: string | null
           clue: string
@@ -129,12 +134,15 @@ export type Database = {
           deleted_at?: string | null
           difficulty?: number
           dislikes_count?: number
+          expire_at?: string | null
           explanation?: string | null
           external_id?: string | null
           hint?: string | null
           id?: string
+          internal_notes?: string | null
           is_active?: boolean
           likes_count?: number
+          publish_at?: string | null
           skip_count?: number
           solved_count?: number
           status?: Database["public"]["Enums"]["clue_status"]
@@ -145,6 +153,7 @@ export type Database = {
         Update: {
           alt_answer?: string | null
           answer?: string
+          approved_from_submission_id?: string | null
           base_points?: number
           category?: string | null
           clue?: string
@@ -152,12 +161,15 @@ export type Database = {
           deleted_at?: string | null
           difficulty?: number
           dislikes_count?: number
+          expire_at?: string | null
           explanation?: string | null
           external_id?: string | null
           hint?: string | null
           id?: string
+          internal_notes?: string | null
           is_active?: boolean
           likes_count?: number
+          publish_at?: string | null
           skip_count?: number
           solved_count?: number
           status?: Database["public"]["Enums"]["clue_status"]
@@ -165,7 +177,15 @@ export type Database = {
           type?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clues_approved_from_submission_id_fkey"
+            columns: ["approved_from_submission_id"]
+            isOneToOne: false
+            referencedRelation: "puzzle_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feedback: {
         Row: {
@@ -337,11 +357,13 @@ export type Database = {
           display_name: string | null
           display_name_confirmed: boolean
           email: string | null
+          highest_streak: number
           hints_used_total: number
           id: string
           is_blocked: boolean
           is_private: boolean
           last_play_date: string | null
+          last_seen_at: string | null
           level: number
           notification_prefs: Json
           perfect_solves: number
@@ -367,11 +389,13 @@ export type Database = {
           display_name?: string | null
           display_name_confirmed?: boolean
           email?: string | null
+          highest_streak?: number
           hints_used_total?: number
           id: string
           is_blocked?: boolean
           is_private?: boolean
           last_play_date?: string | null
+          last_seen_at?: string | null
           level?: number
           notification_prefs?: Json
           perfect_solves?: number
@@ -397,11 +421,13 @@ export type Database = {
           display_name?: string | null
           display_name_confirmed?: boolean
           email?: string | null
+          highest_streak?: number
           hints_used_total?: number
           id?: string
           is_blocked?: boolean
           is_private?: boolean
           last_play_date?: string | null
+          last_seen_at?: string | null
           level?: number
           notification_prefs?: Json
           perfect_solves?: number
@@ -625,6 +651,7 @@ export type Database = {
       }
       is_blocked: { Args: { _uid: string }; Returns: boolean }
       is_submissions_enabled: { Args: never; Returns: boolean }
+      touch_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"
