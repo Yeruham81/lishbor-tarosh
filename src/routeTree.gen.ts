@@ -21,6 +21,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPlayRouteImport } from './routes/_authenticated/play'
 import { Route as AuthenticatedLevelsRouteImport } from './routes/_authenticated/levels'
 import { Route as AuthenticatedInstructionsRouteImport } from './routes/_authenticated/instructions'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
 const SubmitPuzzleRoute = SubmitPuzzleRouteImport.update({
   id: '/submit-puzzle',
@@ -82,6 +83,11 @@ const AuthenticatedInstructionsRoute =
     path: '/instructions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/instructions': typeof AuthenticatedInstructionsRoute
   '/levels': typeof AuthenticatedLevelsRoute
   '/play': typeof AuthenticatedPlayRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/instructions': typeof AuthenticatedInstructionsRoute
   '/levels': typeof AuthenticatedLevelsRoute
   '/play': typeof AuthenticatedPlayRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/instructions': typeof AuthenticatedInstructionsRoute
   '/_authenticated/levels': typeof AuthenticatedLevelsRoute
   '/_authenticated/play': typeof AuthenticatedPlayRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/submit-puzzle'
+    | '/admin'
     | '/instructions'
     | '/levels'
     | '/play'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/submit-puzzle'
+    | '/admin'
     | '/instructions'
     | '/levels'
     | '/play'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/submit-puzzle'
+    | '/_authenticated/admin'
     | '/_authenticated/instructions'
     | '/_authenticated/levels'
     | '/_authenticated/play'
@@ -264,10 +276,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInstructionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedInstructionsRoute: typeof AuthenticatedInstructionsRoute
   AuthenticatedLevelsRoute: typeof AuthenticatedLevelsRoute
   AuthenticatedPlayRoute: typeof AuthenticatedPlayRoute
@@ -275,6 +295,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedInstructionsRoute: AuthenticatedInstructionsRoute,
   AuthenticatedLevelsRoute: AuthenticatedLevelsRoute,
   AuthenticatedPlayRoute: AuthenticatedPlayRoute,
