@@ -51,7 +51,11 @@ const clueUpsertSchema = z.object({
   hint: z.string().max(1000).optional().nullable(),
   explanation: z.string().max(2000).optional().nullable(),
   status: z.enum(CLUE_STATUSES).default("active"),
+  internal_notes: z.string().max(4000).optional().nullable(),
+  publish_at: z.string().datetime().optional().nullable(),
+  expire_at: z.string().datetime().optional().nullable(),
 });
+
 
 export const adminUpsertDefinition = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
