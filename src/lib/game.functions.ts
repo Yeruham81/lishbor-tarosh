@@ -307,9 +307,9 @@ async function bumpPlayCounters(_supabase: any, userId: string) {
 // Apply solve outcome: score, perfect streak, stage progression, counters.
 // Returns notification events that should be surfaced to the player.
 async function applySolveResult(
-  supabase: any, userId: string, points: number, perfect: boolean, newWrongLetters: number,
+  _supabase: any, userId: string, points: number, perfect: boolean, newWrongLetters: number,
 ): Promise<SolveEvent[]> {
-  const { data: p } = await supabase.from("profiles")
+  const { data: p } = await supabaseAdmin.from("profiles")
     .select("total_score, current_streak, best_streak, solved_count, perfect_solves, wrong_letters_total, current_play_days_streak, best_play_days_streak")
     .eq("id", userId).single();
   if (!p) return [];
@@ -325,7 +325,7 @@ async function applySolveResult(
   const newPerfectTotal = oldPerfect + (perfect ? 1 : 0);
   const playDays = Math.max(p.current_play_days_streak ?? 0, p.best_play_days_streak ?? 0);
 
-  await supabase.from("profiles").update({
+  await supabaseAdmin.from("profiles").update({
     total_score: newScore,
     current_streak: newPerfectStreak,
     best_streak: Math.max(p.best_streak ?? 0, newPerfectStreak),
