@@ -26,7 +26,10 @@ function SettingsPage() {
 
   const updateSetting = useMutation({
     mutationFn: (v: { key: string; value: any }) => setFn({ data: v }),
-    onSuccess: () => { toast.success("ההגדרה נשמרה"); qc.invalidateQueries({ queryKey: ["admin", "settings"] }); },
+    onSuccess: () => {
+      toast.success("ההגדרה נשמרה");
+      qc.invalidateQueries({ queryKey: ["admin", "settings"] });
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -37,10 +40,15 @@ function SettingsPage() {
       if (res.definitions) sheets.definitions = res.definitions;
       if (res.submissions) sheets.submissions = res.submissions;
       if (res.players) sheets.players = res.players;
-      if (Object.keys(sheets).length === 0) { toast.message("אין נתונים"); return; }
+      if (Object.keys(sheets).length === 0) {
+        toast.message("אין נתונים");
+        return;
+      }
       downloadXLSX(sheets, `backup-${dataset}`);
       toast.success("הגיבוי הורד");
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const submissionsEnabled = boolish(data.allow_player_submissions, true);
@@ -52,7 +60,7 @@ function SettingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Section title="הגדרות הצעות" description="ניהול הגשת הגדרות מהקהילה">
           <Toggle
-            label="לאפשר הצעות שחקנים"
+            label="לאפשר הצעת הגדרות"
             hint="טופס הגשת הגדרה זמין לשחקנים"
             checked={submissionsEnabled}
             disabled={settings.isLoading || updateSetting.isPending}
@@ -62,7 +70,7 @@ function SettingsPage() {
 
         <Section title="גיבוי וייצוא מלא" description="הורדת תמונת מצב של המערכת">
           <BackupRow label="הגדרות (כולל מחוקות)" onClick={() => runSnapshot("definitions")} />
-          <BackupRow label="הצעות שחקנים" onClick={() => runSnapshot("submissions")} />
+          <BackupRow label="הגדרות מוצעות" onClick={() => runSnapshot("submissions")} />
           <BackupRow label="שחקנים" onClick={() => runSnapshot("players")} />
           <BackupRow label="תמונת מצב מלאה (כל הנתונים)" onClick={() => runSnapshot("snapshot")} />
         </Section>
@@ -90,8 +98,18 @@ function Section({ title, description, children }: { title: string; description?
 }
 
 function Toggle({
-  label, hint, checked, onCheckedChange, disabled,
-}: { label: string; hint?: string; checked: boolean; onCheckedChange: (v: boolean) => void; disabled?: boolean }) {
+  label,
+  hint,
+  checked,
+  onCheckedChange,
+  disabled,
+}: {
+  label: string;
+  hint?: string;
+  checked: boolean;
+  onCheckedChange: (v: boolean) => void;
+  disabled?: boolean;
+}) {
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
