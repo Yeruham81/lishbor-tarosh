@@ -1,7 +1,8 @@
 // Client-only helpers for downloading data exports
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import FileSaver from "file-saver";
+const { saveAs } = FileSaver;
 
 function ts() {
   const d = new Date();
