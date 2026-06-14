@@ -581,3 +581,114 @@ export const touchLastSeen = createServerFn({ method: "POST" })
       .eq("id", context.userId);
     return { ok: true };
   });
+
+// ============================================================
+// BULK OPERATIONS
+// ============================================================
+const idArray = z.array(z.string().uuid()).min(1).max(500);
+
+export const adminBulkSetDefinitionStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ ids: idArray, status: z.enum(CLUE_STATUSES) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("clues").update({ status: data.status }).in("id", data.ids);
+    if (error) throw new Error(error.message);
+    return { ok: true, count: data.ids.length };
+  });
+
+export const adminBulkSoftDeleteDefinitions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ ids: idArray }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("clues")
+      .update({ deleted_at: new Date().toISOString() }).in("id", data.ids);
+    if (error) throw new Error(error.message);
+    return { ok: true, count: data.ids.length };
+  });
+
+export const adminBulkUpdateDefinitions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    ids: idArray,
+    category: z.string().max(100).optional().nullable(),
+    difficulty: z.number().int().min(1).max(5).optional(),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const patch: any = {};
+    if (data.category !== undefined) patch.category = data.category;
+    if (typeof data.difficulty === "number") patch.difficulty = data.difficulty;
+    if (Object.keys(patch).length === 0) return { ok: true, count: 0 };
+    const { error } = await supabaseAdmin.from("clues").update(patch).in("id", data.ids);
+    if (error) throw new Error(error.message);
+    return { ok: true, count: data.ids.length };
+  });
+
+export const adminDuplicateDefinition = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: src, error: e1 } = await supabaseAdmin.from("clues").select("*").eq("id", data.id).single();
+    if (e1) throw new Error(e1.message);
+    const { id, created_at, updated_at, deleted_at, external_id,
+      solved_count, likes_count, dislikes_count, fail_count, shown_count,
+      ...rest } = src as any;
+    const payload = { ...rest, clue: `${rest.clue} (עותק)`, status: "draft" };
+    const { data: row, error: e2 } = await supabaseAdmin.from("clues").insert(payload).select().single();
+    if (e2) throw new Error(e2.message);
+    return { row };
+  });
+
+export const adminBulkApproveSubmissions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    ids: idArray,
+    points: z.number().int().min(0).max(10000).default(50),
+    difficulty: z.number().int().min(1).max(5).default(1),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    let ok = 0; const errors: string[] = [];
+    for (const id of data.ids) {
+      const { error } = await context.supabase.rpc("admin_approve_submission", {
+        _submission_id: id, _points: data.points, _difficulty: data.difficulty,
+      });
+      if (error) errors.push(`${id}: ${error.message}`); else ok++;
+    }
+    return { ok, errors };
+  });
+
+export const adminBulkRejectSubmissions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ ids: idArray, notes: z.string().max(2000).optional().nullable() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    let ok = 0; const errors: string[] = [];
+    for (const id of data.ids) {
+      const { error } = await context.supabase.rpc("admin_reject_submission", {
+        _submission_id: id, _notes: data.notes ?? undefined,
+      });
+      if (error) errors.push(`${id}: ${error.message}`); else ok++;
+    }
+    return { ok, errors };
+  });
+
+export const adminBulkSetBlocked = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ user_ids: idArray, blocked: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    let ok = 0; const errors: string[] = [];
+    for (const id of data.user_ids) {
+      const { error } = await context.supabase.rpc("admin_set_user_blocked", { _user_id: id, _blocked: data.blocked });
+      if (error) errors.push(`${id}: ${error.message}`); else ok++;
+    }
+    return { ok, errors };
+  });
