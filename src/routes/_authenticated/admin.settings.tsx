@@ -58,7 +58,7 @@ function SettingsPage() {
       <PageHeader title="הגדרות מערכת" description="ניהול הגדרות כלליות של המשחק" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Section title="הגדרות הצעות" description="ניהול הגשת הגדרות מהקהילה">
+        <Section title="הצעת הגדרות" description="ניהול הגשת הגדרות משחקנים">
           <Toggle
             label="לאפשר הצעת הגדרות"
             hint="טופס הגשת הגדרה זמין לשחקנים"
