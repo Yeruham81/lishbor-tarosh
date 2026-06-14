@@ -86,7 +86,7 @@ function PlayersPage() {
         <StatCard label="סה״כ שחקנים" value={fmt(k.total_players)} tone="primary" />
         <StatCard label="פעילים השבוע" value={fmt(k.active_players)} tone="success" />
         <StatCard label="נחסמו" value={fmt(k.blocked_players)} />
-        <StatCard label="סה״כ נפתרו" value={fmt(k.total_solves)} />
+        <StatCard label="סה״כ הגדרות נפתרו" value={fmt(k.total_solves)} />
       </div>
 
       <TableToolbar
