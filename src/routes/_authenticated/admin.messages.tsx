@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  PageHeader, TableToolbar, SortableHead, StatusBadge, DataTableShell,
+  PageHeader, TableToolbar, SortableHead, StatusBadge, DataTableShell, PaginationBar,
 } from "@/components/admin/AdminUI";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { adminListMessages, adminUpdateMessage, adminExport } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX } from "@/lib/admin-export";
+import { useAdminTable } from "@/hooks/use-admin-table";
 
 export const Route = createFileRoute("/_authenticated/admin/messages")({
   component: MessagesPage,
@@ -24,8 +25,19 @@ export const Route = createFileRoute("/_authenticated/admin/messages")({
 const statusHe = (s: string) =>
   ({ new: "חדש", in_progress: "בטיפול", resolved: "טופל", closed: "סגור" }[s] ?? s);
 
+const COLS = [
+  { key: "name", label: "שם" },
+  { key: "email", label: "אימייל" },
+  { key: "subject", label: "נושא" },
+  { key: "message", label: "הודעה" },
+  { key: "status", label: "סטטוס" },
+  { key: "created", label: "תאריך" },
+];
+
 function MessagesPage() {
   const qc = useQueryClient();
+  const t = useAdminTable("messages", { defaultSort: "created_at", defaultPageSize: 20, defaultFilters: { status: "all" } });
+
   const listFn = useServerFn(adminListMessages);
   const updateFn = useServerFn(adminUpdateMessage);
   const exportFn = useServerFn(adminExport);
@@ -33,11 +45,21 @@ function MessagesPage() {
   const [viewing, setViewing] = useState<any | null>(null);
   const [replying, setReplying] = useState<any | null>(null);
 
+  const queryArgs = {
+    status: (t.filters.status as any) || "all",
+    search: t.debouncedSearch || undefined,
+    sort_by: t.sort as any,
+    sort_dir: t.dir,
+    limit: t.pageSize,
+    offset: t.page * t.pageSize,
+  };
   const list = useQuery({
-    queryKey: ["admin", "messages"],
-    queryFn: () => listFn({ data: { status: "all", limit: 200, offset: 0 } }),
+    queryKey: ["admin", "messages", queryArgs],
+    queryFn: () => listFn({ data: queryArgs }),
+    placeholderData: (prev) => prev,
   });
   const rows: any[] = list.data?.rows ?? [];
+  const total = list.data?.total ?? 0;
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin"] });
 
   const update = useMutation({
@@ -55,6 +77,14 @@ function MessagesPage() {
       else downloadXLSX({ messages: data }, "messages");
     } catch (e: any) { toast.error(e.message); }
   };
+
+  const statusOptions = useMemo(() => [
+    { label: "הכל", value: "all" },
+    { label: "חדש", value: "new" },
+    { label: "בטיפול", value: "in_progress" },
+    { label: "טופל", value: "resolved" },
+    { label: "סגור", value: "closed" },
+  ], []);
 
   return (
     <div>
@@ -75,20 +105,24 @@ function MessagesPage() {
       />
 
       <TableToolbar
-        searchPlaceholder="חיפוש לפי שם / נושא..."
-        filters={[{ label: "סטטוס", options: ["חדש", "בטיפול", "טופל", "סגור"] }]}
-        columns={["שם", "אימייל", "נושא", "סטטוס", "תאריך"]}
+        search={t.search}
+        onSearchChange={t.setSearch}
+        searchPlaceholder="חיפוש לפי שם / נושא / הודעה..."
+        filters={[
+          { key: "status", label: "סטטוס", value: t.filters.status ?? "all", onChange: (v) => t.setFilter("status", v), options: statusOptions, width: "w-[150px]" },
+        ]}
+        columns={COLS.map((c) => ({ key: c.key, label: c.label, visible: t.isVisible(c.key), onToggle: () => t.toggleCol(c.key) }))}
       />
 
       <DataTableShell
         headers={
           <>
-            <TableHead>שם</TableHead>
-            <TableHead className="hidden md:table-cell">אימייל</TableHead>
-            <TableHead>נושא</TableHead>
-            <TableHead className="hidden lg:table-cell">הודעה</TableHead>
-            <TableHead>סטטוס</TableHead>
-            <SortableHead>תאריך</SortableHead>
+            {t.isVisible("name") && <TableHead>שם</TableHead>}
+            {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
+            {t.isVisible("subject") && <TableHead>נושא</TableHead>}
+            {t.isVisible("message") && <TableHead className="hidden lg:table-cell">הודעה</TableHead>}
+            {t.isVisible("status") && <SortableHead sortKey="status" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>סטטוס</SortableHead>}
+            {t.isVisible("created") && <SortableHead sortKey="created_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>תאריך</SortableHead>}
             <TableHead className="text-left">פעולות</TableHead>
           </>
         }
@@ -99,14 +133,16 @@ function MessagesPage() {
               ? <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">אין פניות</TableCell></TableRow>
               : rows.map((r) => (
                 <TableRow key={r.id}>
-                  <TableCell className="font-medium">{r.name ?? "—"}</TableCell>
-                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
-                  <TableCell>{r.subject ?? "—"}</TableCell>
-                  <TableCell className="hidden lg:table-cell max-w-[280px] truncate text-sm text-muted-foreground">{r.message}</TableCell>
-                  <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
-                  </TableCell>
+                  {t.isVisible("name") && <TableCell className="font-medium">{r.name ?? "—"}</TableCell>}
+                  {t.isVisible("email") && <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>}
+                  {t.isVisible("subject") && <TableCell>{r.subject ?? "—"}</TableCell>}
+                  {t.isVisible("message") && <TableCell className="hidden lg:table-cell max-w-[280px] truncate text-sm text-muted-foreground">{r.message}</TableCell>}
+                  {t.isVisible("status") && <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>}
+                  {t.isVisible("created") && (
+                    <TableCell className="text-xs text-muted-foreground">
+                      {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
+                    </TableCell>
+                  )}
                   <TableCell className="text-left">
                     <div className="flex items-center gap-1 justify-end">
                       <Button size="icon" variant="ghost" className="size-8" onClick={() => { setViewing(r); if (!r.read_at) update.mutate({ id: r.id, mark_read: true }); }}>
@@ -132,6 +168,16 @@ function MessagesPage() {
                   </TableCell>
                 </TableRow>
               ))
+        }
+        footer={
+          <PaginationBar
+            page={t.page}
+            pageSize={t.pageSize}
+            total={total}
+            loading={list.isFetching}
+            onPageChange={t.setPage}
+            onPageSizeChange={t.setPageSize}
+          />
         }
       />
 

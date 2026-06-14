@@ -1,23 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  PageHeader, TableToolbar, SortableHead, StatusBadge, DataTableShell,
+  PageHeader, TableToolbar, SortableHead, StatusBadge, DataTableShell, PaginationBar,
 } from "@/components/admin/AdminUI";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Check, X, MoreHorizontal, Pencil, Download } from "lucide-react";
+import { Check, X, Pencil, Download } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   adminListSubmissions, adminApproveSubmission, adminRejectSubmission, adminEditSubmission, adminExport,
+  adminBulkApproveSubmissions, adminBulkRejectSubmissions,
 } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX } from "@/lib/admin-export";
+import { useAdminTable } from "@/hooks/use-admin-table";
 
 export const Route = createFileRoute("/_authenticated/admin/submissions")({
   component: SubmissionsPage,
@@ -26,19 +29,44 @@ export const Route = createFileRoute("/_authenticated/admin/submissions")({
 const statusHe = (s: string) =>
   ({ pending: "ממתין", approved: "אושר", rejected: "נדחה" }[s] ?? s);
 
+const COLS = [
+  { key: "id", label: "מזהה" },
+  { key: "player", label: "שחקן" },
+  { key: "clue", label: "הגדרה" },
+  { key: "answer", label: "פתרון" },
+  { key: "category", label: "קטגוריה" },
+  { key: "status", label: "סטטוס" },
+  { key: "created", label: "תאריך" },
+];
+
 function SubmissionsPage() {
   const qc = useQueryClient();
+  const t = useAdminTable("submissions", { defaultSort: "created_at", defaultPageSize: 20, defaultFilters: { status: "pending" } });
+
   const listFn = useServerFn(adminListSubmissions);
   const approveFn = useServerFn(adminApproveSubmission);
   const rejectFn = useServerFn(adminRejectSubmission);
   const exportFn = useServerFn(adminExport);
+  const bulkApproveFn = useServerFn(adminBulkApproveSubmissions);
+  const bulkRejectFn = useServerFn(adminBulkRejectSubmissions);
 
   const [editing, setEditing] = useState<any | null>(null);
+
+  const queryArgs = {
+    status: (t.filters.status as any) || "pending",
+    search: t.debouncedSearch || undefined,
+    sort_by: t.sort as any,
+    sort_dir: t.dir,
+    limit: t.pageSize,
+    offset: t.page * t.pageSize,
+  };
   const list = useQuery({
-    queryKey: ["admin", "submissions"],
-    queryFn: () => listFn({ data: { status: "all", limit: 200, offset: 0 } }),
+    queryKey: ["admin", "submissions", queryArgs],
+    queryFn: () => listFn({ data: queryArgs }),
+    placeholderData: (prev) => prev,
   });
   const rows: any[] = list.data?.rows ?? [];
+  const total = list.data?.total ?? 0;
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin"] });
 
   const approve = useMutation({
@@ -52,6 +80,24 @@ function SubmissionsPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const runBulkApprove = async () => {
+    if (t.selected.length === 0) return;
+    try {
+      const res: any = await bulkApproveFn({ data: { ids: t.selected, points: 50, difficulty: 1 } });
+      toast.success(`אושרו ${res.ok} הצעות`);
+      t.clearSel(); invalidate();
+    } catch (e: any) { toast.error(e.message); }
+  };
+  const runBulkReject = async () => {
+    if (t.selected.length === 0) return;
+    if (!window.confirm(`לדחות ${t.selected.length} הצעות?`)) return;
+    try {
+      const res: any = await bulkRejectFn({ data: { ids: t.selected } });
+      toast.success(`נדחו ${res.ok} הצעות`);
+      t.clearSel(); invalidate();
+    } catch (e: any) { toast.error(e.message); }
+  };
+
   const runExport = async (fmt: "csv" | "xlsx") => {
     try {
       const res: any = await exportFn({ data: { dataset: "submissions", includeDeleted: false } });
@@ -61,6 +107,16 @@ function SubmissionsPage() {
       else downloadXLSX({ submissions: data }, "submissions");
     } catch (e: any) { toast.error(e.message); }
   };
+
+  const statusOptions = useMemo(() => [
+    { label: "הכל", value: "all" },
+    { label: "ממתין", value: "pending" },
+    { label: "אושר", value: "approved" },
+    { label: "נדחה", value: "rejected" },
+  ], []);
+
+  const allIds = rows.map((r) => r.id);
+  const allSelected = allIds.length > 0 && allIds.every((id) => t.selected.includes(id));
 
   return (
     <div>
@@ -81,51 +137,71 @@ function SubmissionsPage() {
       />
 
       <TableToolbar
-        searchPlaceholder="חיפוש לפי שם משתמש / הגדרה..."
-        filters={[{ label: "סטטוס", options: ["ממתין", "אושר", "נדחה"] }]}
-        columns={["מזהה", "שחקן", "הגדרה", "פתרון", "סטטוס", "תאריך"]}
+        search={t.search}
+        onSearchChange={t.setSearch}
+        searchPlaceholder="חיפוש לפי הגדרה / פתרון / קטגוריה..."
+        filters={[
+          { key: "status", label: "סטטוס", value: t.filters.status ?? "pending", onChange: (v) => t.setFilter("status", v), options: statusOptions, width: "w-[150px]" },
+        ]}
+        columns={COLS.map((c) => ({ key: c.key, label: c.label, visible: t.isVisible(c.key), onToggle: () => t.toggleCol(c.key) }))}
+        bulkSelected={t.selected.length}
+        onClearSelection={t.clearSel}
+        bulkActions={
+          <>
+            <Button size="sm" variant="outline" onClick={runBulkApprove}>אישור</Button>
+            <Button size="sm" variant="destructive" onClick={runBulkReject}>דחייה</Button>
+          </>
+        }
       />
 
       <DataTableShell
         headers={
           <>
-            <SortableHead>מזהה</SortableHead>
-            <TableHead>שחקן</TableHead>
-            <SortableHead>הגדרה</SortableHead>
-            <TableHead>פתרון</TableHead>
-            <TableHead>קטגוריה</TableHead>
-            <TableHead>סטטוס</TableHead>
-            <SortableHead>תאריך</SortableHead>
+            <TableHead className="w-10">
+              <Checkbox checked={allSelected} onCheckedChange={(c) => t.selectAll(allIds, !!c)} />
+            </TableHead>
+            {t.isVisible("id") && <SortableHead>מזהה</SortableHead>}
+            {t.isVisible("player") && <TableHead>שחקן</TableHead>}
+            {t.isVisible("clue") && <TableHead>הגדרה</TableHead>}
+            {t.isVisible("answer") && <TableHead>פתרון</TableHead>}
+            {t.isVisible("category") && <TableHead>קטגוריה</TableHead>}
+            {t.isVisible("status") && <SortableHead sortKey="status" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>סטטוס</SortableHead>}
+            {t.isVisible("created") && <SortableHead sortKey="created_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>תאריך</SortableHead>}
             <TableHead className="text-left">פעולות</TableHead>
           </>
         }
         rows={
           list.isLoading
-            ? <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
+            ? <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
             : rows.length === 0
-              ? <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">אין הצעות</TableCell></TableRow>
+              ? <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">אין הצעות</TableCell></TableRow>
               : rows.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="font-mono text-xs">{String(r.id).slice(0, 8)}</TableCell>
-                  <TableCell>{r.profiles?.display_name ?? r.profiles?.username ?? "—"}</TableCell>
-                  <TableCell className="max-w-[240px] truncate">{r.edited_clue ?? r.clue_text}</TableCell>
-                  <TableCell className="font-semibold">{r.edited_answer ?? r.suggested_answer}</TableCell>
-                  <TableCell>{r.edited_category ?? r.category ?? "—"}</TableCell>
-                  <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
+                <TableRow key={r.id} data-state={t.selected.includes(r.id) ? "selected" : undefined}>
+                  <TableCell>
+                    <Checkbox checked={t.selected.includes(r.id)} onCheckedChange={() => t.toggleSel(r.id)} />
                   </TableCell>
+                  {t.isVisible("id") && <TableCell className="font-mono text-xs">{String(r.id).slice(0, 8)}</TableCell>}
+                  {t.isVisible("player") && <TableCell>{r.profiles?.display_name ?? r.profiles?.username ?? "—"}</TableCell>}
+                  {t.isVisible("clue") && <TableCell className="max-w-[240px] truncate">{r.edited_clue ?? r.clue_text}</TableCell>}
+                  {t.isVisible("answer") && <TableCell className="font-semibold">{r.edited_answer ?? r.suggested_answer}</TableCell>}
+                  {t.isVisible("category") && <TableCell>{r.edited_category ?? r.category ?? "—"}</TableCell>}
+                  {t.isVisible("status") && <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>}
+                  {t.isVisible("created") && (
+                    <TableCell className="text-xs text-muted-foreground">
+                      {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
+                    </TableCell>
+                  )}
                   <TableCell className="text-left">
                     <div className="flex items-center gap-1 justify-end">
                       <Button
                         size="icon" variant="ghost" className="size-8 text-emerald-600"
-                        disabled={r.status !== "pending"}
+                        disabled={r.status !== "pending" || approve.isPending}
                         onClick={() => approve.mutate(r.id)}
                       ><Check className="size-4" /></Button>
                       <Button
                         size="icon" variant="ghost" className="size-8 text-destructive"
-                        disabled={r.status !== "pending"}
-                        onClick={() => reject.mutate(r.id)}
+                        disabled={r.status !== "pending" || reject.isPending}
+                        onClick={() => { if (window.confirm("לדחות את ההצעה?")) reject.mutate(r.id); }}
                       ><X className="size-4" /></Button>
                       <Button
                         size="icon" variant="ghost" className="size-8"
@@ -136,6 +212,16 @@ function SubmissionsPage() {
                   </TableCell>
                 </TableRow>
               ))
+        }
+        footer={
+          <PaginationBar
+            page={t.page}
+            pageSize={t.pageSize}
+            total={total}
+            loading={list.isFetching}
+            onPageChange={t.setPage}
+            onPageSizeChange={t.setPageSize}
+          />
         }
       />
 
@@ -151,7 +237,6 @@ function SubmissionsPage() {
 function EditDialog({ sub, onClose, onSaved }: { sub: any | null; onClose: () => void; onSaved: () => void }) {
   const editFn = useServerFn(adminEditSubmission);
   const [form, setForm] = useState<any>({});
-  // sync initial when sub changes
   if (sub && form._id !== sub.id) {
     setForm({
       _id: sub.id,
