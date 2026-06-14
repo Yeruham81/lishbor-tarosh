@@ -149,12 +149,20 @@ export const adminListSubmissions = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let q = supabaseAdmin.from("puzzle_submissions").select("*, profiles:user_id(username, display_name, avatar_url)", { count: "exact" });
+    let q = supabaseAdmin.from("puzzle_submissions").select("*", { count: "exact" });
     if (data.status !== "all") q = q.eq("status", data.status);
     q = q.order("created_at", { ascending: false }).range(data.offset, data.offset + data.limit - 1);
     const { data: rows, count, error } = await q;
     if (error) throw new Error(error.message);
-    return { rows: rows ?? [], total: count ?? 0 };
+    const userIds = Array.from(new Set((rows ?? []).map((r: any) => r.user_id).filter(Boolean)));
+    let profilesById: Record<string, any> = {};
+    if (userIds.length) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles").select("id, username, display_name, avatar_url").in("id", userIds);
+      profilesById = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p]));
+    }
+    const withProfiles = (rows ?? []).map((r: any) => ({ ...r, profiles: profilesById[r.user_id] ?? null }));
+    return { rows: withProfiles, total: count ?? 0 };
   });
 
 export const adminEditSubmission = createServerFn({ method: "POST" })
