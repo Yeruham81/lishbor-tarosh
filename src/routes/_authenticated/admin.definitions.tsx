@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import {
-  PageHeader, TableToolbar, SortableHead, StatusBadge, DataTableShell,
+  PageHeader, TableToolbar, SortableHead, StatusBadge, DataTableShell, PaginationBar,
 } from "@/components/admin/AdminUI";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -23,8 +23,12 @@ import { toast } from "sonner";
 import {
   adminListDefinitions, adminUpsertDefinition, adminSetDefinitionStatus,
   adminSoftDeleteDefinition, adminRestoreDefinition, adminImportDefinitions, adminExport,
+  adminListCategories,
+  adminBulkSetDefinitionStatus, adminBulkSoftDeleteDefinitions, adminBulkUpdateDefinitions,
+  adminDuplicateDefinition,
 } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX, parseFile } from "@/lib/admin-export";
+import { useAdminTable } from "@/hooks/use-admin-table";
 
 export const Route = createFileRoute("/_authenticated/admin/definitions")({
   component: DefinitionsPage,
@@ -34,24 +38,57 @@ const STATUSES = ["draft", "active", "inactive", "archived", "hidden"] as const;
 const statusHe = (s: string) =>
   ({ active: "פעיל", draft: "טיוטה", inactive: "לא פעיל", archived: "בארכיון", hidden: "מוסתר" }[s] ?? s);
 
+const COLS = [
+  { key: "id", label: "מזהה" },
+  { key: "clue", label: "הגדרה" },
+  { key: "answer", label: "פתרון" },
+  { key: "category", label: "קטגוריה" },
+  { key: "difficulty", label: "קושי" },
+  { key: "status", label: "סטטוס" },
+  { key: "ratings", label: "לייקים" },
+  { key: "solved", label: "נפתר" },
+  { key: "created", label: "נוצר" },
+];
+
 function DefinitionsPage() {
   const qc = useQueryClient();
+  const t = useAdminTable("definitions", { defaultSort: "created_at", defaultPageSize: 20, defaultFilters: { status: "all", category: "all", difficulty: "all" } });
+
   const listFn = useServerFn(adminListDefinitions);
   const upsertFn = useServerFn(adminUpsertDefinition);
   const setStatusFn = useServerFn(adminSetDefinitionStatus);
   const softDelFn = useServerFn(adminSoftDeleteDefinition);
   const restoreFn = useServerFn(adminRestoreDefinition);
+  const catsFn = useServerFn(adminListCategories);
+  const bulkStatusFn = useServerFn(adminBulkSetDefinitionStatus);
+  const bulkDelFn = useServerFn(adminBulkSoftDeleteDefinitions);
+  const bulkUpdateFn = useServerFn(adminBulkUpdateDefinitions);
+  const duplicateFn = useServerFn(adminDuplicateDefinition);
 
-  const [selected, setSelected] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [importOpen, setImportOpen] = useState(false);
 
+  const cats = useQuery({ queryKey: ["admin", "categories"], queryFn: () => catsFn() });
+
+  const queryArgs = {
+    status: t.filters.status !== "all" ? (t.filters.status as any) : undefined,
+    category: t.filters.category !== "all" ? t.filters.category : undefined,
+    difficulty: t.filters.difficulty !== "all" ? Number(t.filters.difficulty) : undefined,
+    search: t.debouncedSearch || undefined,
+    sort_by: t.sort as any,
+    sort_dir: t.dir,
+    limit: t.pageSize,
+    offset: t.page * t.pageSize,
+    includeDeleted: true,
+  };
   const list = useQuery({
-    queryKey: ["admin", "definitions"],
-    queryFn: () => listFn({ data: { limit: 200, offset: 0, includeDeleted: true } }),
+    queryKey: ["admin", "definitions", queryArgs],
+    queryFn: () => listFn({ data: queryArgs }),
+    placeholderData: (prev) => prev,
   });
   const rows: any[] = list.data?.rows ?? [];
+  const total = list.data?.total ?? 0;
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin"] });
 
@@ -70,9 +107,47 @@ function DefinitionsPage() {
     onSuccess: () => { toast.success("ההגדרה שוחזרה"); invalidate(); },
     onError: (e: any) => toast.error(e.message),
   });
+  const duplicate = useMutation({
+    mutationFn: (id: string) => duplicateFn({ data: { id } }),
+    onSuccess: () => { toast.success("ההגדרה שוכפלה כטיוטה"); invalidate(); },
+    onError: (e: any) => toast.error(e.message),
+  });
 
-  const toggle = (id: string) =>
-    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  const runBulkStatus = async (status: any) => {
+    if (t.selected.length === 0) return;
+    try {
+      await bulkStatusFn({ data: { ids: t.selected, status } });
+      toast.success(`עודכנו ${t.selected.length} הגדרות`);
+      t.clearSel(); invalidate();
+    } catch (e: any) { toast.error(e.message); }
+  };
+  const runBulkDelete = async () => {
+    if (t.selected.length === 0) return;
+    if (!window.confirm(`למחוק ${t.selected.length} הגדרות? ניתן לשחזר.`)) return;
+    try {
+      await bulkDelFn({ data: { ids: t.selected } });
+      toast.success(`נמחקו ${t.selected.length} הגדרות`);
+      t.clearSel(); invalidate();
+    } catch (e: any) { toast.error(e.message); }
+  };
+  const [bulkLevelOpen, setBulkLevelOpen] = useState(false);
+  const [bulkCatOpen, setBulkCatOpen] = useState(false);
+
+  const statusOptions = useMemo(() => [
+    { label: "כל הסטטוסים", value: "all" },
+    ...STATUSES.map((s) => ({ label: statusHe(s), value: s })),
+  ], []);
+  const catOptions = useMemo(() => [
+    { label: "כל הקטגוריות", value: "all" },
+    ...((cats.data ?? []) as string[]).map((c) => ({ label: c, value: c })),
+  ], [cats.data]);
+  const diffOptions = useMemo(() => [
+    { label: "כל הרמות", value: "all" },
+    ...[1, 2, 3, 4, 5].map((n) => ({ label: String(n), value: String(n) })),
+  ], []);
+
+  const allIds = rows.map((r) => r.id);
+  const allSelected = allIds.length > 0 && allIds.every((id) => t.selected.includes(id));
 
   return (
     <div>
@@ -90,13 +165,26 @@ function DefinitionsPage() {
       />
 
       <TableToolbar
-        searchPlaceholder="חיפוש לפי הגדרה / פתרון / תגים..."
+        search={t.search}
+        onSearchChange={t.setSearch}
+        searchPlaceholder="חיפוש לפי הגדרה / פתרון / קטגוריה..."
         filters={[
-          { label: "סטטוס", options: ["פעיל", "טיוטה", "לא פעיל", "מוסתר", "בארכיון"] },
-          { label: "רמה", options: ["1", "2", "3", "4", "5"] },
+          { key: "status", label: "סטטוס", value: t.filters.status ?? "all", onChange: (v) => t.setFilter("status", v), options: statusOptions, width: "w-[160px]" },
+          { key: "category", label: "קטגוריה", value: t.filters.category ?? "all", onChange: (v) => t.setFilter("category", v), options: catOptions, width: "w-[160px]" },
+          { key: "difficulty", label: "רמה", value: t.filters.difficulty ?? "all", onChange: (v) => t.setFilter("difficulty", v), options: diffOptions, width: "w-[120px]" },
         ]}
-        columns={["מזהה", "הגדרה", "פתרון", "קטגוריה", "רמה", "סטטוס", "לייקים", "נוצר"]}
-        bulkSelected={selected.length}
+        columns={COLS.map((c) => ({ key: c.key, label: c.label, visible: t.isVisible(c.key), onToggle: () => t.toggleCol(c.key) }))}
+        bulkSelected={t.selected.length}
+        onClearSelection={t.clearSel}
+        bulkActions={
+          <>
+            <Button size="sm" variant="outline" onClick={() => runBulkStatus("active")}>הפעלה</Button>
+            <Button size="sm" variant="outline" onClick={() => runBulkStatus("inactive")}>השבתה</Button>
+            <Button size="sm" variant="outline" onClick={() => setBulkLevelOpen(true)}>שינוי רמה</Button>
+            <Button size="sm" variant="outline" onClick={() => setBulkCatOpen(true)}>שינוי קטגוריה</Button>
+            <Button size="sm" variant="destructive" onClick={runBulkDelete}>מחיקה</Button>
+          </>
+        }
         primaryAction={
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
             <DialogTrigger asChild>
@@ -122,63 +210,102 @@ function DefinitionsPage() {
           <>
             <TableHead className="w-10">
               <Checkbox
-                checked={selected.length > 0 && selected.length === rows.length}
-                onCheckedChange={(c) => setSelected(c ? rows.map((r) => r.id) : [])}
+                checked={allSelected}
+                onCheckedChange={(c) => t.selectAll(allIds, !!c)}
               />
             </TableHead>
-            <SortableHead>מזהה</SortableHead>
-            <SortableHead>הגדרה</SortableHead>
-            <SortableHead>פתרון</SortableHead>
-            <TableHead>קטגוריה</TableHead>
-            <SortableHead>קושי</SortableHead>
-            <TableHead>סטטוס</TableHead>
-            <SortableHead>לייקים</SortableHead>
-            <SortableHead>נפתר</SortableHead>
-            <SortableHead>נוצר</SortableHead>
+            {t.isVisible("id") && <SortableHead>מזהה</SortableHead>}
+            {t.isVisible("clue") && <SortableHead sortKey="clue" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>הגדרה</SortableHead>}
+            {t.isVisible("answer") && <SortableHead sortKey="answer" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>פתרון</SortableHead>}
+            {t.isVisible("category") && <TableHead>קטגוריה</TableHead>}
+            {t.isVisible("difficulty") && <SortableHead sortKey="difficulty" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>קושי</SortableHead>}
+            {t.isVisible("status") && <SortableHead sortKey="status" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>סטטוס</SortableHead>}
+            {t.isVisible("ratings") && <SortableHead sortKey="likes_count" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>לייקים</SortableHead>}
+            {t.isVisible("solved") && <SortableHead sortKey="solved_count" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>נפתר</SortableHead>}
+            {t.isVisible("created") && <SortableHead sortKey="created_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>נוצר</SortableHead>}
             <TableHead className="text-left">פעולות</TableHead>
           </>
         }
         rows={
           list.isLoading
-            ? <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
+            ? <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
             : rows.length === 0
-              ? <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">אין נתונים</TableCell></TableRow>
+              ? <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">אין נתונים</TableCell></TableRow>
               : rows.map((r) => (
-                <TableRow key={r.id} data-state={selected.includes(r.id) ? "selected" : undefined}>
+                <TableRow key={r.id} data-state={t.selected.includes(r.id) ? "selected" : undefined}>
                   <TableCell>
-                    <Checkbox checked={selected.includes(r.id)} onCheckedChange={() => toggle(r.id)} />
+                    <Checkbox checked={t.selected.includes(r.id)} onCheckedChange={() => t.toggleSel(r.id)} />
                   </TableCell>
-                  <TableCell className="font-mono text-xs">{String(r.id).slice(0, 8)}</TableCell>
-                  <TableCell className="max-w-[260px] truncate">{r.clue}{r.deleted_at && <span className="text-destructive text-xs mr-2">(נמחק)</span>}</TableCell>
-                  <TableCell className="font-semibold">{r.answer}</TableCell>
-                  <TableCell>{r.category ?? "—"}</TableCell>
-                  <TableCell>{r.difficulty ?? "—"}</TableCell>
-                  <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="inline-flex items-center gap-1 text-emerald-600"><ThumbsUp className="size-3" />{r.likes_count ?? 0}</span>
-                      <span className="inline-flex items-center gap-1 text-muted-foreground"><ThumbsDown className="size-3" />{r.dislikes_count ?? 0}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{r.solved_count ?? 0}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
-                  </TableCell>
+                  {t.isVisible("id") && <TableCell className="font-mono text-xs">{String(r.id).slice(0, 8)}</TableCell>}
+                  {t.isVisible("clue") && <TableCell className="max-w-[260px] truncate">{r.clue}{r.deleted_at && <span className="text-destructive text-xs mr-2">(נמחק)</span>}</TableCell>}
+                  {t.isVisible("answer") && <TableCell className="font-semibold">{r.answer}</TableCell>}
+                  {t.isVisible("category") && <TableCell>{r.category ?? "—"}</TableCell>}
+                  {t.isVisible("difficulty") && <TableCell>{r.difficulty ?? "—"}</TableCell>}
+                  {t.isVisible("status") && <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>}
+                  {t.isVisible("ratings") && (
+                    <TableCell>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="inline-flex items-center gap-1 text-emerald-600"><ThumbsUp className="size-3" />{r.likes_count ?? 0}</span>
+                        <span className="inline-flex items-center gap-1 text-muted-foreground"><ThumbsDown className="size-3" />{r.dislikes_count ?? 0}</span>
+                      </div>
+                    </TableCell>
+                  )}
+                  {t.isVisible("solved") && <TableCell>{r.solved_count ?? 0}</TableCell>}
+                  {t.isVisible("created") && (
+                    <TableCell className="text-xs text-muted-foreground">
+                      {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
+                    </TableCell>
+                  )}
                   <TableCell className="text-left">
                     <RowActions
                       row={r}
                       onEdit={() => { setEditing(r); setOpen(true); }}
                       onSetStatus={(s) => setStatus.mutate({ id: r.id, status: s })}
-                      onDelete={() => softDel.mutate(r.id)}
+                      onDelete={() => { if (window.confirm("למחוק את ההגדרה?")) softDel.mutate(r.id); }}
                       onRestore={() => restore.mutate(r.id)}
+                      onDuplicate={() => duplicate.mutate(r.id)}
                     />
                   </TableCell>
                 </TableRow>
               ))
         }
+        footer={
+          <PaginationBar
+            page={t.page}
+            pageSize={t.pageSize}
+            total={total}
+            loading={list.isFetching}
+            onPageChange={t.setPage}
+            onPageSizeChange={t.setPageSize}
+          />
+        }
       />
 
       <ImportDialog open={importOpen} onOpenChange={setImportOpen} onDone={invalidate} />
+
+      <BulkLevelDialog
+        open={bulkLevelOpen}
+        onClose={() => setBulkLevelOpen(false)}
+        onApply={async (lvl) => {
+          try {
+            await bulkUpdateFn({ data: { ids: t.selected, difficulty: lvl } });
+            toast.success(`עודכנו ${t.selected.length} הגדרות`);
+            setBulkLevelOpen(false); t.clearSel(); invalidate();
+          } catch (e: any) { toast.error(e.message); }
+        }}
+      />
+      <BulkCategoryDialog
+        open={bulkCatOpen}
+        onClose={() => setBulkCatOpen(false)}
+        existing={(cats.data ?? []) as string[]}
+        onApply={async (cat) => {
+          try {
+            await bulkUpdateFn({ data: { ids: t.selected, category: cat || null } });
+            toast.success(`עודכנו ${t.selected.length} הגדרות`);
+            setBulkCatOpen(false); t.clearSel(); invalidate();
+          } catch (e: any) { toast.error(e.message); }
+        }}
+      />
     </div>
   );
 }
@@ -208,13 +335,14 @@ function ExportMenu() {
 }
 
 function RowActions({
-  row, onEdit, onSetStatus, onDelete, onRestore,
+  row, onEdit, onSetStatus, onDelete, onRestore, onDuplicate,
 }: {
   row: any;
   onEdit: () => void;
   onSetStatus: (s: any) => void;
   onDelete: () => void;
   onRestore: () => void;
+  onDuplicate: () => void;
 }) {
   return (
     <DropdownMenu>
@@ -223,6 +351,7 @@ function RowActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={onEdit}>עריכה</DropdownMenuItem>
+        <DropdownMenuItem onClick={onDuplicate}>שכפול</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => onSetStatus("active")}>הפעלה</DropdownMenuItem>
         <DropdownMenuItem onClick={() => onSetStatus("inactive")}>השבתה</DropdownMenuItem>
@@ -317,6 +446,52 @@ function DefinitionModal({
         })}>שמירה</Button>
       </DialogFooter>
     </DialogContent>
+  );
+}
+
+function BulkLevelDialog({ open, onClose, onApply }: { open: boolean; onClose: () => void; onApply: (n: number) => void }) {
+  const [lvl, setLvl] = useState("1");
+  return (
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>שינוי רמה למספר הגדרות</DialogTitle></DialogHeader>
+        <div className="space-y-1.5">
+          <Label>רמת קושי</Label>
+          <Select value={lvl} onValueChange={setLvl}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>ביטול</Button>
+          <Button onClick={() => onApply(Number(lvl))}>החל</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function BulkCategoryDialog({ open, onClose, onApply, existing }: { open: boolean; onClose: () => void; onApply: (c: string) => void; existing: string[] }) {
+  const [cat, setCat] = useState("");
+  return (
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>שינוי קטגוריה למספר הגדרות</DialogTitle></DialogHeader>
+        <div className="space-y-1.5">
+          <Label>קטגוריה</Label>
+          <Input value={cat} onChange={(e) => setCat(e.target.value)} list="cat-suggestions" placeholder="הקלד או בחר" />
+          <datalist id="cat-suggestions">
+            {existing.map((c) => <option key={c} value={c} />)}
+          </datalist>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>ביטול</Button>
+          <Button onClick={() => onApply(cat.trim())}>החל</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
