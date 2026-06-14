@@ -26,7 +26,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, SlidersHorizontal, Columns3, Plus, ArrowUpDown } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  Columns3,
+  Plus,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  X,
+} from "lucide-react";
 
 export function PageHeader({
   title,
@@ -80,36 +89,65 @@ export function StatCard({
   );
 }
 
+export type FilterDef = {
+  key: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { label: string; value: string }[];
+  width?: string;
+};
+
+export type ColumnDef = {
+  key: string;
+  label: string;
+  visible: boolean;
+  onToggle: () => void;
+};
+
 export function TableToolbar({
+  search,
+  onSearchChange,
   searchPlaceholder = "חיפוש...",
   filters = [],
   columns = [],
   primaryAction,
   bulkSelected = 0,
+  bulkActions,
+  onClearSelection,
 }: {
+  search?: string;
+  onSearchChange?: (v: string) => void;
   searchPlaceholder?: string;
-  filters?: { label: string; options: string[] }[];
-  columns?: string[];
+  filters?: FilterDef[];
+  columns?: ColumnDef[];
   primaryAction?: ReactNode;
   bulkSelected?: number;
+  bulkActions?: ReactNode;
+  onClearSelection?: () => void;
 }) {
   return (
     <div className="flex flex-col gap-3 mb-4">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input placeholder={searchPlaceholder} className="pr-9" />
+          <Input
+            placeholder={searchPlaceholder}
+            className="pr-9"
+            value={search ?? ""}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+          />
         </div>
-        {filters.map((f, i) => (
-          <Select key={i}>
-            <SelectTrigger className="w-[140px]">
+        {filters.map((f) => (
+          <Select key={f.key} value={f.value} onValueChange={f.onChange}>
+            <SelectTrigger className={f.width ?? "w-[150px]"}>
               <SlidersHorizontal className="size-3.5 ml-1" />
               <SelectValue placeholder={f.label} />
             </SelectTrigger>
             <SelectContent>
               {f.options.map((o) => (
-                <SelectItem key={o} value={o}>
-                  {o}
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -126,8 +164,13 @@ export function TableToolbar({
               <DropdownMenuLabel>הצגת עמודות</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {columns.map((c) => (
-                <DropdownMenuCheckboxItem key={c} checked>
-                  {c}
+                <DropdownMenuCheckboxItem
+                  key={c.key}
+                  checked={c.visible}
+                  onCheckedChange={c.onToggle}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  {c.label}
                 </DropdownMenuCheckboxItem>
               ))}
             </DropdownMenuContent>
@@ -136,26 +179,55 @@ export function TableToolbar({
         <div className="ms-auto flex items-center gap-2">{primaryAction}</div>
       </div>
       {bulkSelected > 0 && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20">
+        <div className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20">
           <span className="text-sm font-medium">{bulkSelected} נבחרו</span>
-          <Button size="sm" variant="outline">
-            פעולה מרובה
-          </Button>
-          <Button size="sm" variant="ghost">
-            ביטול
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">{bulkActions}</div>
+          {onClearSelection && (
+            <Button size="sm" variant="ghost" onClick={onClearSelection}>
+              <X className="size-3.5 ml-1" /> ביטול בחירה
+            </Button>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-export function SortableHead({ children }: { children: ReactNode }) {
+export function SortableHead({
+  sortKey,
+  currentSort,
+  currentDir,
+  onSort,
+  children,
+  className,
+}: {
+  sortKey?: string;
+  currentSort?: string;
+  currentDir?: "asc" | "desc";
+  onSort?: (key: string) => void;
+  children: ReactNode;
+  className?: string;
+}) {
+  const active = !!sortKey && currentSort === sortKey;
+  const Icon = active ? (currentDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+  if (!sortKey || !onSort) {
+    return (
+      <TableHead className={className}>
+        <span className="inline-flex items-center gap-1">{children}</span>
+      </TableHead>
+    );
+  }
   return (
-    <TableHead>
-      <button className="inline-flex items-center gap-1 hover:text-foreground transition">
+    <TableHead className={className}>
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className={`inline-flex items-center gap-1 transition ${
+          active ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
         {children}
-        <ArrowUpDown className="size-3 opacity-50" />
+        <Icon className={`size-3 ${active ? "opacity-100" : "opacity-50"}`} />
       </button>
     </TableHead>
   );
@@ -174,6 +246,9 @@ export function StatusBadge({ status }: { status: string }) {
     חדש: "bg-primary/15 text-primary border-primary/30",
     נקרא: "bg-muted text-muted-foreground border-border",
     "נחסם": "bg-destructive/15 text-destructive border-destructive/30",
+    "בטיפול": "bg-primary/15 text-primary border-primary/30",
+    "טופל": "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
+    "סגור": "bg-muted text-muted-foreground border-border",
   };
   return (
     <Badge variant="outline" className={map[status] ?? ""}>
@@ -182,26 +257,60 @@ export function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export function PaginationBar() {
+export const PAGE_SIZE_OPTIONS = [10, 20, 50, 100, 200, 500];
+
+export function PaginationBar({
+  page,
+  pageSize,
+  total,
+  loading = false,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  page: number;
+  pageSize: number;
+  total: number;
+  loading?: boolean;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+}) {
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(page, totalPages - 1);
+  const from = total === 0 ? 0 : safePage * pageSize + 1;
+  const to = Math.min(total, (safePage + 1) * pageSize);
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t">
-      <div className="text-sm text-muted-foreground">מציג 1-10 מתוך 247</div>
+      <div className="text-sm text-muted-foreground">
+        מציג {from.toLocaleString("he-IL")}-{to.toLocaleString("he-IL")} מתוך {total.toLocaleString("he-IL")}
+      </div>
       <div className="flex items-center gap-2">
-        <Select defaultValue="10">
-          <SelectTrigger className="w-[80px] h-8">
+        <Select value={String(pageSize)} onValueChange={(v) => onPageSizeChange(Number(v))}>
+          <SelectTrigger className="w-[90px] h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="25">25</SelectItem>
-            <SelectItem value="50">50</SelectItem>
+            {PAGE_SIZE_OPTIONS.map((n) => (
+              <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
-        <Button size="sm" variant="outline">
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={loading || safePage <= 0}
+          onClick={() => onPageChange(safePage - 1)}
+        >
           הקודם
         </Button>
-        <span className="text-sm px-2">1 / 25</span>
-        <Button size="sm" variant="outline">
+        <span className="text-sm px-2 whitespace-nowrap">
+          {(safePage + 1).toLocaleString("he-IL")} / {totalPages.toLocaleString("he-IL")}
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={loading || safePage + 1 >= totalPages}
+          onClick={() => onPageChange(safePage + 1)}
+        >
           הבא
         </Button>
       </div>
@@ -212,9 +321,11 @@ export function PaginationBar() {
 export function DataTableShell({
   headers,
   rows,
+  footer,
 }: {
   headers: ReactNode;
   rows: ReactNode;
+  footer?: ReactNode;
 }) {
   return (
     <Card>
@@ -227,9 +338,7 @@ export function DataTableShell({
             <TableBody>{rows}</TableBody>
           </Table>
         </div>
-        <div className="px-4 pb-4">
-          <PaginationBar />
-        </div>
+        {footer && <div className="px-4 pb-4">{footer}</div>}
       </CardContent>
     </Card>
   );
