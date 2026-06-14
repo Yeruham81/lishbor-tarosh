@@ -53,10 +53,10 @@ function AdminDashboard() {
       />
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 mb-6">
-        <StatCard label="שחקנים" value={fmt(k.total_players)} hint={`פעילים השבוע: ${fmt(k.active_players)}`} tone="primary" />
+        <StatCard label="סה״כ שחקנים" value={fmt(k.total_players)} hint={`פעילים השבוע: ${fmt(k.active_players)}`} tone="primary" />
         <StatCard label="הגדרות פעילות" value={fmt(k.total_definitions)} hint={`טיוטות: ${fmt(k.draft_definitions)}`} />
-        <StatCard label="ממתינות לאישור" value={fmt(k.pending_submissions)} hint="הצעות שחקנים" tone="warning" />
-        <StatCard label="סה״כ נפתרו" value={fmt(k.total_solves)} tone="success" />
+        <StatCard label="הגדרות ממתינות לאישור" value={fmt(k.pending_submissions)} hint="הצעות שחקנים" tone="warning" />
+        <StatCard label="סה״כ הגדרות נפתרו" value={fmt(k.total_solves)} tone="success" />
         <StatCard label="פניות חדשות" value={fmt(k.new_messages)} />
       </div>
 
@@ -87,7 +87,7 @@ function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base"><AlertTriangle className="size-4 inline ml-1 text-amber-500" /> דורש תשומת לב</CardTitle>
+            <CardTitle className="text-base"><AlertTriangle className="size-4 inline ml-1 text-amber-500" /> אירועים למעקב</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <AttentionRow count={lowSuccess.data?.length ?? 0} label="הגדרות עם אחוז הצלחה נמוך" tone="warning" />
@@ -102,7 +102,7 @@ function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">הצעות אחרונות</CardTitle>
+            <CardTitle className="text-base">הגדרות מוצעות</CardTitle>
             <Button variant="ghost" size="sm" asChild><Link to="/admin/submissions">הצג הכל</Link></Button>
           </CardHeader>
           <CardContent className="p-0">
