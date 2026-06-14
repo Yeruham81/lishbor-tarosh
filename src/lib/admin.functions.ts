@@ -117,7 +117,7 @@ export const adminSoftDeleteDefinition = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.rpc("admin_soft_delete_clue", { _clue_id: data.id });
+    const { error } = await context.supabase.rpc("admin_soft_delete_clue", { _clue_id: data.id });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -149,12 +149,20 @@ export const adminListSubmissions = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let q = supabaseAdmin.from("puzzle_submissions").select("*, profiles:user_id(username, display_name, avatar_url)", { count: "exact" });
+    let q = supabaseAdmin.from("puzzle_submissions").select("*", { count: "exact" });
     if (data.status !== "all") q = q.eq("status", data.status);
     q = q.order("created_at", { ascending: false }).range(data.offset, data.offset + data.limit - 1);
     const { data: rows, count, error } = await q;
     if (error) throw new Error(error.message);
-    return { rows: rows ?? [], total: count ?? 0 };
+    const userIds = Array.from(new Set((rows ?? []).map((r: any) => r.user_id).filter(Boolean)));
+    let profilesById: Record<string, any> = {};
+    if (userIds.length) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles").select("id, username, display_name, avatar_url").in("id", userIds);
+      profilesById = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p]));
+    }
+    const withProfiles = (rows ?? []).map((r: any) => ({ ...r, profiles: profilesById[r.user_id] ?? null }));
+    return { rows: withProfiles, total: count ?? 0 };
   });
 
 export const adminEditSubmission = createServerFn({ method: "POST" })
@@ -187,7 +195,7 @@ export const adminApproveSubmission = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: clueId, error } = await supabaseAdmin.rpc("admin_approve_submission", {
+    const { data: clueId, error } = await context.supabase.rpc("admin_approve_submission", {
       _submission_id: data.id, _points: data.points, _difficulty: data.difficulty,
     });
     if (error) throw new Error(error.message);
@@ -203,7 +211,7 @@ export const adminRejectSubmission = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.rpc("admin_reject_submission", {
+    const { error } = await context.supabase.rpc("admin_reject_submission", {
       _submission_id: data.id, _notes: data.notes ?? undefined,
     });
     if (error) throw new Error(error.message);
@@ -288,7 +296,7 @@ export const adminAdjustPoints = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: total, error } = await supabaseAdmin.rpc("admin_adjust_points", {
+    const { data: total, error } = await context.supabase.rpc("admin_adjust_points", {
       _user_id: data.user_id, _delta: data.delta, _reason: data.reason ?? undefined,
     });
     if (error) throw new Error(error.message);
@@ -304,7 +312,7 @@ export const adminSetBlocked = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.rpc("admin_set_user_blocked", {
+    const { error } = await context.supabase.rpc("admin_set_user_blocked", {
       _user_id: data.user_id, _blocked: data.blocked,
     });
     if (error) throw new Error(error.message);
@@ -361,7 +369,7 @@ export const adminKpis = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: kpis, error } = await supabaseAdmin.rpc("admin_kpis", { _active_window_days: data.activeWindowDays });
+    const { data: kpis, error } = await context.supabase.rpc("admin_kpis", { _active_window_days: data.activeWindowDays });
     if (error) throw new Error(error.message);
     return kpis;
   });
@@ -372,7 +380,7 @@ export const adminDailyActiveUsers = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows, error } = await supabaseAdmin.rpc("admin_daily_active_users", { _days: data.days });
+    const { data: rows, error } = await context.supabase.rpc("admin_daily_active_users", { _days: data.days });
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
@@ -383,7 +391,7 @@ export const adminSubmissionTrends = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows, error } = await supabaseAdmin.rpc("admin_submission_trends", { _days: data.days });
+    const { data: rows, error } = await context.supabase.rpc("admin_submission_trends", { _days: data.days });
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
@@ -393,7 +401,7 @@ export const adminCategoryPerformance = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows, error } = await supabaseAdmin.rpc("admin_category_performance");
+    const { data: rows, error } = await context.supabase.rpc("admin_category_performance");
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
