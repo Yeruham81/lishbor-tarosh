@@ -323,6 +323,13 @@ function PlayersPage() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => setPointsTarget(r)}>שינוי נקודות</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        onClick={() => setConfirmDelete(r)}
+                      >
+                        <Trash2 className="size-3.5 ml-1" /> מחיקת שחקן
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
