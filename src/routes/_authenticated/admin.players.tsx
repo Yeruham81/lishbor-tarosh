@@ -1,7 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  PageHeader, TableToolbar, SortableHead, StatusBadge, DataTableShell, StatCard, PaginationBar,
+  PageHeader,
+  TableToolbar,
+  SortableHead,
+  StatusBadge,
+  DataTableShell,
+  StatCard,
+  PaginationBar,
 } from "@/components/admin/AdminUI";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -9,18 +15,24 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Download } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  adminListPlayers, adminAdjustPoints, adminSetBlocked, adminKpis, adminExport,
+  adminListPlayers,
+  adminAdjustPoints,
+  adminSetBlocked,
+  adminKpis,
+  adminExport,
   adminBulkSetBlocked,
 } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX } from "@/lib/admin-export";
@@ -34,7 +46,7 @@ const COLS = [
   { key: "player", label: "שחקן" },
   { key: "email", label: "אימייל" },
   { key: "age", label: "גיל" },
-  { key: "level", label: "רמה" },
+  { key: "level", label: "שלב" },
   { key: "score", label: "ניקוד" },
   { key: "solved", label: "פתורים" },
   { key: "streak", label: "רצף" },
@@ -45,7 +57,11 @@ const COLS = [
 
 function PlayersPage() {
   const qc = useQueryClient();
-  const t = useAdminTable("players", { defaultSort: "total_score", defaultPageSize: 20, defaultFilters: { status: "all" } });
+  const t = useAdminTable("players", {
+    defaultSort: "total_score",
+    defaultPageSize: 20,
+    defaultFilters: { status: "all" },
+  });
 
   const listFn = useServerFn(adminListPlayers);
   const blockFn = useServerFn(adminSetBlocked);
@@ -74,7 +90,10 @@ function PlayersPage() {
 
   const setBlocked = useMutation({
     mutationFn: (v: { user_id: string; blocked: boolean }) => blockFn({ data: v }),
-    onSuccess: () => { toast.success("עודכן"); invalidate(); },
+    onSuccess: () => {
+      toast.success("עודכן");
+      invalidate();
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -87,31 +106,43 @@ function PlayersPage() {
     try {
       const res: any = await bulkBlockFn({ data: { user_ids: t.selected, blocked } });
       toast.success(`עודכנו ${res.ok} שחקנים`);
-      t.clearSel(); invalidate();
-    } catch (e: any) { toast.error(e.message); }
+      t.clearSel();
+      invalidate();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const runExport = async (fmt: "csv" | "xlsx") => {
     try {
       const res: any = await exportFn({ data: { dataset: "players", includeDeleted: false } });
       const data = res?.players ?? [];
-      if (data.length === 0) { toast.message("אין נתונים לייצוא"); return; }
+      if (data.length === 0) {
+        toast.message("אין נתונים לייצוא");
+        return;
+      }
       if (fmt === "csv") downloadCSV(data, "players");
       else downloadXLSX({ players: data }, "players");
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const fmt = (n: any) => (typeof n === "number" ? n.toLocaleString("he-IL") : (n ?? "—"));
-  const lastSeen = (r: any) => r.last_seen_at ? new Date(r.last_seen_at).toLocaleDateString("he-IL") : (r.last_play_date ?? "—");
+  const lastSeen = (r: any) =>
+    r.last_seen_at ? new Date(r.last_seen_at).toLocaleDateString("he-IL") : (r.last_play_date ?? "—");
 
   const allIds = rows.map((r) => r.id);
   const allSelected = allIds.length > 0 && allIds.every((id) => t.selected.includes(id));
 
-  const statusOptions = useMemo(() => [
-    { label: "כל הסטטוסים", value: "all" },
-    { label: "פעיל", value: "active" },
-    { label: "נחסם", value: "blocked" },
-  ], []);
+  const statusOptions = useMemo(
+    () => [
+      { label: "כל הסטטוסים", value: "all" },
+      { label: "פעיל", value: "active" },
+      { label: "נחסם", value: "blocked" },
+    ],
+    [],
+  );
 
   return (
     <div>
@@ -121,7 +152,9 @@ function PlayersPage() {
         actions={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline"><Download className="size-4 ml-1" /> ייצוא</Button>
+              <Button variant="outline">
+                <Download className="size-4 ml-1" /> ייצוא
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => runExport("csv")}>CSV</DropdownMenuItem>
@@ -143,15 +176,31 @@ function PlayersPage() {
         onSearchChange={t.setSearch}
         searchPlaceholder="חיפוש לפי שם משתמש / אימייל..."
         filters={[
-          { key: "status", label: "סטטוס", value: t.filters.status ?? "all", onChange: (v) => t.setFilter("status", v), options: statusOptions, width: "w-[150px]" },
+          {
+            key: "status",
+            label: "סטטוס",
+            value: t.filters.status ?? "all",
+            onChange: (v) => t.setFilter("status", v),
+            options: statusOptions,
+            width: "w-[150px]",
+          },
         ]}
-        columns={COLS.map((c) => ({ key: c.key, label: c.label, visible: t.isVisible(c.key), onToggle: () => t.toggleCol(c.key) }))}
+        columns={COLS.map((c) => ({
+          key: c.key,
+          label: c.label,
+          visible: t.isVisible(c.key),
+          onToggle: () => t.toggleCol(c.key),
+        }))}
         bulkSelected={t.selected.length}
         onClearSelection={t.clearSel}
         bulkActions={
           <>
-            <Button size="sm" variant="destructive" onClick={() => runBulkBlock(true)}>חסימה</Button>
-            <Button size="sm" variant="outline" onClick={() => runBulkBlock(false)}>שחרור חסימה</Button>
+            <Button size="sm" variant="destructive" onClick={() => runBulkBlock(true)}>
+              חסימה
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => runBulkBlock(false)}>
+              שחרור חסימה
+            </Button>
           </>
         }
       />
@@ -165,63 +214,111 @@ function PlayersPage() {
             {t.isVisible("player") && <TableHead>שחקן</TableHead>}
             {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
             {t.isVisible("age") && <TableHead className="hidden lg:table-cell">גיל</TableHead>}
-            {t.isVisible("level") && <SortableHead sortKey="level" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>רמה</SortableHead>}
-            {t.isVisible("score") && <SortableHead sortKey="total_score" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>ניקוד</SortableHead>}
-            {t.isVisible("solved") && <SortableHead sortKey="solved_count" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>פתורים</SortableHead>}
-            {t.isVisible("streak") && <SortableHead sortKey="current_streak" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>רצף</SortableHead>}
+            {t.isVisible("level") && (
+              <SortableHead sortKey="level" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
+                שלב
+              </SortableHead>
+            )}
+            {t.isVisible("score") && (
+              <SortableHead sortKey="total_score" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
+                ניקוד
+              </SortableHead>
+            )}
+            {t.isVisible("solved") && (
+              <SortableHead sortKey="solved_count" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
+                פתורים
+              </SortableHead>
+            )}
+            {t.isVisible("streak") && (
+              <SortableHead sortKey="current_streak" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
+                רצף
+              </SortableHead>
+            )}
             {t.isVisible("best_streak") && <TableHead className="hidden lg:table-cell">רצף שיא</TableHead>}
-            {t.isVisible("last_seen") && <SortableHead sortKey="last_seen_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>פעילות אחרונה</SortableHead>}
+            {t.isVisible("last_seen") && (
+              <SortableHead sortKey="last_seen_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
+                פעילות אחרונה
+              </SortableHead>
+            )}
             {t.isVisible("status") && <TableHead>סטטוס</TableHead>}
             <TableHead className="text-left">פעולות</TableHead>
           </>
         }
         rows={
-          list.isLoading
-            ? <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
-            : rows.length === 0
-              ? <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">אין שחקנים</TableCell></TableRow>
-              : rows.map((r) => (
-                <TableRow key={r.id} data-state={t.selected.includes(r.id) ? "selected" : undefined}>
+          list.isLoading ? (
+            <TableRow>
+              <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
+                טוען...
+              </TableCell>
+            </TableRow>
+          ) : rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
+                אין שחקנים
+              </TableCell>
+            </TableRow>
+          ) : (
+            rows.map((r) => (
+              <TableRow key={r.id} data-state={t.selected.includes(r.id) ? "selected" : undefined}>
+                <TableCell>
+                  <Checkbox checked={t.selected.includes(r.id)} onCheckedChange={() => t.toggleSel(r.id)} />
+                </TableCell>
+                {t.isVisible("player") && (
                   <TableCell>
-                    <Checkbox checked={t.selected.includes(r.id)} onCheckedChange={() => t.toggleSel(r.id)} />
+                    <div className="flex items-center gap-2">
+                      <Avatar className="size-7">
+                        <AvatarFallback className="text-xs">
+                          {(r.username ?? "??").slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium">{r.display_name ?? r.username}</span>
+                    </div>
                   </TableCell>
-                  {t.isVisible("player") && (
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="size-7"><AvatarFallback className="text-xs">{(r.username ?? "??").slice(0, 2).toUpperCase()}</AvatarFallback></Avatar>
-                        <span className="font-medium">{r.display_name ?? r.username}</span>
-                      </div>
-                    </TableCell>
-                  )}
-                  {t.isVisible("email") && <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>}
-                  {t.isVisible("age") && <TableCell className="hidden lg:table-cell">{r.age ?? "—"}</TableCell>}
-                  {t.isVisible("level") && <TableCell>{r.level ?? 1}</TableCell>}
-                  {t.isVisible("score") && <TableCell className="font-semibold">{fmt(r.total_score)}</TableCell>}
-                  {t.isVisible("solved") && <TableCell>{fmt(r.solved_count)}</TableCell>}
-                  {t.isVisible("streak") && <TableCell>{r.current_streak ?? 0}</TableCell>}
-                  {t.isVisible("best_streak") && <TableCell className="hidden lg:table-cell">{r.highest_streak ?? r.best_streak ?? 0}</TableCell>}
-                  {t.isVisible("last_seen") && <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{lastSeen(r)}</TableCell>}
-                  {t.isVisible("status") && <TableCell><StatusBadge status={r.is_blocked ? "נחסם" : "פעיל"} /></TableCell>}
-                  <TableCell className="text-left">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost" className="size-8"><MoreHorizontal className="size-4" /></Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setViewing(r)}>צפייה</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {
+                )}
+                {t.isVisible("email") && (
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
+                )}
+                {t.isVisible("age") && <TableCell className="hidden lg:table-cell">{r.age ?? "—"}</TableCell>}
+                {t.isVisible("level") && <TableCell>{r.level ?? 1}</TableCell>}
+                {t.isVisible("score") && <TableCell className="font-semibold">{fmt(r.total_score)}</TableCell>}
+                {t.isVisible("solved") && <TableCell>{fmt(r.solved_count)}</TableCell>}
+                {t.isVisible("streak") && <TableCell>{r.current_streak ?? 0}</TableCell>}
+                {t.isVisible("best_streak") && (
+                  <TableCell className="hidden lg:table-cell">{r.highest_streak ?? r.best_streak ?? 0}</TableCell>
+                )}
+                {t.isVisible("last_seen") && (
+                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{lastSeen(r)}</TableCell>
+                )}
+                {t.isVisible("status") && (
+                  <TableCell>
+                    <StatusBadge status={r.is_blocked ? "נחסם" : "פעיל"} />
+                  </TableCell>
+                )}
+                <TableCell className="text-left">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="ghost" className="size-8">
+                        <MoreHorizontal className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setViewing(r)}>צפייה</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
                           if (!r.is_blocked && !window.confirm("לחסום את השחקן?")) return;
                           setBlocked.mutate({ user_id: r.id, blocked: !r.is_blocked });
-                        }}>
-                          {r.is_blocked ? "שחרור חסימה" : "חסימה"}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => setPointsTarget(r)}>שינוי נקודות</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
+                        }}
+                      >
+                        {r.is_blocked ? "שחרור חסימה" : "חסימה"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setPointsTarget(r)}>שינוי נקודות</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          )
         }
         footer={
           <PaginationBar
@@ -243,19 +340,43 @@ function PlayersPage() {
 
 function ViewDialog({ target, onClose }: { target: any | null; onClose: () => void }) {
   return (
-    <Dialog open={!!target} onOpenChange={(v) => { if (!v) onClose(); }}>
+    <Dialog
+      open={!!target}
+      onOpenChange={(v) => {
+        if (!v) onClose();
+      }}
+    >
       <DialogContent>
-        <DialogHeader><DialogTitle>{target?.display_name ?? target?.username}</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>{target?.display_name ?? target?.username}</DialogTitle>
+        </DialogHeader>
         {target && (
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div><span className="text-muted-foreground">אימייל:</span> {target.email ?? "—"}</div>
-            <div><span className="text-muted-foreground">רמה:</span> {target.level ?? 1}</div>
-            <div><span className="text-muted-foreground">ניקוד:</span> {target.total_score?.toLocaleString?.("he-IL") ?? 0}</div>
-            <div><span className="text-muted-foreground">פתורים:</span> {target.solved_count ?? 0}</div>
-            <div><span className="text-muted-foreground">רצף נוכחי:</span> {target.current_streak ?? 0}</div>
-            <div><span className="text-muted-foreground">רצף שיא:</span> {target.highest_streak ?? target.best_streak ?? 0}</div>
-            <div><span className="text-muted-foreground">נרשם:</span> {target.created_at ? new Date(target.created_at).toLocaleDateString("he-IL") : "—"}</div>
-            <div><span className="text-muted-foreground">סטטוס:</span> {target.is_blocked ? "נחסם" : "פעיל"}</div>
+            <div>
+              <span className="text-muted-foreground">אימייל:</span> {target.email ?? "—"}
+            </div>
+            <div>
+              <span className="text-muted-foreground">רמה:</span> {target.level ?? 1}
+            </div>
+            <div>
+              <span className="text-muted-foreground">ניקוד:</span> {target.total_score?.toLocaleString?.("he-IL") ?? 0}
+            </div>
+            <div>
+              <span className="text-muted-foreground">פתורים:</span> {target.solved_count ?? 0}
+            </div>
+            <div>
+              <span className="text-muted-foreground">רצף נוכחי:</span> {target.current_streak ?? 0}
+            </div>
+            <div>
+              <span className="text-muted-foreground">רצף שיא:</span> {target.highest_streak ?? target.best_streak ?? 0}
+            </div>
+            <div>
+              <span className="text-muted-foreground">נרשם:</span>{" "}
+              {target.created_at ? new Date(target.created_at).toLocaleDateString("he-IL") : "—"}
+            </div>
+            <div>
+              <span className="text-muted-foreground">סטטוס:</span> {target.is_blocked ? "נחסם" : "פעיל"}
+            </div>
           </div>
         )}
       </DialogContent>
@@ -269,18 +390,32 @@ function PointsDialog({ target, onClose, onDone }: { target: any | null; onClose
   const [reason, setReason] = useState("");
   const submit = async () => {
     const n = parseInt(delta, 10);
-    if (!Number.isFinite(n) || n === 0) { toast.error("ערך לא תקין"); return; }
+    if (!Number.isFinite(n) || n === 0) {
+      toast.error("ערך לא תקין");
+      return;
+    }
     try {
       await adjustFn({ data: { user_id: target.id, delta: n, reason: reason || null } });
       toast.success("הניקוד עודכן");
-      setDelta("0"); setReason("");
-      onDone(); onClose();
-    } catch (e: any) { toast.error(e.message); }
+      setDelta("0");
+      setReason("");
+      onDone();
+      onClose();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
   return (
-    <Dialog open={!!target} onOpenChange={(v) => { if (!v) onClose(); }}>
+    <Dialog
+      open={!!target}
+      onOpenChange={(v) => {
+        if (!v) onClose();
+      }}
+    >
       <DialogContent>
-        <DialogHeader><DialogTitle>שינוי נקודות — {target?.display_name ?? target?.username}</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>שינוי נקודות — {target?.display_name ?? target?.username}</DialogTitle>
+        </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label>שינוי (חיובי להוספה, שלילי להפחתה)</Label>
@@ -290,10 +425,14 @@ function PointsDialog({ target, onClose, onDone }: { target: any | null; onClose
             <Label>סיבה (אופציונלי)</Label>
             <Input value={reason} onChange={(e) => setReason(e.target.value)} />
           </div>
-          <div className="text-sm text-muted-foreground">ניקוד נוכחי: {target?.total_score?.toLocaleString?.("he-IL") ?? "—"}</div>
+          <div className="text-sm text-muted-foreground">
+            ניקוד נוכחי: {target?.total_score?.toLocaleString?.("he-IL") ?? "—"}
+          </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ביטול</Button>
+          <Button variant="outline" onClick={onClose}>
+            ביטול
+          </Button>
           <Button onClick={submit}>שמירה</Button>
         </DialogFooter>
       </DialogContent>
