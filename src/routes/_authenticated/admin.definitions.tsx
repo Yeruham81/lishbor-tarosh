@@ -339,6 +339,7 @@ function DefinitionsPage() {
                 נפתרה
               </SortableHead>
             )}
+            {t.isVisible("skipped") && <TableHead>דולגה</TableHead>}
             {t.isVisible("created") && (
               <SortableHead sortKey="created_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
                 נוצרה
