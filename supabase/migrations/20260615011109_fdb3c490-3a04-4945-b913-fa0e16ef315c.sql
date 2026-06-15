@@ -1,0 +1,2 @@
+REVOKE SELECT (age, last_play_date, last_seen_at, accessibility_prefs, notification_prefs, auth_provider, auto_next) ON public.profiles FROM authenticated;
+REVOKE SELECT (age, last_play_date, last_seen_at, accessibility_prefs, notification_prefs, auth_provider, auto_next) ON public.profiles FROM anon;
