@@ -56,11 +56,13 @@ const COLS = [
   { key: "id", label: "מזהה" },
   { key: "clue", label: "הגדרה" },
   { key: "answer", label: "פתרון" },
+  { key: "explanation", label: "הסבר" },
   { key: "category", label: "קטגוריה" },
   { key: "difficulty", label: "קושי" },
   { key: "status", label: "סטטוס" },
   { key: "ratings", label: "לייקים" },
   { key: "solved", label: "נפתרה" },
+  { key: "skipped", label: "דולגה" },
   { key: "created", label: "נוצרה" },
 ];
 
