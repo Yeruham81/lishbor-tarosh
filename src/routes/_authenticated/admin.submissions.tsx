@@ -122,7 +122,7 @@ function SubmissionsPage() {
     <div>
       <PageHeader
         title="הגדרות מוצעות"
-        description="מודרציה של הצעות הגדרה"
+        description="ניהול ההגדרות שהתקבלו משחקנים"
         actions={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
