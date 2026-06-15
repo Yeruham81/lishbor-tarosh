@@ -24,12 +24,12 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
 const NAV: NavItem[] = [
-  { to: "/admin", label: "לוח בקרה", icon: LayoutDashboard, exact: true },
+  { to: "/admin", label: "לוח הבקרה", icon: LayoutDashboard, exact: true },
   { to: "/admin/definitions", label: "הגדרות", icon: FileText },
-  { to: "/admin/submissions", label: "הצעות שחקנים", icon: Inbox },
+  { to: "/admin/submissions", label: "הגדרות מוצעות", icon: Inbox },
   { to: "/admin/players", label: "שחקנים", icon: Users },
-  { to: "/admin/messages", label: "פניות", icon: Mail },
-  { to: "/admin/taxonomy", label: "טקסונומיה", icon: Tags },
+  { to: "/admin/messages", label: "פניות שהתקבלו", icon: Mail },
+  { to: "/admin/taxonomy", label: "תגיות", icon: Tags },
   { to: "/admin/settings", label: "הגדרות מערכת", icon: SettingsIcon },
 ];
 
@@ -39,7 +39,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <nav className="flex flex-col gap-1 p-3">
       <div className="px-3 py-4">
         <div className="font-display text-lg font-extrabold text-gradient-sunset">לשבור ת'ראש</div>
-        <div className="text-xs text-muted-foreground mt-0.5">פאנל ניהול</div>
+        <div className="text-xs text-muted-foreground mt-0.5">מסך ניהול המערכת</div>
       </div>
       {NAV.map((item) => {
         const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
@@ -107,8 +107,8 @@ function AdminLayout() {
                   <AvatarFallback>אד</AvatarFallback>
                 </Avatar>
                 <div className="hidden sm:block text-right">
-                  <div className="text-sm font-semibold leading-tight">מנהל מערכת</div>
-                  <div className="text-xs text-muted-foreground">admin@lishbor</div>
+                  <div className="text-sm font-semibold leading-tight">מנהל המערכת</div>
+                  <div className="text-xs text-muted-foreground">lishbor-tarosh</div>
                 </div>
               </div>
             </div>

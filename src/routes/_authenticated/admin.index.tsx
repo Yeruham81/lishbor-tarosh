@@ -73,7 +73,7 @@ function AdminDashboard() {
   return (
     <div>
       <PageHeader
-        title="לוח בקרה"
+        title="לוח הבקרה"
         description="סקירה כללית של המערכת"
         actions={
           <>
@@ -106,7 +106,7 @@ function AdminDashboard() {
           hint="הגדרות מוצעות"
           tone="warning"
         />
-        <StatCard label="סה״כ הגדרות נפתרו" value={fmt(k.total_solves)} tone="success" />
+        <StatCard label="סה״כ הגדרות שנפתרו" value={fmt(k.total_solves)} tone="success" />
         <StatCard label="פניות חדשות" value={fmt(k.new_messages)} />
       </div>
 

@@ -89,7 +89,7 @@ function MessagesPage() {
   return (
     <div>
       <PageHeader
-        title="פניות יצירת קשר"
+        title="פניות שהתקבלו"
         description="הודעות שהגיעו מהאתר"
         actions={
           <DropdownMenu>

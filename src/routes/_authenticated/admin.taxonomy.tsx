@@ -36,7 +36,7 @@ function TaxonomyPage() {
 
   return (
     <div>
-      <PageHeader title="טקסונומיה" description="סוגים, קטגוריות ורמות שמופיעות בהגדרות" />
+      <PageHeader title="תגיות" description="סוגים, קטגוריות ורמות שמופיעות בהגדרות" />
       <Tabs defaultValue="types" dir="rtl">
         <TabsList>
           <TabsTrigger value="types">סוגים</TabsTrigger>

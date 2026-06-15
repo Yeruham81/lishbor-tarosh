@@ -121,7 +121,7 @@ function SubmissionsPage() {
   return (
     <div>
       <PageHeader
-        title="הצעות שחקנים"
+        title="הגדרות מוצעות"
         description="מודרציה של הצעות הגדרה"
         actions={
           <DropdownMenu>
