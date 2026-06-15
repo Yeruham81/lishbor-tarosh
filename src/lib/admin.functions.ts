@@ -464,7 +464,7 @@ export const adminCategoryPerformance = createServerFn({ method: "GET" })
 export const adminContentHealth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({
-    flag: z.enum(["low_success_rate", "high_dislikes", "missing_hint", "missing_explanation", "never_shown", "very_high_failure"]).optional(),
+    flag: z.enum(["low_success_rate", "high_dislikes", "missing_hint", "missing_explanation", "never_shown", "very_high_failure", "high_skips"]).optional(),
     limit: z.number().int().min(1).max(500).default(100),
   }).parse(d))
   .handler(async ({ data, context }) => {
