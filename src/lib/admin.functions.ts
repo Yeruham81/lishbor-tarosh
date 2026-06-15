@@ -368,7 +368,7 @@ export const adminDeletePlayer = createServerFn({ method: "POST" })
     // Clean up rows that don't cascade through auth.users delete
     await supabaseAdmin.from("feedback").delete().eq("user_id", data.user_id);
     await supabaseAdmin.from("clue_ratings").delete().eq("user_id", data.user_id);
-    await supabaseAdmin.from("challenges").delete().eq("user_id", data.user_id);
+    await supabaseAdmin.from("challenges").delete().eq("challenger_id", data.user_id);
     // Delete the auth user; cascades through profiles, user_roles, game_progress, hint_usage, puzzle_submissions
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
     if (error) throw new Error(error.message);
