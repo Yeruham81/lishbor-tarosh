@@ -47,9 +47,9 @@ function AdminDashboard() {
     queryKey: ["admin", "health", "dis"],
     queryFn: () => healthFn({ data: { flag: "high_dislikes", limit: 200 } }),
   });
-  const missingHint = useQuery({
-    queryKey: ["admin", "health", "hint"],
-    queryFn: () => healthFn({ data: { flag: "missing_hint", limit: 500 } }),
+  const highSkips = useQuery({
+    queryKey: ["admin", "health", "skips"],
+    queryFn: () => healthFn({ data: { flag: "high_skips", limit: 500 } }),
   });
   const missingExp = useQuery({
     queryKey: ["admin", "health", "exp"],
