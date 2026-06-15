@@ -34,7 +34,7 @@ const COLS = [
   { key: "player", label: "שחקן" },
   { key: "clue", label: "הגדרה" },
   { key: "answer", label: "פתרון" },
-  { key: "category", label: "קטגוריה" },
+  { key: "notes", label: "הסברים והערות אם יש" },
   { key: "status", label: "סטטוס" },
   { key: "created", label: "תאריך" },
 ];
