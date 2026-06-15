@@ -317,6 +317,7 @@ function DefinitionsPage() {
                 פתרון
               </SortableHead>
             )}
+            {t.isVisible("explanation") && <TableHead>הסבר</TableHead>}
             {t.isVisible("category") && <TableHead>קטגוריה</TableHead>}
             {t.isVisible("difficulty") && (
               <SortableHead sortKey="difficulty" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
