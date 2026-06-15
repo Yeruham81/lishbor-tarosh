@@ -134,6 +134,7 @@ function MessagesPage() {
           <>
             {t.isVisible("name") && <TableHead>שם</TableHead>}
             {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
+            {t.isVisible("type") && <TableHead>סוג</TableHead>}
             {t.isVisible("subject") && <TableHead>נושא</TableHead>}
             {t.isVisible("message") && <TableHead className="hidden lg:table-cell">הודעה</TableHead>}
             {t.isVisible("status") && <SortableHead sortKey="status" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>סטטוס</SortableHead>}
@@ -143,13 +144,20 @@ function MessagesPage() {
         }
         rows={
           list.isLoading
-            ? <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
+            ? <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
             : rows.length === 0
-              ? <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">אין פניות</TableCell></TableRow>
+              ? <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">אין פניות</TableCell></TableRow>
               : rows.map((r) => (
                 <TableRow key={r.id}>
                   {t.isVisible("name") && <TableCell className="font-medium">{r.name ?? "—"}</TableCell>}
                   {t.isVisible("email") && <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>}
+                  {t.isVisible("type") && (
+                    <TableCell>
+                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${TYPE_CLASS[r.type] ?? TYPE_CLASS.other}`}>
+                        {TYPE_HE[r.type] ?? r.type ?? "—"}
+                      </span>
+                    </TableCell>
+                  )}
                   {t.isVisible("subject") && <TableCell>{r.subject ?? "—"}</TableCell>}
                   {t.isVisible("message") && <TableCell className="hidden lg:table-cell max-w-[280px] truncate text-sm text-muted-foreground">{r.message}</TableCell>}
                   {t.isVisible("status") && <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>}
@@ -175,7 +183,7 @@ function MessagesPage() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "new" })}>סטטוס: חדש</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "in_progress" })}>סטטוס: בטיפול</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "resolved" })}>סטטוס: טופל</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "resolved" })}>סטטוס: נפתר</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "closed" })}>סטטוס: סגור</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
