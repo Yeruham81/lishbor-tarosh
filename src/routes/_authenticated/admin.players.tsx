@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Download } from "lucide-react";
+import { MoreHorizontal, Download, Trash2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -34,6 +34,7 @@ import {
   adminKpis,
   adminExport,
   adminBulkSetBlocked,
+  adminDeletePlayer,
 } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX } from "@/lib/admin-export";
 import { useAdminTable } from "@/hooks/use-admin-table";
@@ -68,6 +69,7 @@ function PlayersPage() {
   const exportFn = useServerFn(adminExport);
   const kpisFn = useServerFn(adminKpis);
   const bulkBlockFn = useServerFn(adminBulkSetBlocked);
+  const deletePlayerFn = useServerFn(adminDeletePlayer);
 
   const queryArgs = {
     search: t.debouncedSearch || undefined,
@@ -96,6 +98,14 @@ function PlayersPage() {
     },
     onError: (e: any) => toast.error(e.message),
   });
+
+  const deletePlayer = useMutation({
+    mutationFn: (user_id: string) => deletePlayerFn({ data: { user_id } }),
+    onSuccess: () => { toast.success("השחקן נמחק"); invalidate(); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
 
   const [pointsTarget, setPointsTarget] = useState<any | null>(null);
   const [viewing, setViewing] = useState<any | null>(null);
@@ -313,6 +323,13 @@ function PlayersPage() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => setPointsTarget(r)}>שינוי נקודות</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        onClick={() => setConfirmDelete(r)}
+                      >
+                        <Trash2 className="size-3.5 ml-1" /> מחיקת שחקן
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -334,6 +351,32 @@ function PlayersPage() {
 
       <PointsDialog target={pointsTarget} onClose={() => setPointsTarget(null)} onDone={invalidate} />
       <ViewDialog target={viewing} onClose={() => setViewing(null)} />
+
+      <Dialog open={!!confirmDelete} onOpenChange={(v) => { if (!v) setConfirmDelete(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>מחיקת שחקן</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 text-sm">
+            <p>האם למחוק לצמיתות את <strong>{confirmDelete?.display_name ?? confirmDelete?.username}</strong>?</p>
+            <p className="text-destructive">פעולה זו תמחק את חשבון השחקן וכל הנתונים הקשורים אליו. לא ניתן לשחזר.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDelete(null)}>ביטול</Button>
+            <Button
+              variant="destructive"
+              disabled={deletePlayer.isPending}
+              onClick={() => {
+                const id = confirmDelete?.id;
+                if (!id) return;
+                deletePlayer.mutate(id, { onSuccess: () => setConfirmDelete(null) });
+              }}
+            >
+              {deletePlayer.isPending ? "מוחק..." : "מחיקה לצמיתות"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

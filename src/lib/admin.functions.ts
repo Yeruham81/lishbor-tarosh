@@ -207,7 +207,7 @@ export const adminEditSubmission = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.from("puzzle_submissions").update({
       edited_clue: data.edited_clue, edited_answer: data.edited_answer,
       edited_category: data.edited_category, admin_notes: data.admin_notes,
-    }).eq("id", data.id).eq("status", "pending");
+    }).eq("id", data.id).neq("status", "approved");
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -265,12 +265,27 @@ export const adminListMessages = createServerFn({ method: "POST" })
     if (data.status !== "all") q = q.eq("status", data.status);
     if (data.search) {
       const s = data.search.replace(/[%,]/g, " ");
-      q = q.or(`name.ilike.%${s}%,email.ilike.%${s}%,subject.ilike.%${s}%,message.ilike.%${s}%`);
+      q = q.or(`subject.ilike.%${s}%,message.ilike.%${s}%,contact_email.ilike.%${s}%`);
     }
     q = q.order(data.sort_by, { ascending: data.sort_dir === "asc" }).range(data.offset, data.offset + data.limit - 1);
     const { data: rows, count, error } = await q;
     if (error) throw new Error(error.message);
-    return { rows: rows ?? [], total: count ?? 0 };
+    const userIds = Array.from(new Set((rows ?? []).map((r: any) => r.user_id).filter(Boolean)));
+    let profilesById: Record<string, any> = {};
+    if (userIds.length) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles").select("id, username, display_name, email").in("id", userIds);
+      profilesById = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p]));
+    }
+    const enriched = (rows ?? []).map((r: any) => {
+      const p = r.user_id ? profilesById[r.user_id] : null;
+      return {
+        ...r,
+        name: p?.display_name ?? p?.username ?? null,
+        email: p?.email ?? r.contact_email ?? null,
+      };
+    });
+    return { rows: enriched, total: count ?? 0 };
   });
 
 export const adminUpdateMessage = createServerFn({ method: "POST" })
@@ -341,6 +356,23 @@ export const adminAdjustPoints = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     return { total };
+  });
+
+export const adminDeletePlayer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ user_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    if (data.user_id === context.userId) throw new Error("cannot_delete_self");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Clean up rows that don't cascade through auth.users delete
+    await supabaseAdmin.from("feedback").delete().eq("user_id", data.user_id);
+    await supabaseAdmin.from("clue_ratings").delete().eq("user_id", data.user_id);
+    await supabaseAdmin.from("challenges").delete().eq("challenger_id", data.user_id);
+    // Delete the auth user; cascades through profiles, user_roles, game_progress, hint_usage, puzzle_submissions
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const adminSetBlocked = createServerFn({ method: "POST" })
@@ -449,7 +481,7 @@ export const adminCategoryPerformance = createServerFn({ method: "GET" })
 export const adminContentHealth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({
-    flag: z.enum(["low_success_rate", "high_dislikes", "missing_hint", "missing_explanation", "never_shown", "very_high_failure"]).optional(),
+    flag: z.enum(["low_success_rate", "high_dislikes", "missing_hint", "missing_explanation", "never_shown", "very_high_failure", "high_skips"]).optional(),
     limit: z.number().int().min(1).max(500).default(100),
   }).parse(d))
   .handler(async ({ data, context }) => {

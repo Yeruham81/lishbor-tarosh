@@ -47,14 +47,14 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 mb-6">
+    <div className="flex flex-col-reverse gap-3 mb-6 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-4">
       <div className="min-w-0">
         <h1 className="font-display text-2xl md:text-3xl font-extrabold truncate">{title}</h1>
         {description && (
           <p className="text-sm text-muted-foreground mt-1">{description}</p>
         )}
       </div>
-      {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
+      {actions && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{actions}</div>}
     </div>
   );
 }
@@ -243,12 +243,13 @@ export function StatusBadge({ status }: { status: string }) {
     "ממתין": "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
     "אושר": "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
     "נדחה": "bg-destructive/15 text-destructive border-destructive/30",
-    חדש: "bg-primary/15 text-primary border-primary/30",
+    חדש: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/40",
     נקרא: "bg-muted text-muted-foreground border-border",
     "נחסם": "bg-destructive/15 text-destructive border-destructive/30",
-    "בטיפול": "bg-primary/15 text-primary border-primary/30",
-    "טופל": "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
-    "סגור": "bg-muted text-muted-foreground border-border",
+    "בטיפול": "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40",
+    "נפתר": "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40",
+    "טופל": "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40",
+    "סגור": "bg-slate-500/15 text-slate-700 dark:text-slate-300 border-slate-500/40",
   };
   return (
     <Badge variant="outline" className={map[status] ?? ""}>

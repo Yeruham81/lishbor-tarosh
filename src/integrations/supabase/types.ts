@@ -544,6 +544,7 @@ export type Database = {
           deleted_at: string | null
           dislikes_count: number | null
           high_dislikes: boolean | null
+          high_skips: boolean | null
           id: string | null
           likes_count: number | null
           low_success_rate: boolean | null
@@ -563,6 +564,7 @@ export type Database = {
           deleted_at?: string | null
           dislikes_count?: number | null
           high_dislikes?: never
+          high_skips?: never
           id?: string | null
           likes_count?: number | null
           low_success_rate?: never
@@ -582,6 +584,7 @@ export type Database = {
           deleted_at?: string | null
           dislikes_count?: number | null
           high_dislikes?: never
+          high_skips?: never
           id?: string | null
           likes_count?: number | null
           low_success_rate?: never

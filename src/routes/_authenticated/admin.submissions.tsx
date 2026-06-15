@@ -34,7 +34,7 @@ const COLS = [
   { key: "player", label: "שחקן" },
   { key: "clue", label: "הגדרה" },
   { key: "answer", label: "פתרון" },
-  { key: "category", label: "קטגוריה" },
+  { key: "notes", label: "הסברים והערות אם יש" },
   { key: "status", label: "סטטוס" },
   { key: "created", label: "תאריך" },
 ];
@@ -164,7 +164,7 @@ function SubmissionsPage() {
             {t.isVisible("player") && <TableHead>שחקן</TableHead>}
             {t.isVisible("clue") && <TableHead>הגדרה</TableHead>}
             {t.isVisible("answer") && <TableHead>פתרון</TableHead>}
-            {t.isVisible("category") && <TableHead>קטגוריה</TableHead>}
+            {t.isVisible("notes") && <TableHead>הסברים והערות אם יש</TableHead>}
             {t.isVisible("status") && <SortableHead sortKey="status" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>סטטוס</SortableHead>}
             {t.isVisible("created") && <SortableHead sortKey="created_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>תאריך</SortableHead>}
             <TableHead className="text-left">פעולות</TableHead>
@@ -184,7 +184,7 @@ function SubmissionsPage() {
                   {t.isVisible("player") && <TableCell>{r.profiles?.display_name ?? r.profiles?.username ?? "—"}</TableCell>}
                   {t.isVisible("clue") && <TableCell className="max-w-[240px] truncate">{r.edited_clue ?? r.clue_text}</TableCell>}
                   {t.isVisible("answer") && <TableCell className="font-semibold">{r.edited_answer ?? r.suggested_answer}</TableCell>}
-                  {t.isVisible("category") && <TableCell>{r.edited_category ?? r.category ?? "—"}</TableCell>}
+                  {t.isVisible("notes") && <TableCell className="max-w-[260px] truncate text-sm text-muted-foreground">{r.notes ?? "—"}</TableCell>}
                   {t.isVisible("status") && <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>}
                   {t.isVisible("created") && (
                     <TableCell className="text-xs text-muted-foreground">
@@ -195,18 +195,21 @@ function SubmissionsPage() {
                     <div className="flex items-center gap-1 justify-end">
                       <Button
                         size="icon" variant="ghost" className="size-8 text-emerald-600"
-                        disabled={r.status !== "pending" || approve.isPending}
+                        disabled={r.status === "approved" || approve.isPending}
                         onClick={() => approve.mutate(r.id)}
+                        title="אישור"
                       ><Check className="size-4" /></Button>
                       <Button
                         size="icon" variant="ghost" className="size-8 text-destructive"
-                        disabled={r.status !== "pending" || reject.isPending}
+                        disabled={r.status === "approved" || reject.isPending}
                         onClick={() => { if (window.confirm("לדחות את ההצעה?")) reject.mutate(r.id); }}
+                        title="דחייה"
                       ><X className="size-4" /></Button>
                       <Button
                         size="icon" variant="ghost" className="size-8"
-                        disabled={r.status !== "pending"}
+                        disabled={r.status === "approved"}
                         onClick={() => setEditing(r)}
+                        title="עריכה"
                       ><Pencil className="size-4" /></Button>
                     </div>
                   </TableCell>

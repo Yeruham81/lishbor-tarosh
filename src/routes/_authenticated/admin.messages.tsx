@@ -23,11 +23,26 @@ export const Route = createFileRoute("/_authenticated/admin/messages")({
 });
 
 const statusHe = (s: string) =>
-  ({ new: "חדש", in_progress: "בטיפול", resolved: "טופל", closed: "סגור" }[s] ?? s);
+  ({ new: "חדש", in_progress: "בטיפול", resolved: "נפתר", closed: "סגור" }[s] ?? s);
+
+const TYPE_HE: Record<string, string> = {
+  bug: "תקלה",
+  complaint: "תלונה",
+  idea: "הצעה",
+  other: "אחר",
+};
+
+const TYPE_CLASS: Record<string, string> = {
+  bug: "bg-destructive/15 text-destructive border-destructive/30",
+  complaint: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40",
+  idea: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/40",
+  other: "bg-muted text-muted-foreground border-border",
+};
 
 const COLS = [
   { key: "name", label: "שם" },
   { key: "email", label: "אימייל" },
+  { key: "type", label: "סוג" },
   { key: "subject", label: "נושא" },
   { key: "message", label: "הודעה" },
   { key: "status", label: "סטטוס" },
@@ -82,7 +97,7 @@ function MessagesPage() {
     { label: "הכל", value: "all" },
     { label: "חדש", value: "new" },
     { label: "בטיפול", value: "in_progress" },
-    { label: "טופל", value: "resolved" },
+    { label: "נפתר", value: "resolved" },
     { label: "סגור", value: "closed" },
   ], []);
 
@@ -119,6 +134,7 @@ function MessagesPage() {
           <>
             {t.isVisible("name") && <TableHead>שם</TableHead>}
             {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
+            {t.isVisible("type") && <TableHead>סוג</TableHead>}
             {t.isVisible("subject") && <TableHead>נושא</TableHead>}
             {t.isVisible("message") && <TableHead className="hidden lg:table-cell">הודעה</TableHead>}
             {t.isVisible("status") && <SortableHead sortKey="status" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>סטטוס</SortableHead>}
@@ -128,13 +144,20 @@ function MessagesPage() {
         }
         rows={
           list.isLoading
-            ? <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
+            ? <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
             : rows.length === 0
-              ? <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">אין פניות</TableCell></TableRow>
+              ? <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">אין פניות</TableCell></TableRow>
               : rows.map((r) => (
                 <TableRow key={r.id}>
                   {t.isVisible("name") && <TableCell className="font-medium">{r.name ?? "—"}</TableCell>}
                   {t.isVisible("email") && <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>}
+                  {t.isVisible("type") && (
+                    <TableCell>
+                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${TYPE_CLASS[r.type] ?? TYPE_CLASS.other}`}>
+                        {TYPE_HE[r.type] ?? r.type ?? "—"}
+                      </span>
+                    </TableCell>
+                  )}
                   {t.isVisible("subject") && <TableCell>{r.subject ?? "—"}</TableCell>}
                   {t.isVisible("message") && <TableCell className="hidden lg:table-cell max-w-[280px] truncate text-sm text-muted-foreground">{r.message}</TableCell>}
                   {t.isVisible("status") && <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>}
@@ -160,7 +183,7 @@ function MessagesPage() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "new" })}>סטטוס: חדש</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "in_progress" })}>סטטוס: בטיפול</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "resolved" })}>סטטוס: טופל</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "resolved" })}>סטטוס: נפתר</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "closed" })}>סטטוס: סגור</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

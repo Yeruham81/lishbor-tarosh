@@ -56,11 +56,13 @@ const COLS = [
   { key: "id", label: "מזהה" },
   { key: "clue", label: "הגדרה" },
   { key: "answer", label: "פתרון" },
+  { key: "explanation", label: "הסבר" },
   { key: "category", label: "קטגוריה" },
   { key: "difficulty", label: "קושי" },
   { key: "status", label: "סטטוס" },
   { key: "ratings", label: "לייקים" },
   { key: "solved", label: "נפתרה" },
+  { key: "skipped", label: "דולגה" },
   { key: "created", label: "נוצרה" },
 ];
 
@@ -315,6 +317,7 @@ function DefinitionsPage() {
                 פתרון
               </SortableHead>
             )}
+            {t.isVisible("explanation") && <TableHead>הסבר</TableHead>}
             {t.isVisible("category") && <TableHead>קטגוריה</TableHead>}
             {t.isVisible("difficulty") && (
               <SortableHead sortKey="difficulty" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
@@ -336,6 +339,7 @@ function DefinitionsPage() {
                 נפתרה
               </SortableHead>
             )}
+            {t.isVisible("skipped") && <TableHead>דולגה</TableHead>}
             {t.isVisible("created") && (
               <SortableHead sortKey="created_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
                 נוצרה
@@ -371,6 +375,9 @@ function DefinitionsPage() {
                   </TableCell>
                 )}
                 {t.isVisible("answer") && <TableCell className="font-semibold">{r.answer}</TableCell>}
+                {t.isVisible("explanation") && (
+                  <TableCell className="max-w-[240px] truncate text-sm text-muted-foreground">{r.explanation ?? "—"}</TableCell>
+                )}
                 {t.isVisible("category") && <TableCell>{r.category ?? "—"}</TableCell>}
                 {t.isVisible("difficulty") && <TableCell>{r.difficulty ?? "—"}</TableCell>}
                 {t.isVisible("status") && (
@@ -393,6 +400,7 @@ function DefinitionsPage() {
                   </TableCell>
                 )}
                 {t.isVisible("solved") && <TableCell>{r.solved_count ?? 0}</TableCell>}
+                {t.isVisible("skipped") && <TableCell>{r.skip_count ?? 0}</TableCell>}
                 {t.isVisible("created") && (
                   <TableCell className="text-xs text-muted-foreground">
                     {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
