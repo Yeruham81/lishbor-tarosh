@@ -23,11 +23,26 @@ export const Route = createFileRoute("/_authenticated/admin/messages")({
 });
 
 const statusHe = (s: string) =>
-  ({ new: "חדש", in_progress: "בטיפול", resolved: "טופל", closed: "סגור" }[s] ?? s);
+  ({ new: "חדש", in_progress: "בטיפול", resolved: "נפתר", closed: "סגור" }[s] ?? s);
+
+const TYPE_HE: Record<string, string> = {
+  bug: "תקלה",
+  complaint: "תלונה",
+  idea: "הצעה",
+  other: "אחר",
+};
+
+const TYPE_CLASS: Record<string, string> = {
+  bug: "bg-destructive/15 text-destructive border-destructive/30",
+  complaint: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40",
+  idea: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/40",
+  other: "bg-muted text-muted-foreground border-border",
+};
 
 const COLS = [
   { key: "name", label: "שם" },
   { key: "email", label: "אימייל" },
+  { key: "type", label: "סוג" },
   { key: "subject", label: "נושא" },
   { key: "message", label: "הודעה" },
   { key: "status", label: "סטטוס" },
