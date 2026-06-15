@@ -400,6 +400,7 @@ function DefinitionsPage() {
                   </TableCell>
                 )}
                 {t.isVisible("solved") && <TableCell>{r.solved_count ?? 0}</TableCell>}
+                {t.isVisible("skipped") && <TableCell>{r.skip_count ?? 0}</TableCell>}
                 {t.isVisible("created") && (
                   <TableCell className="text-xs text-muted-foreground">
                     {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
