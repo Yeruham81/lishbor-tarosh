@@ -207,7 +207,7 @@ export const adminEditSubmission = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.from("puzzle_submissions").update({
       edited_clue: data.edited_clue, edited_answer: data.edited_answer,
       edited_category: data.edited_category, admin_notes: data.admin_notes,
-    }).eq("id", data.id).eq("status", "pending");
+    }).eq("id", data.id).neq("status", "approved");
     if (error) throw new Error(error.message);
     return { ok: true };
   });
