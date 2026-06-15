@@ -116,8 +116,8 @@ function PlayersPage() {
   return (
     <div>
       <PageHeader
-        title="ניהול שחקנים"
-        description="כל השחקנים במערכת"
+        title="שחקנים"
+        description="ניהול המשתמשים הרשומים במערכת"
         actions={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -134,8 +134,8 @@ function PlayersPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         <StatCard label='סה"כ שחקנים' value={fmt(k.total_players)} tone="primary" />
         <StatCard label="פעילים השבוע" value={fmt(k.active_players)} tone="success" />
-        <StatCard label="נחסמו" value={fmt(k.blocked_players)} />
-        <StatCard label='סה"כ הגדרות נפתרו' value={fmt(k.total_solves)} />
+        <StatCard label="שחקנים שנחסמו" value={fmt(k.blocked_players)} />
+        <StatCard label='סה"כ הגדרות שנפתרו' value={fmt(k.total_solves)} />
       </div>
 
       <TableToolbar
