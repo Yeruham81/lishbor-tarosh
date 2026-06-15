@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Download } from "lucide-react";
+import { MoreHorizontal, Download, Trash2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -34,6 +34,7 @@ import {
   adminKpis,
   adminExport,
   adminBulkSetBlocked,
+  adminDeletePlayer,
 } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX } from "@/lib/admin-export";
 import { useAdminTable } from "@/hooks/use-admin-table";
