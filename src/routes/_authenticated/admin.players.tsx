@@ -351,6 +351,32 @@ function PlayersPage() {
 
       <PointsDialog target={pointsTarget} onClose={() => setPointsTarget(null)} onDone={invalidate} />
       <ViewDialog target={viewing} onClose={() => setViewing(null)} />
+
+      <Dialog open={!!confirmDelete} onOpenChange={(v) => { if (!v) setConfirmDelete(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>מחיקת שחקן</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 text-sm">
+            <p>האם למחוק לצמיתות את <strong>{confirmDelete?.display_name ?? confirmDelete?.username}</strong>?</p>
+            <p className="text-destructive">פעולה זו תמחק את חשבון השחקן וכל הנתונים הקשורים אליו. לא ניתן לשחזר.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDelete(null)}>ביטול</Button>
+            <Button
+              variant="destructive"
+              disabled={deletePlayer.isPending}
+              onClick={() => {
+                const id = confirmDelete?.id;
+                if (!id) return;
+                deletePlayer.mutate(id, { onSuccess: () => setConfirmDelete(null) });
+              }}
+            >
+              {deletePlayer.isPending ? "מוחק..." : "מחיקה לצמיתות"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
