@@ -90,7 +90,7 @@ function MessagesPage() {
     <div>
       <PageHeader
         title="פניות שהתקבלו"
-        description="הודעות שהגיעו מהאתר"
+        description="ניהול ההודעות שהתקבלו משחקנים"
         actions={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
