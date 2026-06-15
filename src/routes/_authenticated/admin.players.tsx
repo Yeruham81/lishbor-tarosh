@@ -356,7 +356,7 @@ function ViewDialog({ target, onClose }: { target: any | null; onClose: () => vo
               <span className="text-muted-foreground">אימייל:</span> {target.email ?? "—"}
             </div>
             <div>
-              <span className="text-muted-foreground">רמה:</span> {target.level ?? 1}
+              <span className="text-muted-foreground">שלב:</span> {target.level ?? 1}
             </div>
             <div>
               <span className="text-muted-foreground">ניקוד:</span> {target.total_score?.toLocaleString?.("he-IL") ?? 0}

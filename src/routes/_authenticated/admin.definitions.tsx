@@ -229,7 +229,7 @@ function DefinitionsPage() {
           },
           {
             key: "difficulty",
-            label: "רמה",
+            label: "קושי",
             value: t.filters.difficulty ?? "all",
             onChange: (v) => t.setFilter("difficulty", v),
             options: diffOptions,
@@ -253,7 +253,7 @@ function DefinitionsPage() {
               השבתה
             </Button>
             <Button size="sm" variant="outline" onClick={() => setBulkLevelOpen(true)}>
-              שינוי רמה
+              שינוי קושי
             </Button>
             <Button size="sm" variant="outline" onClick={() => setBulkCatOpen(true)}>
               שינוי קטגוריה
@@ -675,7 +675,7 @@ function BulkLevelDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>שינוי רמה למספר הגדרות</DialogTitle>
+          <DialogTitle>שינוי קושי למספר הגדרות</DialogTitle>
         </DialogHeader>
         <div className="space-y-1.5">
           <Label>רמת קושי</Label>
