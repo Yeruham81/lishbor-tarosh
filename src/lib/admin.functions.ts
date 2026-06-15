@@ -358,6 +358,23 @@ export const adminAdjustPoints = createServerFn({ method: "POST" })
     return { total };
   });
 
+export const adminDeletePlayer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ user_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    if (data.user_id === context.userId) throw new Error("cannot_delete_self");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Clean up rows that don't cascade through auth.users delete
+    await supabaseAdmin.from("feedback").delete().eq("user_id", data.user_id);
+    await supabaseAdmin.from("clue_ratings").delete().eq("user_id", data.user_id);
+    await supabaseAdmin.from("challenges").delete().eq("user_id", data.user_id);
+    // Delete the auth user; cascades through profiles, user_roles, game_progress, hint_usage, puzzle_submissions
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const adminSetBlocked = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({
