@@ -69,6 +69,7 @@ function PlayersPage() {
   const exportFn = useServerFn(adminExport);
   const kpisFn = useServerFn(adminKpis);
   const bulkBlockFn = useServerFn(adminBulkSetBlocked);
+  const deletePlayerFn = useServerFn(adminDeletePlayer);
 
   const queryArgs = {
     search: t.debouncedSearch || undefined,
