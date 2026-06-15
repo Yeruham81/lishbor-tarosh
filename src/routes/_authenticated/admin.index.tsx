@@ -155,7 +155,7 @@ function AdminDashboard() {
           <CardContent className="space-y-2">
             <AttentionRow count={lowSuccess.data?.length ?? 0} label="הגדרות עם אחוז הצלחה נמוך" tone="warning" />
             <AttentionRow count={highDis.data?.length ?? 0} label="הגדרות עם הרבה דיסלייקים" tone="destructive" />
-            <AttentionRow count={missingHint.data?.length ?? 0} label="חסר רמז" />
+            <AttentionRow count={highSkips.data?.length ?? 0} label="הגדרות עם הרבה דילוגים" tone="warning" />
             <AttentionRow count={missingExp.data?.length ?? 0} label="חסר הסבר" />
             <AttentionRow count={k.pending_submissions ?? 0} label="הצעות ממתינות לאישור" tone="warning" />
           </CardContent>
