@@ -265,12 +265,27 @@ export const adminListMessages = createServerFn({ method: "POST" })
     if (data.status !== "all") q = q.eq("status", data.status);
     if (data.search) {
       const s = data.search.replace(/[%,]/g, " ");
-      q = q.or(`name.ilike.%${s}%,email.ilike.%${s}%,subject.ilike.%${s}%,message.ilike.%${s}%`);
+      q = q.or(`subject.ilike.%${s}%,message.ilike.%${s}%,contact_email.ilike.%${s}%`);
     }
     q = q.order(data.sort_by, { ascending: data.sort_dir === "asc" }).range(data.offset, data.offset + data.limit - 1);
     const { data: rows, count, error } = await q;
     if (error) throw new Error(error.message);
-    return { rows: rows ?? [], total: count ?? 0 };
+    const userIds = Array.from(new Set((rows ?? []).map((r: any) => r.user_id).filter(Boolean)));
+    let profilesById: Record<string, any> = {};
+    if (userIds.length) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles").select("id, username, display_name, email").in("id", userIds);
+      profilesById = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p]));
+    }
+    const enriched = (rows ?? []).map((r: any) => {
+      const p = r.user_id ? profilesById[r.user_id] : null;
+      return {
+        ...r,
+        name: p?.display_name ?? p?.username ?? null,
+        email: p?.email ?? r.contact_email ?? null,
+      };
+    });
+    return { rows: enriched, total: count ?? 0 };
   });
 
 export const adminUpdateMessage = createServerFn({ method: "POST" })
