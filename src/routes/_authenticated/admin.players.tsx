@@ -99,6 +99,14 @@ function PlayersPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const deletePlayer = useMutation({
+    mutationFn: (user_id: string) => deletePlayerFn({ data: { user_id } }),
+    onSuccess: () => { toast.success("השחקן נמחק"); invalidate(); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
+
   const [pointsTarget, setPointsTarget] = useState<any | null>(null);
   const [viewing, setViewing] = useState<any | null>(null);
 
