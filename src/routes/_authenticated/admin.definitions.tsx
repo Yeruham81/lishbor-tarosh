@@ -152,8 +152,8 @@ function DefinitionsPage() {
   return (
     <div>
       <PageHeader
-        title="ניהול הגדרות"
-        description="כל ההגדרות במערכת"
+        title="הגדרות"
+        description="ניהול כל ההגדרות במערכת"
         actions={
           <>
             <Button variant="outline" onClick={() => setImportOpen(true)}>
