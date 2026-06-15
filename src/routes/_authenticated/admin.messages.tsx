@@ -97,7 +97,7 @@ function MessagesPage() {
     { label: "הכל", value: "all" },
     { label: "חדש", value: "new" },
     { label: "בטיפול", value: "in_progress" },
-    { label: "טופל", value: "resolved" },
+    { label: "נפתר", value: "resolved" },
     { label: "סגור", value: "closed" },
   ], []);
 
