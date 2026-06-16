@@ -153,6 +153,25 @@ export const adminRestoreDefinition = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
+
+// Permanent (hard) delete — removes the row and dependent ratings/hint usage.
+// Use with caution; this is irreversible.
+export const adminHardDeleteDefinition = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("clue_ratings").delete().eq("clue_id", data.id);
+    await supabaseAdmin.from("hint_usage").delete().eq("clue_id", data.id);
+    await supabaseAdmin.from("game_progress").delete().eq("clue_id", data.id);
+    const { error } = await supabaseAdmin.from("clues").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+
 // ============================================================
 // SUBMISSIONS
 // ============================================================
@@ -199,18 +218,25 @@ export const adminEditSubmission = createServerFn({ method: "POST" })
     edited_clue: z.string().max(2000).optional().nullable(),
     edited_answer: z.string().max(200).optional().nullable(),
     edited_category: z.string().max(100).optional().nullable(),
+    edited_explanation: z.string().max(2000).optional().nullable(),
+    edited_difficulty: z.number().int().min(1).max(5).optional().nullable(),
     admin_notes: z.string().max(2000).optional().nullable(),
   }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("puzzle_submissions").update({
-      edited_clue: data.edited_clue, edited_answer: data.edited_answer,
-      edited_category: data.edited_category, admin_notes: data.admin_notes,
-    }).eq("id", data.id).neq("status", "approved");
+      edited_clue: data.edited_clue,
+      edited_answer: data.edited_answer,
+      edited_category: data.edited_category,
+      edited_explanation: data.edited_explanation,
+      edited_difficulty: data.edited_difficulty,
+      admin_notes: data.admin_notes,
+    } as any).eq("id", data.id).neq("status", "approved");
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const adminApproveSubmission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -429,8 +455,39 @@ export const getSubmissionsEnabled = createServerFn({ method: "GET" })
     const { data } = await supabaseAdmin
       .from("app_settings").select("value").eq("key", "allow_player_submissions").maybeSingle();
     const v = data?.value;
-    return { enabled: v === true || v === "true" || v === null || v === undefined ? (v ?? true) === true || v === "true" || v == null : false };
+    const enabled = v === true || v === "true" || v === null || v === undefined;
+    return { enabled };
   });
+
+// Public read for safe, non-sensitive settings the client/game UI needs to render correctly.
+// No auth required — only whitelisted keys are returned.
+const PUBLIC_SETTING_KEYS = [
+  "allow_skip",
+  "allow_hints",
+  "allow_player_submissions",
+  "allow_new_registrations",
+  "leaderboard_visible",
+  "max_wrong_attempts",
+  "base_points_per_definition",
+  "points_penalty_per_mistake",
+  "points_penalty_per_hint",
+  "global_announcement_banner",
+  "popup_announcement_text",
+  "minimum_supported_app_version",
+] as const;
+
+export const getPublicSettings = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("app_settings")
+      .select("key,value")
+      .in("key", PUBLIC_SETTING_KEYS as unknown as string[]);
+    const out: Record<string, any> = {};
+    for (const row of data ?? []) out[row.key] = row.value;
+    return out;
+  });
+
 
 // ============================================================
 // ANALYTICS / KPIs

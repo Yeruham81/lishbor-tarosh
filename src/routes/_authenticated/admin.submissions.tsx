@@ -21,6 +21,8 @@ import {
 } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX } from "@/lib/admin-export";
 import { useAdminTable } from "@/hooks/use-admin-table";
+import { useGlobalSearchSync } from "@/components/admin/admin-search-context";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/admin/submissions")({
   component: SubmissionsPage,
@@ -42,6 +44,7 @@ const COLS = [
 function SubmissionsPage() {
   const qc = useQueryClient();
   const t = useAdminTable("submissions", { defaultSort: "created_at", defaultPageSize: 20, defaultFilters: { status: "pending" } });
+  useGlobalSearchSync(t.setSearch);
 
   const listFn = useServerFn(adminListSubmissions);
   const approveFn = useServerFn(adminApproveSubmission);
@@ -245,13 +248,25 @@ function EditDialog({ sub, onClose, onSaved }: { sub: any | null; onClose: () =>
       _id: sub.id,
       edited_clue: sub.edited_clue ?? sub.clue_text ?? "",
       edited_answer: sub.edited_answer ?? sub.suggested_answer ?? "",
+      edited_explanation: sub.edited_explanation ?? "",
       edited_category: sub.edited_category ?? sub.category ?? "",
+      edited_difficulty: sub.edited_difficulty ?? 1,
       admin_notes: sub.admin_notes ?? "",
     });
   }
   const save = async () => {
     try {
-      await editFn({ data: { id: sub.id, ...form, _id: undefined } as any });
+      await editFn({
+        data: {
+          id: sub.id,
+          edited_clue: form.edited_clue || null,
+          edited_answer: form.edited_answer || null,
+          edited_explanation: form.edited_explanation || null,
+          edited_category: form.edited_category || null,
+          edited_difficulty: Number(form.edited_difficulty) || null,
+          admin_notes: form.admin_notes || null,
+        } as any,
+      });
       toast.success("עודכן");
       onSaved();
     } catch (e: any) { toast.error(e.message); }
@@ -267,8 +282,21 @@ function EditDialog({ sub, onClose, onSaved }: { sub: any | null; onClose: () =>
           <div className="space-y-1.5"><Label>פתרון</Label>
             <Input value={form.edited_answer ?? ""} onChange={(e) => setForm({ ...form, edited_answer: e.target.value })} />
           </div>
-          <div className="space-y-1.5"><Label>קטגוריה</Label>
-            <Input value={form.edited_category ?? ""} onChange={(e) => setForm({ ...form, edited_category: e.target.value })} />
+          <div className="space-y-1.5"><Label>הסבר</Label>
+            <Textarea value={form.edited_explanation ?? ""} onChange={(e) => setForm({ ...form, edited_explanation: e.target.value })} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5"><Label>קטגוריה</Label>
+              <Input value={form.edited_category ?? ""} onChange={(e) => setForm({ ...form, edited_category: e.target.value })} />
+            </div>
+            <div className="space-y-1.5"><Label>קושי (1-5)</Label>
+              <Select value={String(form.edited_difficulty ?? 1)} onValueChange={(v) => setForm({ ...form, edited_difficulty: Number(v) })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="space-y-1.5"><Label>הערות פנימיות</Label>
             <Textarea value={form.admin_notes ?? ""} onChange={(e) => setForm({ ...form, admin_notes: e.target.value })} />

@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { adminListMessages, adminUpdateMessage, adminExport } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX } from "@/lib/admin-export";
 import { useAdminTable } from "@/hooks/use-admin-table";
+import { useGlobalSearchSync } from "@/components/admin/admin-search-context";
 
 export const Route = createFileRoute("/_authenticated/admin/messages")({
   component: MessagesPage,
@@ -52,6 +53,7 @@ const COLS = [
 function MessagesPage() {
   const qc = useQueryClient();
   const t = useAdminTable("messages", { defaultSort: "created_at", defaultPageSize: 20, defaultFilters: { status: "all" } });
+  useGlobalSearchSync(t.setSearch);
 
   const listFn = useServerFn(adminListMessages);
   const updateFn = useServerFn(adminUpdateMessage);

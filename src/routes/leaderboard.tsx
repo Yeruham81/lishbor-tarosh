@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { getLeaderboardByPeriod } from "@/lib/game.functions";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Trophy, Medal, Award } from "lucide-react";
+import { useFeatureFlags } from "@/hooks/use-public-settings";
 
 export const Route = createFileRoute("/leaderboard")({ component: LB });
 
@@ -23,6 +24,19 @@ function LB() {
   const navigate = useNavigate();
   useEffect(() => { if (!loading && !user) navigate({ to: "/auth" }); }, [user, loading, navigate]);
   const [period, setPeriod] = useState<Period>("today");
+  const flags = useFeatureFlags();
+
+  if (!flags.loading && !flags.leaderboardVisible) {
+    return (
+      <AppShell>
+        <div className="container mx-auto px-4 py-16 max-w-2xl text-center">
+          <Trophy className="size-12 mx-auto text-muted-foreground mb-3" />
+          <h1 className="font-display text-2xl font-bold mb-2">טבלת המובילים אינה זמינה כעת</h1>
+          <p className="text-muted-foreground">מנהל המערכת הסתיר את הלוח באופן זמני.</p>
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>

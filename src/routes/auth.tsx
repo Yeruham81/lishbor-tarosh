@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { useFeatureFlags } from "@/hooks/use-public-settings";
 
 export const Route = createFileRoute("/auth")({ component: AuthPage });
 
@@ -16,6 +17,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const flags = useFeatureFlags();
 
   useEffect(() => {
     if (user) navigate({ to: "/play", replace: true });
@@ -34,6 +36,7 @@ function AuthPage() {
         toast.success("שלחנו לכם מייל לאיפוס הסיסמה. בדקו את תיבת הדואר.");
         setMode("signin");
       } else if (mode === "signup") {
+        if (!flags.allowNewRegistrations) throw new Error("הרשמות חדשות מושבתות זמנית");
         if (password.length < 6) throw new Error("הסיסמה חייבת להכיל לפחות 6 תווים");
         const { error } = await supabase.auth.signUp({
           email, password,
@@ -117,11 +120,13 @@ function AuthPage() {
             </button>
           )}
 
-          <button type="button" onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="w-full mt-2 text-sm text-muted-foreground hover:text-foreground">
-            {mode === "forgot" ? "← חזרה להתחברות"
-              : mode === "signin" ? "עדיין לא נרשמתם? לחצו כאן"
-              : "כבר נרשמתם? לחצו כאן כדי להתחבר"}
-          </button>
+          {(flags.allowNewRegistrations || mode === "forgot") && (
+            <button type="button" onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="w-full mt-2 text-sm text-muted-foreground hover:text-foreground">
+              {mode === "forgot" ? "← חזרה להתחברות"
+                : mode === "signin" ? "עדיין לא נרשמתם? לחצו כאן"
+                : "כבר נרשמתם? לחצו כאן כדי להתחבר"}
+            </button>
+          )}
         </div>
         <div className="text-center mt-4"><Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← חזרה למסך הבית</Link></div>
       </div>

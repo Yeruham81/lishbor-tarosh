@@ -32,6 +32,7 @@ import {
   adminUpsertDefinition,
   adminSetDefinitionStatus,
   adminSoftDeleteDefinition,
+  adminHardDeleteDefinition,
   adminRestoreDefinition,
   adminImportDefinitions,
   adminExport,
@@ -43,6 +44,7 @@ import {
 } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX, parseFile } from "@/lib/admin-export";
 import { useAdminTable } from "@/hooks/use-admin-table";
+import { useGlobalSearchSync } from "@/components/admin/admin-search-context";
 
 export const Route = createFileRoute("/_authenticated/admin/definitions")({
   component: DefinitionsPage,
@@ -73,11 +75,13 @@ function DefinitionsPage() {
     defaultPageSize: 20,
     defaultFilters: { status: "all", category: "all", difficulty: "all" },
   });
+  useGlobalSearchSync(t.setSearch);
 
   const listFn = useServerFn(adminListDefinitions);
   const upsertFn = useServerFn(adminUpsertDefinition);
   const setStatusFn = useServerFn(adminSetDefinitionStatus);
   const softDelFn = useServerFn(adminSoftDeleteDefinition);
+  const hardDelFn = useServerFn(adminHardDeleteDefinition);
   const restoreFn = useServerFn(adminRestoreDefinition);
   const catsFn = useServerFn(adminListCategories);
   const bulkStatusFn = useServerFn(adminBulkSetDefinitionStatus);
@@ -123,7 +127,15 @@ function DefinitionsPage() {
   const softDel = useMutation({
     mutationFn: (id: string) => softDelFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("ההגדרה נמחקה");
+      toast.success("ההגדרה הועברה לארכיון");
+      invalidate();
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+  const hardDel = useMutation({
+    mutationFn: (id: string) => hardDelFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("ההגדרה נמחקה לצמיתות");
       invalidate();
     },
     onError: (e: any) => toast.error(e.message),
@@ -279,6 +291,7 @@ function DefinitionsPage() {
               </Button>
             </DialogTrigger>
             <DefinitionModal
+              key={editing?.id ?? "new"}
               initial={editing}
               onSave={async (payload) => {
                 try {
@@ -414,8 +427,11 @@ function DefinitionsPage() {
                       setOpen(true);
                     }}
                     onSetStatus={(s) => setStatus.mutate({ id: r.id, status: s })}
-                    onDelete={() => {
-                      if (window.confirm("למחוק את ההגדרה?")) softDel.mutate(r.id);
+                    onArchive={() => {
+                      if (window.confirm("להעביר את ההגדרה לארכיון? ניתן יהיה לשחזר.")) softDel.mutate(r.id);
+                    }}
+                    onHardDelete={() => {
+                      if (window.confirm("מחיקה לצמיתות — לא ניתן לשחזר. להמשיך?")) hardDel.mutate(r.id);
                     }}
                     onRestore={() => restore.mutate(r.id)}
                     onDuplicate={() => duplicate.mutate(r.id)}
@@ -509,14 +525,16 @@ function RowActions({
   row,
   onEdit,
   onSetStatus,
-  onDelete,
+  onArchive,
+  onHardDelete,
   onRestore,
   onDuplicate,
 }: {
   row: any;
   onEdit: () => void;
   onSetStatus: (s: any) => void;
-  onDelete: () => void;
+  onArchive: () => void;
+  onHardDelete: () => void;
   onRestore: () => void;
   onDuplicate: () => void;
 }) {
@@ -537,15 +555,15 @@ function RowActions({
         <DropdownMenuItem onClick={() => onSetStatus(row.status === "hidden" ? "active" : "hidden")}>
           {row.status === "hidden" ? "ביטול הסתרה" : "הסתרה"}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onSetStatus("archived")}>העברה לארכיון</DropdownMenuItem>
         <DropdownMenuSeparator />
-        {row.deleted_at ? (
+        {row.deleted_at || row.status === "archived" ? (
           <DropdownMenuItem onClick={onRestore}>שחזור</DropdownMenuItem>
         ) : (
-          <DropdownMenuItem className="text-destructive" onClick={onDelete}>
-            מחיקה
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onArchive}>העברה לארכיון</DropdownMenuItem>
         )}
+        <DropdownMenuItem className="text-destructive" onClick={onHardDelete}>
+          מחיקה לצמיתות
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
