@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { AdminSearchProvider, useAdminSearchContext } from "@/components/admin/admin-search-context";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
