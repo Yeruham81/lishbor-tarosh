@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { getLeaderboardByPeriod } from "@/lib/game.functions";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Trophy, Medal, Award } from "lucide-react";
+import { useFeatureFlags } from "@/hooks/use-public-settings";
 
 export const Route = createFileRoute("/leaderboard")({ component: LB });
 
