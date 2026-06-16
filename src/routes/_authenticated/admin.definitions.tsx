@@ -127,7 +127,15 @@ function DefinitionsPage() {
   const softDel = useMutation({
     mutationFn: (id: string) => softDelFn({ data: { id } }),
     onSuccess: () => {
-      toast.success("ההגדרה נמחקה");
+      toast.success("ההגדרה הועברה לארכיון");
+      invalidate();
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+  const hardDel = useMutation({
+    mutationFn: (id: string) => hardDelFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("ההגדרה נמחקה לצמיתות");
       invalidate();
     },
     onError: (e: any) => toast.error(e.message),
