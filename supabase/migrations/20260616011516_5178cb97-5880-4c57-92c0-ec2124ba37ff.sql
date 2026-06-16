@@ -1,0 +1,1 @@
+ALTER VIEW public.clue_health SET (security_invoker = true);
