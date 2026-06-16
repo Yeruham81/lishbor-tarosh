@@ -6,7 +6,7 @@ DROP POLICY IF EXISTS profiles_select ON public.profiles;
 CREATE POLICY profiles_select_public ON public.profiles
   FOR SELECT
   TO authenticated
-USING (auth.uid() = id);
+  USING (is_private = false OR auth.uid() = id);
 
 -- Restrict column-level access to the email field: only the owner can read it.
 REVOKE SELECT (email) ON public.profiles FROM authenticated;
