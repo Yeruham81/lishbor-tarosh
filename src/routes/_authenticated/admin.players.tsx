@@ -64,6 +64,8 @@ function PlayersPage() {
     defaultPageSize: 20,
     defaultFilters: { status: "all" },
   });
+  useGlobalSearchSync(t.setSearch);
+
 
   const listFn = useServerFn(adminListPlayers);
   const blockFn = useServerFn(adminSetBlocked);
