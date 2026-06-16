@@ -35,6 +35,7 @@ function AuthPage() {
         toast.success("שלחנו לכם מייל לאיפוס הסיסמה. בדקו את תיבת הדואר.");
         setMode("signin");
       } else if (mode === "signup") {
+        if (!flags.allowNewRegistrations) throw new Error("הרשמות חדשות מושבתות זמנית");
         if (password.length < 6) throw new Error("הסיסמה חייבת להכיל לפחות 6 תווים");
         const { error } = await supabase.auth.signUp({
           email, password,
