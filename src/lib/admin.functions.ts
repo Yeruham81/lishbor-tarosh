@@ -151,6 +151,9 @@ export const adminRestoreDefinition = createServerFn({ method: "POST" })
       .update({ deleted_at: null, status: "active" }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+
 
 // Permanent (hard) delete — removes the row and dependent ratings/hint usage.
 // Use with caution; this is irreversible.
