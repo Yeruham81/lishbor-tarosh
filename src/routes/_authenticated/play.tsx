@@ -238,21 +238,25 @@ function Play() {
                   נקודות: <b className="text-foreground">{clue.currentScore}</b>
                 </div>
                 <div className="flex gap-2 justify-center">
-                  <button
-                    onClick={onHint}
-                    disabled={busy || clue.wrong.length < 2}
-                    title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                  >
-                    <Lightbulb className="size-4" /> רמז
-                  </button>
-                  <button
-                    onClick={onSkip}
-                    disabled={busy}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-sm hover:bg-muted transition disabled:opacity-50"
-                  >
-                    <SkipForward className="size-4" /> דלג
-                  </button>
+                  {flags.allowHints && (
+                    <button
+                      onClick={onHint}
+                      disabled={busy || clue.wrong.length < 2}
+                      title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                    >
+                      <Lightbulb className="size-4" /> רמז
+                    </button>
+                  )}
+                  {flags.allowSkip && (
+                    <button
+                      onClick={onSkip}
+                      disabled={busy}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-sm hover:bg-muted transition disabled:opacity-50"
+                    >
+                      <SkipForward className="size-4" /> דלג
+                    </button>
+                  )}
                 </div>
                 <div className="flex gap-1.5 justify-self-end" aria-label="טעויות">
                   {[0, 1, 2].map((i) => (
