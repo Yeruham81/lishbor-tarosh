@@ -75,6 +75,7 @@ function DefinitionsPage() {
     defaultPageSize: 20,
     defaultFilters: { status: "all", category: "all", difficulty: "all" },
   });
+  useGlobalSearchSync(t.setSearch);
 
   const listFn = useServerFn(adminListDefinitions);
   const upsertFn = useServerFn(adminUpsertDefinition);
