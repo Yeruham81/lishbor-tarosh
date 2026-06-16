@@ -151,7 +151,23 @@ export const adminRestoreDefinition = createServerFn({ method: "POST" })
       .update({ deleted_at: null, status: "active" }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+
+// Permanent (hard) delete — removes the row and dependent ratings/hint usage.
+// Use with caution; this is irreversible.
+export const adminHardDeleteDefinition = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("clue_ratings").delete().eq("clue_id", data.id);
+    await supabaseAdmin.from("hint_usage").delete().eq("clue_id", data.id);
+    await supabaseAdmin.from("game_progress").delete().eq("clue_id", data.id);
+    const { error } = await supabaseAdmin.from("clues").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
+
 
 // ============================================================
 // SUBMISSIONS
