@@ -427,8 +427,11 @@ function DefinitionsPage() {
                       setOpen(true);
                     }}
                     onSetStatus={(s) => setStatus.mutate({ id: r.id, status: s })}
-                    onDelete={() => {
-                      if (window.confirm("למחוק את ההגדרה?")) softDel.mutate(r.id);
+                    onArchive={() => {
+                      if (window.confirm("להעביר את ההגדרה לארכיון? ניתן יהיה לשחזר.")) softDel.mutate(r.id);
+                    }}
+                    onHardDelete={() => {
+                      if (window.confirm("מחיקה לצמיתות — לא ניתן לשחזר. להמשיך?")) hardDel.mutate(r.id);
                     }}
                     onRestore={() => restore.mutate(r.id)}
                     onDuplicate={() => duplicate.mutate(r.id)}
