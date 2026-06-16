@@ -53,6 +53,7 @@ const COLS = [
 function MessagesPage() {
   const qc = useQueryClient();
   const t = useAdminTable("messages", { defaultSort: "created_at", defaultPageSize: 20, defaultFilters: { status: "all" } });
+  useGlobalSearchSync(t.setSearch);
 
   const listFn = useServerFn(adminListMessages);
   const updateFn = useServerFn(adminUpdateMessage);
