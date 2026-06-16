@@ -33,6 +33,7 @@ function Play() {
   const doHint = useServerFn(useHint);
   const doSkip = useServerFn(skipClue);
   const qc = useQueryClient();
+  const flags = useFeatureFlags();
 
   // localStorage key — per-user so different accounts on the same browser don't collide.
   const storageKey = user ? `play:currentClueId:${user.id}` : null;
