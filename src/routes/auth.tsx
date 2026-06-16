@@ -17,6 +17,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const flags = useFeatureFlags();
 
   useEffect(() => {
     if (user) navigate({ to: "/play", replace: true });
