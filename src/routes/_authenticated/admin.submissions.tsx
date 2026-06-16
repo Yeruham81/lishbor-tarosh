@@ -44,6 +44,7 @@ const COLS = [
 function SubmissionsPage() {
   const qc = useQueryClient();
   const t = useAdminTable("submissions", { defaultSort: "created_at", defaultPageSize: 20, defaultFilters: { status: "pending" } });
+  useGlobalSearchSync(t.setSearch);
 
   const listFn = useServerFn(adminListSubmissions);
   const approveFn = useServerFn(adminApproveSubmission);
