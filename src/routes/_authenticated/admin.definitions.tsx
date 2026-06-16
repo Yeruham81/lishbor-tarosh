@@ -291,6 +291,7 @@ function DefinitionsPage() {
               </Button>
             </DialogTrigger>
             <DefinitionModal
+              key={editing?.id ?? "new"}
               initial={editing}
               onSave={async (payload) => {
                 try {
