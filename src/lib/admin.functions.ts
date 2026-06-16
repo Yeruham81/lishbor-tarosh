@@ -218,18 +218,25 @@ export const adminEditSubmission = createServerFn({ method: "POST" })
     edited_clue: z.string().max(2000).optional().nullable(),
     edited_answer: z.string().max(200).optional().nullable(),
     edited_category: z.string().max(100).optional().nullable(),
+    edited_explanation: z.string().max(2000).optional().nullable(),
+    edited_difficulty: z.number().int().min(1).max(5).optional().nullable(),
     admin_notes: z.string().max(2000).optional().nullable(),
   }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("puzzle_submissions").update({
-      edited_clue: data.edited_clue, edited_answer: data.edited_answer,
-      edited_category: data.edited_category, admin_notes: data.admin_notes,
-    }).eq("id", data.id).neq("status", "approved");
+      edited_clue: data.edited_clue,
+      edited_answer: data.edited_answer,
+      edited_category: data.edited_category,
+      edited_explanation: data.edited_explanation,
+      edited_difficulty: data.edited_difficulty,
+      admin_notes: data.admin_notes,
+    } as any).eq("id", data.id).neq("status", "approved");
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const adminApproveSubmission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
