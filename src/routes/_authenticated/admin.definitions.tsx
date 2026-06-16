@@ -525,14 +525,16 @@ function RowActions({
   row,
   onEdit,
   onSetStatus,
-  onDelete,
+  onArchive,
+  onHardDelete,
   onRestore,
   onDuplicate,
 }: {
   row: any;
   onEdit: () => void;
   onSetStatus: (s: any) => void;
-  onDelete: () => void;
+  onArchive: () => void;
+  onHardDelete: () => void;
   onRestore: () => void;
   onDuplicate: () => void;
 }) {
@@ -553,15 +555,15 @@ function RowActions({
         <DropdownMenuItem onClick={() => onSetStatus(row.status === "hidden" ? "active" : "hidden")}>
           {row.status === "hidden" ? "ביטול הסתרה" : "הסתרה"}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onSetStatus("archived")}>העברה לארכיון</DropdownMenuItem>
         <DropdownMenuSeparator />
-        {row.deleted_at ? (
+        {row.deleted_at || row.status === "archived" ? (
           <DropdownMenuItem onClick={onRestore}>שחזור</DropdownMenuItem>
         ) : (
-          <DropdownMenuItem className="text-destructive" onClick={onDelete}>
-            מחיקה
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onArchive}>העברה לארכיון</DropdownMenuItem>
         )}
+        <DropdownMenuItem className="text-destructive" onClick={onHardDelete}>
+          מחיקה לצמיתות
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
