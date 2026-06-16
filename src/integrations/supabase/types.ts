@@ -449,6 +449,8 @@ export type Database = {
           edited_answer: string | null
           edited_category: string | null
           edited_clue: string | null
+          edited_difficulty: number | null
+          edited_explanation: string | null
           id: string
           notes: string | null
           points_awarded: number
@@ -468,6 +470,8 @@ export type Database = {
           edited_answer?: string | null
           edited_category?: string | null
           edited_clue?: string | null
+          edited_difficulty?: number | null
+          edited_explanation?: string | null
           id?: string
           notes?: string | null
           points_awarded?: number
@@ -487,6 +491,8 @@ export type Database = {
           edited_answer?: string | null
           edited_category?: string | null
           edited_clue?: string | null
+          edited_difficulty?: number | null
+          edited_explanation?: string | null
           id?: string
           notes?: string | null
           points_awarded?: number
