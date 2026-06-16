@@ -38,6 +38,7 @@ import {
 } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX } from "@/lib/admin-export";
 import { useAdminTable } from "@/hooks/use-admin-table";
+import { useGlobalSearchSync } from "@/components/admin/admin-search-context";
 
 export const Route = createFileRoute("/_authenticated/admin/players")({
   component: PlayersPage,
