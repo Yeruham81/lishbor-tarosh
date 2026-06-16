@@ -81,6 +81,7 @@ function DefinitionsPage() {
   const upsertFn = useServerFn(adminUpsertDefinition);
   const setStatusFn = useServerFn(adminSetDefinitionStatus);
   const softDelFn = useServerFn(adminSoftDeleteDefinition);
+  const hardDelFn = useServerFn(adminHardDeleteDefinition);
   const restoreFn = useServerFn(adminRestoreDefinition);
   const catsFn = useServerFn(adminListCategories);
   const bulkStatusFn = useServerFn(adminBulkSetDefinitionStatus);
