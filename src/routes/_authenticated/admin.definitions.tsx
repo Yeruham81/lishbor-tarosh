@@ -32,6 +32,7 @@ import {
   adminUpsertDefinition,
   adminSetDefinitionStatus,
   adminSoftDeleteDefinition,
+  adminHardDeleteDefinition,
   adminRestoreDefinition,
   adminImportDefinitions,
   adminExport,
@@ -43,6 +44,7 @@ import {
 } from "@/lib/admin.functions";
 import { downloadCSV, downloadXLSX, parseFile } from "@/lib/admin-export";
 import { useAdminTable } from "@/hooks/use-admin-table";
+import { useGlobalSearchSync } from "@/components/admin/admin-search-context";
 
 export const Route = createFileRoute("/_authenticated/admin/definitions")({
   component: DefinitionsPage,
