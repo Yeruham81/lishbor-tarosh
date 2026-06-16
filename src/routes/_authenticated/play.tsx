@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Lightbulb, SkipForward } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { GameTopBar } from "@/components/GameTopBar";
+import { useFeatureFlags } from "@/hooks/use-public-settings";
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
 
