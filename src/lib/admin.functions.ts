@@ -455,8 +455,39 @@ export const getSubmissionsEnabled = createServerFn({ method: "GET" })
     const { data } = await supabaseAdmin
       .from("app_settings").select("value").eq("key", "allow_player_submissions").maybeSingle();
     const v = data?.value;
-    return { enabled: v === true || v === "true" || v === null || v === undefined ? (v ?? true) === true || v === "true" || v == null : false };
+    const enabled = v === true || v === "true" || v === null || v === undefined;
+    return { enabled };
   });
+
+// Public read for safe, non-sensitive settings the client/game UI needs to render correctly.
+// No auth required — only whitelisted keys are returned.
+const PUBLIC_SETTING_KEYS = [
+  "allow_skip",
+  "allow_hints",
+  "allow_player_submissions",
+  "allow_new_registrations",
+  "leaderboard_visible",
+  "max_wrong_attempts",
+  "base_points_per_definition",
+  "points_penalty_per_mistake",
+  "points_penalty_per_hint",
+  "global_announcement_banner",
+  "popup_announcement_text",
+  "minimum_supported_app_version",
+] as const;
+
+export const getPublicSettings = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("app_settings")
+      .select("key,value")
+      .in("key", PUBLIC_SETTING_KEYS as unknown as string[]);
+    const out: Record<string, any> = {};
+    for (const row of data ?? []) out[row.key] = row.value;
+    return out;
+  });
+
 
 // ============================================================
 // ANALYTICS / KPIs
