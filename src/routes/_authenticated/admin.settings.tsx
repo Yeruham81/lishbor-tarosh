@@ -159,15 +159,6 @@ function SettingsPage() {
         />
 
         <Section
-          title="מנגנון מיתון תוכן"
-          description="כללי הסתרה והצגה אוטומטיים"
-          fields={MODERATION_FIELDS}
-          values={data}
-          loading={settings.isLoading}
-          onSave={saveMany}
-        />
-
-        <Section
           title="הודעות ותוכן"
           description="טקסטים גלובליים שמוצגים לשחקנים"
           fields={CONTENT_FIELDS}
@@ -178,14 +169,13 @@ function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">גיבוי וייצוא מלא</CardTitle>
+            <CardTitle className="text-base">גיבוי וייצוא</CardTitle>
             <CardDescription>הורדת תמונת מצב של המערכת</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <BackupRow label="הגדרות (כולל מחוקות)" onClick={() => runSnapshot("definitions")} />
-            <BackupRow label="הגדרות מוצעות" onClick={() => runSnapshot("submissions")} />
+            <BackupRow label="הגדרות" onClick={() => runSnapshot("definitions")} />
             <BackupRow label="שחקנים" onClick={() => runSnapshot("players")} />
-            <BackupRow label="תמונת מצב מלאה (כל הנתונים)" onClick={() => runSnapshot("snapshot")} />
+            <BackupRow label="כל בסיס הנתונים" onClick={() => runSnapshot("snapshot")} />
           </CardContent>
         </Card>
       </div>
