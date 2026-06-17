@@ -4,10 +4,10 @@
 
 export const SCORING = {
   BASE_POINTS: 10,
-  FREE_WRONGS: 3,         // first N wrong letters cost nothing
-  WRONG_PENALTY: 1,       // subtracted per wrong letter beyond FREE_WRONGS
-  HINT_PENALTY: 2,        // subtracted per hint used
-  MIN_SOLVE_SCORE: 2,     // minimum score for a solved definition
+  FREE_WRONGS: 3, // first N wrong letters cost nothing
+  WRONG_PENALTY: 1, // subtracted per wrong letter beyond FREE_WRONGS
+  HINT_PENALTY: 2, // subtracted per hint used
+  MIN_SOLVE_SCORE: 2, // minimum score for a solved definition
   SKIP_SCORE: 0,
 } as const;
 
@@ -23,26 +23,26 @@ export const PERFECT_STREAK_BONUSES: Record<number, number> = {
 // Cumulative total_score needed to UNLOCK each stage. Stage 1 = 0.
 // Index 0 unused; STAGE_THRESHOLDS[n] = score needed to reach stage n.
 export const STAGE_THRESHOLDS: number[] = [
-  0,      // stage 1
-  50,     // stage 2
-  150,    // stage 3
-  300,    // stage 4
-  500,    // stage 5
-  750,    // stage 6
-  1050,   // stage 7
-  1400,   // stage 8
-  1800,   // stage 9
-  2300,   // stage 10
-  2850,   // 11
-  3450,   // 12
-  4100,   // 13
-  4800,   // 14
-  5550,   // 15
-  6350,   // 16
-  7200,   // 17
-  8100,   // 18
-  9050,   // 19
-  10050,  // 20
+  0, // stage 1
+  50, // stage 2
+  150, // stage 3
+  300, // stage 4
+  500, // stage 5
+  750, // stage 6
+  1050, // stage 7
+  1400, // stage 8
+  1800, // stage 9
+  2300, // stage 10
+  2850, // 11
+  3450, // 12
+  4100, // 13
+  4800, // 14
+  5550, // 15
+  6350, // 16
+  7200, // 17
+  8100, // 18
+  9050, // 19
+  10050, // 20
 ];
 
 // Compute earned score for a solved definition.
@@ -99,13 +99,19 @@ export type AchievementDef = {
   id: string;
   category: AchievementCategory;
   threshold: number;
-  title: string;       // Hebrew
+  title: string; // Hebrew
   description: string; // Hebrew
 };
 
-function solvedTitle(n: number) { return `${n.toLocaleString("he-IL")} הגדרות פתורות`; }
-function perfectTitle(n: number) { return `${n.toLocaleString("he-IL")} פתירות מושלמות`; }
-function daysTitle(n: number) { return `${n.toLocaleString("he-IL")} ימים רצופים`; }
+function solvedTitle(n: number) {
+  return `${n.toLocaleString("he-IL")} הגדרות פתורות`;
+}
+function perfectTitle(n: number) {
+  return `${n.toLocaleString("he-IL")} פתירות מושלמות`;
+}
+function daysTitle(n: number) {
+  return `${n.toLocaleString("he-IL")} ימים רצופים`;
+}
 
 export function buildAchievementDefs(): AchievementDef[] {
   const out: AchievementDef[] = [];
@@ -124,7 +130,7 @@ export function buildAchievementDefs(): AchievementDef[] {
       category: "perfect",
       threshold: n,
       title: perfectTitle(n),
-      description: `פתרו ${n.toLocaleString("he-IL")} הגדרות ללא רמזים ועם עד 3 טעויות`,
+      description: `פתרו ${n.toLocaleString("he-IL")} הגדרות עם ניקוד מושלם`,
     });
   }
   for (const n of ACHIEVEMENT_TIERS.play_days) {
