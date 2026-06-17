@@ -33,5 +33,6 @@ export function useFeatureFlags() {
     allowNewRegistrations: asBool(s.allow_new_registrations, true),
     leaderboardVisible: asBool(s.leaderboard_visible, true),
     globalAnnouncement: typeof s.global_announcement_banner === "string" ? s.global_announcement_banner : "",
+    popupAnnouncement: typeof s.popup_announcement_text === "string" ? s.popup_announcement_text : "",
   };
 }
