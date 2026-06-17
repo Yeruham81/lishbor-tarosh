@@ -55,6 +55,7 @@ function SubmissionsPage() {
   const bulkRejectFn = useServerFn(adminBulkRejectSubmissions);
 
   const [editing, setEditing] = useState<any | null>(null);
+  const [previewing, setPreviewing] = useState<any | null>(null);
 
   const queryArgs = {
     status: (t.filters.status as any) || "pending",
