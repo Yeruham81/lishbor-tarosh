@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
 const NAV: NavItem[] = [
-  { to: "/admin", label: "לוח הבקרה", icon: LayoutDashboard, exact: true },
+  { to: "/admin", label: "מרכז הבקרה", icon: LayoutDashboard, exact: true },
   { to: "/admin/definitions", label: "הגדרות", icon: FileText },
   { to: "/admin/submissions", label: "הגדרות מוצעות", icon: Inbox },
   { to: "/admin/players", label: "שחקנים", icon: Users },
