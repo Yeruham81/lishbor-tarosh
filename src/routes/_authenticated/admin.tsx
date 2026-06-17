@@ -25,13 +25,13 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
 const NAV: NavItem[] = [
-  { to: "/admin", label: "לוח הבקרה", icon: LayoutDashboard, exact: true },
+  { to: "/admin", label: "ניהול המשחק", icon: LayoutDashboard, exact: true },
   { to: "/admin/definitions", label: "הגדרות", icon: FileText },
   { to: "/admin/submissions", label: "הגדרות מוצעות", icon: Inbox },
   { to: "/admin/players", label: "שחקנים", icon: Users },
   { to: "/admin/messages", label: "פניות שהתקבלו", icon: Mail },
   { to: "/admin/taxonomy", label: "תגיות", icon: Tags },
-  { to: "/admin/settings", label: "לוח הבקרה", icon: SettingsIcon },
+  { to: "/admin/settings", label: "ניהול המשחק", icon: SettingsIcon },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {

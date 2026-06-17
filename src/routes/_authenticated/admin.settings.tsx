@@ -135,7 +135,7 @@ function SettingsPage() {
 
   return (
     <div>
-      <PageHeader title="לוח הבקרה" description="ניהול הגדרות המערכת והמשחק" />
+      <PageHeader title="ניהול המשחק" description="ניהול הגדרות המערכת והמשחק" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Section
