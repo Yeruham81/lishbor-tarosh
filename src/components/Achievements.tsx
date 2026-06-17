@@ -15,11 +15,17 @@ export type AchievementStats = {
   perfectSolves: number;
   playDaysStreak: number; // use current_play_days_streak (consecutive)
   bestPlayDaysStreak?: number;
+  bestPerfectStreak?: number;
+  currentPerfectStreak?: number;
 };
 
 function valueFor(category: AchievementCategory, s: AchievementStats): number {
   if (category === "solved") return s.solvedCount;
   if (category === "perfect") return s.perfectSolves;
+  if (category === "perfect_streak") {
+    // Use best run so completed tiers don't un-complete when streak resets.
+    return Math.max(s.currentPerfectStreak ?? 0, s.bestPerfectStreak ?? 0);
+  }
   // For consecutive-day achievements, use the best run reached so they don't
   // un-complete when the user misses a day.
   return Math.max(s.playDaysStreak, s.bestPlayDaysStreak ?? 0);
@@ -46,7 +52,7 @@ export function groupAchievementsForDisplay(
   s: AchievementStats,
 ): { category: AchievementCategory; label: string; items: AchievementView[]; nextRemainingLabel: string | null }[] {
   const all = buildAchievementsForStats(s);
-  const cats: AchievementCategory[] = ["solved", "perfect", "play_days"];
+  const cats: AchievementCategory[] = ["solved", "perfect", "perfect_streak", "play_days"];
   return cats.map((cat) => {
     const inCat = all.filter((a) => a.category === cat).sort((a, b) => a.threshold - b.threshold);
     const completed = inCat.filter((a) => a.done);

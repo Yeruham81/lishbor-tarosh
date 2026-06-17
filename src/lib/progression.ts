@@ -87,11 +87,12 @@ export function perfectStreakBonus(newStreak: number): number {
 }
 
 // ---------- Achievements ----------
-export type AchievementCategory = "solved" | "perfect" | "play_days";
+export type AchievementCategory = "solved" | "perfect" | "perfect_streak" | "play_days";
 
 export const ACHIEVEMENT_TIERS: Record<AchievementCategory, number[]> = {
   solved: [10, 100, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 7500, 10000],
   perfect: [10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000, 1500, 2000, 2500, 5000],
+  perfect_streak: [10, 20, 30, 50, 100, 200, 500],
   play_days: [2, 7, 14, 30, 100],
 };
 
@@ -108,6 +109,9 @@ function solvedTitle(n: number) {
 }
 function perfectTitle(n: number) {
   return `${n.toLocaleString("he-IL")} פתירות מושלמות`;
+}
+function perfectStreakTitle(n: number) {
+  return `רצף של ${n.toLocaleString("he-IL")} פתירות מושלמות`;
 }
 function daysTitle(n: number) {
   return `${n.toLocaleString("he-IL")} ימים רצופים`;
@@ -133,6 +137,15 @@ export function buildAchievementDefs(): AchievementDef[] {
       description: `פתרו ${n.toLocaleString("he-IL")} הגדרות עם ניקוד מושלם`,
     });
   }
+  for (const n of ACHIEVEMENT_TIERS.perfect_streak) {
+    out.push({
+      id: `perfect-streak-${n}`,
+      category: "perfect_streak",
+      threshold: n,
+      title: perfectStreakTitle(n),
+      description: `פתרו ${n.toLocaleString("he-IL")} הגדרות ברצף עם ניקוד מושלם (10 נקודות)`,
+    });
+  }
   for (const n of ACHIEVEMENT_TIERS.play_days) {
     out.push({
       id: `play-days-${n}`,
@@ -148,12 +161,14 @@ export function buildAchievementDefs(): AchievementDef[] {
 export const CATEGORY_LABELS: Record<AchievementCategory, string> = {
   solved: "הגדרות פתורות",
   perfect: "פתירות מושלמות",
+  perfect_streak: "רצף פתירות מושלמות",
   play_days: "ימים רצופים",
 };
 
 export const CATEGORY_REMAINING_LABEL: Record<AchievementCategory, (n: number) => string> = {
   solved: (n) => `עוד ${n.toLocaleString("he-IL")} הגדרות`,
   perfect: (n) => `עוד ${n.toLocaleString("he-IL")} פתרונות מושלמים`,
+  perfect_streak: (n) => `עוד ${n.toLocaleString("he-IL")} ברצף`,
   play_days: (n) => `עוד ${n.toLocaleString("he-IL")} ימים רצופים`,
 };
 
@@ -165,6 +180,7 @@ export function tiersCrossed(thresholds: number[], before: number, after: number
 export function findAchievementTitle(category: AchievementCategory, threshold: number): string {
   if (category === "solved") return solvedTitle(threshold);
   if (category === "perfect") return perfectTitle(threshold);
+  if (category === "perfect_streak") return perfectStreakTitle(threshold);
   return daysTitle(threshold);
 }
 

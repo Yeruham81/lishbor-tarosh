@@ -36,13 +36,15 @@ function AuthPage() {
         toast.success("שלחנו לכם מייל לאיפוס הסיסמה. בדקו את תיבת הדואר.");
         setMode("signin");
       } else if (mode === "signup") {
-        if (!flags.allowNewRegistrations) throw new Error("הרשמות חדשות מושבתות זמנית");
+        if (flags.loading) throw new Error("רגע, טוען הגדרות...");
+        if (!flags.allowNewRegistrations) throw new Error("הרשמות חדשות מושבתות כרגע. נסו שוב מאוחר יותר.");
         if (password.length < 6) throw new Error("הסיסמה חייבת להכיל לפחות 6 תווים");
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email, password,
           options: { data: { username, display_name: username }, emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
+        if (!data?.user) throw new Error("ההרשמה נכשלה. נסו שוב.");
         toast.success("נרשמת בהצלחה! מתחברים...");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
