@@ -123,6 +123,8 @@ function Levels() {
                 perfectSolves: stats.perfectSolves ?? 0,
                 playDaysStreak: stats.currentPlayDaysStreak ?? 0,
                 bestPlayDaysStreak: stats.bestPlayDaysStreak ?? 0,
+                currentPerfectStreak: stats.currentPerfectStreak ?? 0,
+                bestPerfectStreak: stats.bestPerfectStreak ?? 0,
               }}
             />
           )}
