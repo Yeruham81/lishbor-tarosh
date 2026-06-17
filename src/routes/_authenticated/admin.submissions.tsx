@@ -199,6 +199,11 @@ function SubmissionsPage() {
                   <TableCell className="text-left">
                     <div className="flex items-center gap-1 justify-end">
                       <Button
+                        size="icon" variant="ghost" className="size-8"
+                        onClick={() => setPreviewing(r)}
+                        title="הצג הגדרה"
+                      ><Eye className="size-4" /></Button>
+                      <Button
                         size="icon" variant="ghost" className="size-8 text-emerald-600"
                         disabled={r.status === "approved" || approve.isPending}
                         onClick={() => approve.mutate(r.id)}
