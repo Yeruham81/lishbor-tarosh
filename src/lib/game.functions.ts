@@ -366,6 +366,10 @@ async function applySolveResult(
     for (const t of tiersCrossed(ACHIEVEMENT_TIERS.perfect, oldPerfect, newPerfectTotal)) {
       events.push({ kind: "achievement", category: "perfect", threshold: t, title: findAchievementTitle("perfect", t) });
     }
+    const oldPerfectStreak = p.current_streak ?? 0;
+    for (const t of tiersCrossed(ACHIEVEMENT_TIERS.perfect_streak, oldPerfectStreak, newPerfectStreak)) {
+      events.push({ kind: "achievement", category: "perfect_streak", threshold: t, title: findAchievementTitle("perfect_streak", t) });
+    }
   }
   // Play days threshold check (already updated on bumpPlayCounters earlier in flow).
   for (const t of ACHIEVEMENT_TIERS.play_days) {
