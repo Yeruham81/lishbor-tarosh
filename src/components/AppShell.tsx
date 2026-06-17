@@ -1,8 +1,11 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail, PlusCircle, HelpCircle, X } from "lucide-react";
 import brandIcon from "@/assets/lishbor-icon.jpg.asset.json";
+import { useFeatureFlags } from "@/hooks/use-public-settings";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
@@ -10,8 +13,31 @@ export function AppShell({ children }: { children: ReactNode }) {
   const onPlay = pathname === "/play";
   const onInstructions = pathname === "/instructions";
   const showMobileHelp = !!user && (onPlay || onInstructions);
+  const flags = useFeatureFlags();
+
+  // Popup announcement: show once per session per message text.
+  const popupText = flags.popupAnnouncement?.trim() ?? "";
+  const [popupOpen, setPopupOpen] = useState(false);
+  useEffect(() => {
+    if (!popupText) return;
+    if (typeof window === "undefined") return;
+    try {
+      const key = `popup_seen:${btoa(unescape(encodeURIComponent(popupText))).slice(0, 32)}`;
+      if (sessionStorage.getItem(key) === "1") return;
+      setPopupOpen(true);
+      sessionStorage.setItem(key, "1");
+    } catch {
+      setPopupOpen(true);
+    }
+  }, [popupText]);
+
   return (
     <div className="min-h-screen flex flex-col">
+      {flags.globalAnnouncement && flags.globalAnnouncement.trim() && (
+        <div className="bg-gradient-sunset text-white text-center text-sm py-2 px-4">
+          {flags.globalAnnouncement}
+        </div>
+      )}
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-xl">
@@ -97,7 +123,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             {/* RIGHT — הוספת הגדרה */}
             <div className="flex justify-end">
-              {user ? (
+              {user && flags.allowPlayerSubmissions ? (
                 <Link
                   to="/submit-puzzle"
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
@@ -138,6 +164,20 @@ export function AppShell({ children }: { children: ReactNode }) {
             </MobileLink>
           </div>
         </nav>
+      )}
+
+      {popupText && (
+        <Dialog open={popupOpen} onOpenChange={setPopupOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>הודעה</DialogTitle>
+            </DialogHeader>
+            <div className="whitespace-pre-wrap text-sm leading-relaxed">{popupText}</div>
+            <DialogFooter>
+              <Button onClick={() => setPopupOpen(false)}>הבנתי</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
