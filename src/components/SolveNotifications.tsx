@@ -6,7 +6,7 @@ export type SolveEvent =
   | { kind: "score"; points: number }
   | { kind: "perfect_bonus"; points: number; streak: number }
   | { kind: "stage_up"; stage: number }
-  | { kind: "achievement"; title: string; category: "solved" | "perfect" | "play_days"; threshold: number };
+  | { kind: "achievement"; title: string; category: "solved" | "perfect" | "perfect_streak" | "play_days"; threshold: number };
 
 type Burst = { id: number; text: string };
 
