@@ -31,7 +31,7 @@ const NAV: NavItem[] = [
   { to: "/admin/players", label: "שחקנים", icon: Users },
   { to: "/admin/messages", label: "פניות שהתקבלו", icon: Mail },
   { to: "/admin/taxonomy", label: "תגיות", icon: Tags },
-  { to: "/admin/settings", label: "הגדרות מערכת", icon: SettingsIcon },
+  { to: "/admin/settings", label: "ניהול המערכת", icon: SettingsIcon },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
