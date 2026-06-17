@@ -243,7 +243,51 @@ function SubmissionsPage() {
         onClose={() => setEditing(null)}
         onSaved={() => { setEditing(null); invalidate(); }}
       />
+
+      <PreviewDialog sub={previewing} onClose={() => setPreviewing(null)} />
     </div>
+  );
+}
+
+function PreviewDialog({ sub, onClose }: { sub: any | null; onClose: () => void }) {
+  if (!sub) return null;
+  const clueText: string = sub.edited_clue ?? sub.clue_text ?? "";
+  const answer: string = sub.edited_answer ?? sub.suggested_answer ?? "";
+  const category: string | null = sub.edited_category ?? sub.category ?? null;
+  const explanation: string | null = sub.edited_explanation ?? null;
+  // Build wordLengths + fully revealed mask exactly as players see when solved.
+  const words = answer.split(/\s+/).filter(Boolean);
+  const wordLengths = words.map((w) => Array.from(w).length);
+  const mask: (string | null)[] = [];
+  words.forEach((w, i) => {
+    if (i > 0) mask.push(" ");
+    for (const ch of Array.from(w)) mask.push(ch);
+  });
+  return (
+    <Dialog open={!!sub} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader><DialogTitle>תצוגה מקדימה של ההגדרה</DialogTitle></DialogHeader>
+        <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-6">
+          {category && (
+            <div className="flex justify-center mb-2">
+              <span className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">{category}</span>
+            </div>
+          )}
+          <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clueText}</h2>
+          <div className="my-6">
+            <WordBoxes wordLengths={wordLengths} mask={mask} />
+          </div>
+          {explanation && explanation.trim() && (
+            <div className="border rounded-xl bg-muted/30 p-3 text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
+              {explanation}
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button onClick={onClose}>סגירה</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
