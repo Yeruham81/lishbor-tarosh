@@ -52,7 +52,7 @@ export function groupAchievementsForDisplay(
   s: AchievementStats,
 ): { category: AchievementCategory; label: string; items: AchievementView[]; nextRemainingLabel: string | null }[] {
   const all = buildAchievementsForStats(s);
-  const cats: AchievementCategory[] = ["solved", "perfect", "play_days"];
+  const cats: AchievementCategory[] = ["solved", "perfect", "perfect_streak", "play_days"];
   return cats.map((cat) => {
     const inCat = all.filter((a) => a.category === cat).sort((a, b) => a.threshold - b.threshold);
     const completed = inCat.filter((a) => a.done);
