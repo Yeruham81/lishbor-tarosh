@@ -73,7 +73,7 @@ function AdminDashboard() {
   return (
     <div>
       <PageHeader
-        title="לוח הבקרה"
+        title="מרכז הבקרה"
         description="סקירה כללית של המערכת"
         actions={
           <>
