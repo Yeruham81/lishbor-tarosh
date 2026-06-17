@@ -52,15 +52,8 @@ const GAMEPLAY_NUM_FIELDS: Field[] = [
   { key: "daily_streak_bonus", label: "בונוס רצף יומי", type: "number", default: 5, min: 0, max: 1000 },
   { key: "max_streak_multiplier", label: "מכפיל רצף מקסימלי", type: "number", default: 3, min: 1, max: 20 },
   { key: "required_streak_days", label: "ימים נדרשים לרצף", type: "number", default: 7, min: 1, max: 365 },
-  { key: "featured_clue_min_likes", label: "מינימום לייקים להגדרה מומלצת", type: "number", default: 10, min: 0, max: 10000 },
-  { key: "auto_hide_after_dislikes", label: "הסתרה אוטומטית לאחר דיסלייקים", type: "number", default: 20, min: 0, max: 10000 },
-  { key: "problematic_success_rate_threshold", label: "סף שיעור הצלחה בעייתי", hint: "ערך בין 0 ל-1", type: "number", default: 0.2, min: 0, max: 1, step: 0.05 },
   { key: "submission_cooldown_minutes", label: "המתנה בין הגשות (דקות)", type: "number", default: 60, min: 0, max: 10000 },
   { key: "max_submissions_per_day", label: "מקסימום הגשות ביום", type: "number", default: 5, min: 0, max: 1000 },
-];
-
-const MODERATION_FIELDS: Field[] = [
-  { key: "auto_hide_low_rated_clues", label: "הסתרה אוטומטית של הגדרות בעלות דירוג נמוך", type: "boolean", default: false },
 ];
 
 const CONTENT_FIELDS: Field[] = [
