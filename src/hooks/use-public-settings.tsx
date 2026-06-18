@@ -34,5 +34,8 @@ export function useFeatureFlags() {
     leaderboardVisible: asBool(s.leaderboard_visible, true),
     globalAnnouncement: typeof s.global_announcement_banner === "string" ? s.global_announcement_banner : "",
     popupAnnouncement: typeof s.popup_announcement_text === "string" ? s.popup_announcement_text : "",
+    disableAdsButtonVisible: asBool(s.disable_ads_button_visible, true),
+    maintenanceMode: asBool(s.maintenance_mode, false),
+    maintenanceMessage: typeof s.maintenance_message === "string" ? s.maintenance_message : "המערכת בתחזוקה. נחזור בקרוב.",
   };
 }

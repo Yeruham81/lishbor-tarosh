@@ -417,6 +417,31 @@ export const adminSetBlocked = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminListPaidPlayers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    search: z.string().max(100).optional(),
+    limit: z.number().int().min(1).max(500).default(100),
+    offset: z.number().int().min(0).default(0),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let q = supabaseAdmin
+      .from("profiles")
+      .select("id, username, display_name, email, age, created_at, paid_at, payment_amount, is_paid", { count: "exact" })
+      .eq("is_paid", true);
+    if (data.search) {
+      const s = data.search.replace(/[%,]/g, " ");
+      q = q.or(`username.ilike.%${s}%,display_name.ilike.%${s}%,email.ilike.%${s}%`);
+    }
+    q = q.order("paid_at", { ascending: false, nullsFirst: false })
+         .range(data.offset, data.offset + data.limit - 1);
+    const { data: rows, count, error } = await q;
+    if (error) throw new Error(error.message);
+    return { rows: rows ?? [], total: count ?? 0 };
+  });
+
 // ============================================================
 // SETTINGS
 // ============================================================
@@ -474,6 +499,9 @@ const PUBLIC_SETTING_KEYS = [
   "global_announcement_banner",
   "popup_announcement_text",
   "minimum_supported_app_version",
+  "disable_ads_button_visible",
+  "maintenance_mode",
+  "maintenance_message",
 ] as const;
 
 export const getPublicSettings = createServerFn({ method: "GET" })
