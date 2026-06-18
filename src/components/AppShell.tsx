@@ -50,7 +50,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   // Maintenance mode: block non-admins entirely.
-  if (!flags.loading && flags.maintenanceMode && !isAdmin) {
+  if (!flags.loading && flags.maintenanceMode && !isAdmin && !(user && roleQ.isLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-background" dir="rtl">
         <div className="max-w-md w-full bg-card border rounded-3xl shadow-card p-8 text-center space-y-4">

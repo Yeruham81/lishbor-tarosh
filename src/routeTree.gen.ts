@@ -27,6 +27,7 @@ import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin.submissions'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminPlayersRouteImport } from './routes/_authenticated/admin.players'
+import { Route as AuthenticatedAdminPayingRouteImport } from './routes/_authenticated/admin.paying'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminDefinitionsRouteImport } from './routes/_authenticated/admin.definitions'
 
@@ -124,6 +125,12 @@ const AuthenticatedAdminPlayersRoute =
     path: '/players',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPayingRoute =
+  AuthenticatedAdminPayingRouteImport.update({
+    id: '/paying',
+    path: '/paying',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminMessagesRoute =
   AuthenticatedAdminMessagesRouteImport.update({
     id: '/messages',
@@ -152,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/challenge/$token': typeof ChallengeTokenRoute
   '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/paying': typeof AuthenticatedAdminPayingRoute
   '/admin/players': typeof AuthenticatedAdminPlayersRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
@@ -172,6 +180,7 @@ export interface FileRoutesByTo {
   '/challenge/$token': typeof ChallengeTokenRoute
   '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/paying': typeof AuthenticatedAdminPayingRoute
   '/admin/players': typeof AuthenticatedAdminPlayersRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
@@ -195,6 +204,7 @@ export interface FileRoutesById {
   '/challenge/$token': typeof ChallengeTokenRoute
   '/_authenticated/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/_authenticated/admin/paying': typeof AuthenticatedAdminPayingRoute
   '/_authenticated/admin/players': typeof AuthenticatedAdminPlayersRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/challenge/$token'
     | '/admin/definitions'
     | '/admin/messages'
+    | '/admin/paying'
     | '/admin/players'
     | '/admin/settings'
     | '/admin/submissions'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/challenge/$token'
     | '/admin/definitions'
     | '/admin/messages'
+    | '/admin/paying'
     | '/admin/players'
     | '/admin/settings'
     | '/admin/submissions'
@@ -260,6 +272,7 @@ export interface FileRouteTypes {
     | '/challenge/$token'
     | '/_authenticated/admin/definitions'
     | '/_authenticated/admin/messages'
+    | '/_authenticated/admin/paying'
     | '/_authenticated/admin/players'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/submissions'
@@ -406,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPlayersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/paying': {
+      id: '/_authenticated/admin/paying'
+      path: '/paying'
+      fullPath: '/admin/paying'
+      preLoaderRoute: typeof AuthenticatedAdminPayingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/messages': {
       id: '/_authenticated/admin/messages'
       path: '/messages'
@@ -426,6 +446,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDefinitionsRoute: typeof AuthenticatedAdminDefinitionsRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
+  AuthenticatedAdminPayingRoute: typeof AuthenticatedAdminPayingRoute
   AuthenticatedAdminPlayersRoute: typeof AuthenticatedAdminPlayersRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSubmissionsRoute: typeof AuthenticatedAdminSubmissionsRoute
@@ -436,6 +457,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDefinitionsRoute: AuthenticatedAdminDefinitionsRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
+  AuthenticatedAdminPayingRoute: AuthenticatedAdminPayingRoute,
   AuthenticatedAdminPlayersRoute: AuthenticatedAdminPlayersRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSubmissionsRoute: AuthenticatedAdminSubmissionsRoute,
