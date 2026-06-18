@@ -48,6 +48,7 @@ const COLS = [
   { key: "player", label: "שחקן" },
   { key: "email", label: "אימייל" },
   { key: "age", label: "גיל" },
+  { key: "player_level", label: "רמת שחקן" },
   { key: "level", label: "שלב" },
   { key: "score", label: "ניקוד" },
   { key: "solved", label: "פתורים" },
@@ -56,6 +57,10 @@ const COLS = [
   { key: "last_seen", label: "פעילות אחרונה" },
   { key: "status", label: "סטטוס" },
 ];
+
+const PLAYER_LEVEL_LABELS: Record<number, string> = {
+  1: "מתחיל", 2: "מתקדם", 3: "מיומן", 4: "מקצוען", 5: "מומחה",
+};
 
 function PlayersPage() {
   const qc = useQueryClient();
@@ -227,6 +232,7 @@ function PlayersPage() {
             {t.isVisible("player") && <TableHead>שחקן</TableHead>}
             {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
             {t.isVisible("age") && <TableHead className="hidden lg:table-cell">גיל</TableHead>}
+            {t.isVisible("player_level") && <TableHead className="hidden lg:table-cell">רמת שחקן</TableHead>}
             {t.isVisible("level") && (
               <SortableHead sortKey="level" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
                 שלב
@@ -292,6 +298,11 @@ function PlayersPage() {
                   <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
                 )}
                 {t.isVisible("age") && <TableCell className="hidden lg:table-cell">{r.age ?? "—"}</TableCell>}
+                {t.isVisible("player_level") && (
+                  <TableCell className="hidden lg:table-cell">
+                    {r.player_level ? PLAYER_LEVEL_LABELS[r.player_level as number] ?? r.player_level : "—"}
+                  </TableCell>
+                )}
                 {t.isVisible("level") && <TableCell>{r.level ?? 1}</TableCell>}
                 {t.isVisible("score") && <TableCell className="font-semibold">{fmt(r.total_score)}</TableCell>}
                 {t.isVisible("solved") && <TableCell>{fmt(r.solved_count)}</TableCell>}

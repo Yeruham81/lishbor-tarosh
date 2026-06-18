@@ -29,6 +29,7 @@ const NAV: NavItem[] = [
   { to: "/admin/definitions", label: "הגדרות", icon: FileText },
   { to: "/admin/submissions", label: "הגדרות מוצעות", icon: Inbox },
   { to: "/admin/players", label: "שחקנים", icon: Users },
+  { to: "/admin/paying", label: "שחקנים משלמים", icon: Users },
   { to: "/admin/messages", label: "פניות שהתקבלו", icon: Mail },
   { to: "/admin/taxonomy", label: "תגיות", icon: Tags },
   { to: "/admin/settings", label: "ניהול המערכת", icon: SettingsIcon },
