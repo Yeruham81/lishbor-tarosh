@@ -110,6 +110,9 @@ function solvedTitle(n: number) {
 function perfectTitle(n: number) {
   return `${n.toLocaleString("he-IL")} פתירות מושלמות`;
 }
+function perfectStreakTitle(n: number) {
+  return `רצף של ${n.toLocaleString("he-IL")} פתירות מושלמות`;
+}
 function daysTitle(n: number) {
   return `${n.toLocaleString("he-IL")} ימים רצופים`;
 }
