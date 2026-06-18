@@ -11,7 +11,7 @@ export const getStats = createServerFn({ method: "GET" })
     // read via admin scoped to owner.
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, created_at, updated_at")
+      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, age, player_level, is_paid, paid_at, payment_amount, created_at, updated_at")
       .eq("id", userId).single();
 
     const p: any = profile ?? {};
@@ -96,6 +96,8 @@ const confirmSchema = z.object({
     .min(2, "הכינוי קצר מדי (לפחות 2 תווים)")
     .max(20, "הכינוי ארוך מדי (עד 20 תווים)")
     .regex(/^[A-Za-z\u0590-\u05FF ]+$/, "ניתן להשתמש באותיות עברית/אנגלית ורווחים בלבד"),
+  age: z.number().int().min(18, "גיל לא תקין").max(100, "גיל לא תקין"),
+  playerLevel: z.number().int().min(1).max(5),
 });
 
 export const confirmDisplayName = createServerFn({ method: "POST" })
@@ -113,10 +115,39 @@ export const confirmDisplayName = createServerFn({ method: "POST" })
     }
     const { error } = await supabase
       .from("profiles")
-      .update({ display_name: data.displayName, display_name_confirmed: true })
+      .update({
+        display_name: data.displayName,
+        display_name_confirmed: true,
+        age: data.age,
+        player_level: data.playerLevel,
+      } as any)
       .eq("id", userId);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// Player level is editable in profile (age/nickname are immutable).
+export const updatePlayerLevel = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ playerLevel: z.number().int().min(1).max(5) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("profiles")
+      .update({ player_level: data.playerLevel } as any)
+      .eq("id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// Check if the current user is an admin (for client-side gating like maintenance mode bypass).
+export const getMyRole = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    return { isAdmin: !!data };
   });
 
 // Return suggested display name from auth metadata when not yet confirmed.
