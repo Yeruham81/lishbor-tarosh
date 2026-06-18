@@ -87,11 +87,12 @@ export function perfectStreakBonus(newStreak: number): number {
 }
 
 // ---------- Achievements ----------
-export type AchievementCategory = "solved" | "perfect" | "play_days";
+export type AchievementCategory = "solved" | "perfect" | "perfect_streak" | "play_days";
 
 export const ACHIEVEMENT_TIERS: Record<AchievementCategory, number[]> = {
   solved: [10, 25, 50, 100, 150, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000],
   perfect: [10, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000, 1500, 2000, 2500, 5000],
+  perfect_streak: [10, 20, 30, 50, 100, 200, 500],
   play_days: [2, 7, 14, 30, 60, 100],
 };
 
