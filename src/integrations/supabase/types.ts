@@ -361,12 +361,16 @@ export type Database = {
           hints_used_total: number
           id: string
           is_blocked: boolean
+          is_paid: boolean
           is_private: boolean
           last_play_date: string | null
           last_seen_at: string | null
           level: number
           notification_prefs: Json
+          paid_at: string | null
+          payment_amount: number | null
           perfect_solves: number
+          player_level: number | null
           solved_count: number
           total_score: number
           updated_at: string
@@ -393,12 +397,16 @@ export type Database = {
           hints_used_total?: number
           id: string
           is_blocked?: boolean
+          is_paid?: boolean
           is_private?: boolean
           last_play_date?: string | null
           last_seen_at?: string | null
           level?: number
           notification_prefs?: Json
+          paid_at?: string | null
+          payment_amount?: number | null
           perfect_solves?: number
+          player_level?: number | null
           solved_count?: number
           total_score?: number
           updated_at?: string
@@ -425,12 +433,16 @@ export type Database = {
           hints_used_total?: number
           id?: string
           is_blocked?: boolean
+          is_paid?: boolean
           is_private?: boolean
           last_play_date?: string | null
           last_seen_at?: string | null
           level?: number
           notification_prefs?: Json
+          paid_at?: string | null
+          payment_amount?: number | null
           perfect_solves?: number
+          player_level?: number | null
           solved_count?: number
           total_score?: number
           updated_at?: string
