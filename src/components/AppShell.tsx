@@ -1,11 +1,15 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail, PlusCircle, HelpCircle, X } from "lucide-react";
+import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail, PlusCircle, HelpCircle, X, BadgeDollarSign, Wrench } from "lucide-react";
 import brandIcon from "@/assets/lishbor-icon.jpg.asset.json";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getMyRole } from "@/lib/account.functions";
+import { toast } from "sonner";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
@@ -31,6 +35,33 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   }, [popupText]);
 
+  // Check if current user is admin (to bypass maintenance mode).
+  const fetchRole = useServerFn(getMyRole);
+  const roleQ = useQuery({
+    queryKey: ["my-role"],
+    queryFn: () => fetchRole(),
+    enabled: !!user,
+    staleTime: 5 * 60_000,
+  });
+  const isAdmin = !!roleQ.data?.isAdmin;
+
+  const onDisableAds = () => {
+    toast.message("בקרוב — האפשרות תהיה זמינה בעתיד");
+  };
+
+  // Maintenance mode: block non-admins entirely.
+  if (!flags.loading && flags.maintenanceMode && !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-background" dir="rtl">
+        <div className="max-w-md w-full bg-card border rounded-3xl shadow-card p-8 text-center space-y-4">
+          <Wrench className="size-12 mx-auto text-primary" />
+          <h1 className="font-display text-2xl font-extrabold text-gradient-sunset">המערכת בתחזוקה</h1>
+          <p className="text-muted-foreground whitespace-pre-wrap">{flags.maintenanceMessage}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {flags.globalAnnouncement && flags.globalAnnouncement.trim() && (
@@ -45,6 +76,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="text-gradient-sunset">לשבור ת'ראש</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 text-sm">
+            {flags.disableAdsButtonVisible && (
+              <button
+                type="button"
+                onClick={onDisableAds}
+                aria-label="ביטול פרסומות"
+                title="ביטול פרסומות"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-muted transition font-medium text-muted-foreground"
+              >
+                <BadgeDollarSign className="size-4" /> ביטול פרסומות
+              </button>
+            )}
             <NavLink to="/" icon={<Home className="size-4" />}>
               בית
             </NavLink>
@@ -68,6 +110,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </nav>
           <div className="flex items-center gap-2">
+            {flags.disableAdsButtonVisible && (
+              <button
+                type="button"
+                onClick={onDisableAds}
+                aria-label="ביטול פרסומות"
+                title="ביטול פרסומות"
+                className="md:hidden inline-flex items-center justify-center size-9 rounded-lg bg-muted/70 hover:bg-muted border border-border transition"
+              >
+                <BadgeDollarSign className="size-5" />
+              </button>
+            )}
             {showMobileHelp && (
               <Link
                 to={onInstructions ? "/play" : "/instructions"}
