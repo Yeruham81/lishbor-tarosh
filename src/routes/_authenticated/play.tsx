@@ -26,6 +26,42 @@ function Play() {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [user, loading, navigate]);
 
+  // Best-effort screenshot / content-copy protection on game screens only.
+  // Does NOT block native OS screenshots (impossible in a web app), but disables
+  // right-click, text selection/copy, drag, and obscures the screen while the
+  // tab is hidden (some screen-capture tools trigger visibility change).
+  useEffect(() => {
+    const root = document.body;
+    root.classList.add("no-screenshot");
+    const onCtx = (e: MouseEvent) => e.preventDefault();
+    const onCopy = (e: ClipboardEvent) => e.preventDefault();
+    const onDrag = (e: DragEvent) => e.preventDefault();
+    const onKey = (e: KeyboardEvent) => {
+      // Block PrintScreen if the OS gives it to us (rarely)
+      if (e.key === "PrintScreen") {
+        e.preventDefault();
+        try { navigator.clipboard.writeText(""); } catch {}
+      }
+    };
+    const onVis = () => {
+      root.classList.toggle("screen-hidden", document.visibilityState !== "visible");
+    };
+    document.addEventListener("contextmenu", onCtx);
+    document.addEventListener("copy", onCopy);
+    document.addEventListener("dragstart", onDrag);
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      root.classList.remove("no-screenshot", "screen-hidden");
+      document.removeEventListener("contextmenu", onCtx);
+      document.removeEventListener("copy", onCopy);
+      document.removeEventListener("dragstart", onDrag);
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, []);
+
+
   const fetchClue = useServerFn(getNextClue);
   const fetchClueState = useServerFn(getClueState);
   const fetchProfile = useServerFn(getProfile);

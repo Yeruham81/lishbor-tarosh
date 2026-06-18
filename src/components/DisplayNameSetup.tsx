@@ -6,9 +6,17 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { UserCircle2, AlertTriangle } from "lucide-react";
 
-// Nickname rules (kept in sync with server-side validation in account.functions.ts):
-// 2–20 chars, Hebrew/English letters and spaces only.
 const NICK_RE = /^[A-Za-z\u0590-\u05FF ]+$/;
+
+export const PLAYER_LEVELS: { value: number; label: string }[] = [
+  { value: 1, label: "מתחיל" },
+  { value: 2, label: "מתקדם" },
+  { value: 3, label: "מיומן" },
+  { value: 4, label: "מקצוען" },
+  { value: 5, label: "מומחה" },
+];
+
+const AGES = Array.from({ length: 100 - 18 + 1 }, (_, i) => 18 + i);
 
 export function DisplayNameSetup() {
   const { user } = useAuth();
@@ -22,12 +30,13 @@ export function DisplayNameSetup() {
   });
 
   const [name, setName] = useState("");
+  const [age, setAge] = useState<string>("");
+  const [level, setLevel] = useState<string>("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (data && !data.confirmed) {
       const seed = (data.suggested ?? data.current ?? "").trim();
-      // Only seed if it already matches the allowed character set
       setName(NICK_RE.test(seed) && seed.length <= 20 ? seed : "");
     }
   }, [data]);
@@ -35,14 +44,21 @@ export function DisplayNameSetup() {
   if (!user || !data || data.confirmed) return null;
 
   const trimmed = name.trim();
-  const valid = trimmed.length >= 2 && trimmed.length <= 20 && NICK_RE.test(trimmed);
+  const ageN = Number(age);
+  const levelN = Number(level);
+  const valid =
+    trimmed.length >= 2 &&
+    trimmed.length <= 20 &&
+    NICK_RE.test(trimmed) &&
+    Number.isInteger(ageN) && ageN >= 18 && ageN <= 100 &&
+    Number.isInteger(levelN) && levelN >= 1 && levelN <= 5;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!valid) return;
     setBusy(true);
     try {
-      await doConfirm({ data: { displayName: trimmed } });
+      await doConfirm({ data: { displayName: trimmed, age: ageN, playerLevel: levelN } });
       toast.success("הכינוי שבחרתם נשמר. ברוכים הבאים! 🎉");
       await qc.invalidateQueries({ queryKey: ["display-name-status"] });
       await qc.invalidateQueries({ queryKey: ["profile"] });
@@ -58,7 +74,7 @@ export function DisplayNameSetup() {
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" dir="rtl">
       <form
         onSubmit={onSubmit}
-        className="bg-card border rounded-3xl shadow-glow p-6 sm:p-8 max-w-md w-full space-y-5"
+        className="bg-card border rounded-3xl shadow-glow p-6 sm:p-8 max-w-md w-full space-y-4 max-h-[95vh] overflow-y-auto"
       >
         <div className="text-center">
           <UserCircle2 className="size-12 mx-auto text-primary mb-2" />
@@ -77,13 +93,47 @@ export function DisplayNameSetup() {
           onChange={(e) => setName(e.target.value)}
           maxLength={20}
           aria-label="כינוי"
+          placeholder="כינוי"
           className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
         />
+
+        <div>
+          <label className="block text-sm font-medium mb-1">גיל</label>
+          <select
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            aria-label="גיל"
+            className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">בחרו גיל</option>
+            {AGES.map((a) => (
+              <option key={a} value={a}>{a}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">רמת שחקן</label>
+          <select
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            aria-label="רמת שחקן"
+            className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">בחרו רמה</option>
+            {PLAYER_LEVELS.map((l) => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
+          </select>
+          <p className="text-xs text-muted-foreground mt-1">
+            נתונים אלו משמשים להתאמת שאלות אישיות לרמת השחקן
+          </p>
+        </div>
 
         <div className="flex items-start gap-2 bg-warning/10 border border-warning/30 rounded-xl p-3 text-sm">
           <AlertTriangle className="size-4 text-warning shrink-0 mt-0.5" />
           <p className="text-foreground/90">
-            שימו לב, הכינוי הוא קבוע ולא תוכלו לשנות אותו בהמשך
+            שימו לב, הכינוי והגיל נקבעים פעם אחת ולא ניתן לשנותם בהמשך
           </p>
         </div>
 

@@ -249,3 +249,17 @@ html[data-colorblind="true"] {
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in { animation: fade-in 0.35s ease-out; }
+
+/* Best-effort screenshot protection on game screens */
+.no-screenshot {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.no-screenshot img,
+.no-screenshot * {
+  -webkit-user-drag: none;
+}
+.no-screenshot.screen-hidden {
+  filter: blur(24px);
+}

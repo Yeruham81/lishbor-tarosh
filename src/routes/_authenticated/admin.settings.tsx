@@ -45,6 +45,7 @@ const GAMEPLAY_BOOL_FIELDS: Field[] = [
   { key: "allow_player_submissions", label: "אפשר הגשות שחקנים", hint: "הצגת טופס הגשת הגדרות", type: "boolean", default: true },
   { key: "allow_new_registrations", label: "אפשר הרשמות חדשות", hint: "אפשר ליצור חשבונות חדשים", type: "boolean", default: true },
   { key: "leaderboard_visible", label: "הצגת לוח התוצאות", hint: "הסתרת הלוח מסתירה אותו לכל השחקנים", type: "boolean", default: true },
+  { key: "disable_ads_button_visible", label: 'הצגת כפתור "ביטול פרסומות"', hint: "הצגת/הסתרת הכפתור (בקרוב — לפי תכונה עתידית)", type: "boolean", default: true },
 ];
 
 const GAMEPLAY_NUM_FIELDS: Field[] = [
@@ -60,6 +61,11 @@ const CONTENT_FIELDS: Field[] = [
   { key: "global_announcement_banner", label: "באנר הודעה גלובלי", hint: "טקסט שמופיע בראש האפליקציה", type: "text", default: "" },
   { key: "popup_announcement_text", label: "טקסט הודעת פופאפ", hint: "מוצג בעלייה ראשונית", type: "textarea", default: "" },
   { key: "minimum_supported_app_version", label: "גרסת מינימום נתמכת", hint: "לדוגמה: 1.4.0", type: "text", default: "" },
+];
+
+const MAINTENANCE_FIELDS: Field[] = [
+  { key: "maintenance_mode", label: "מצב תחזוקה", hint: "כאשר פעיל, שחקנים שאינם מנהלים יראו הודעת תחזוקה במקום האפליקציה", type: "boolean", default: false },
+  { key: "maintenance_message", label: "הודעת תחזוקה", hint: "ההודעה שתוצג לשחקנים בעת מצב תחזוקה", type: "textarea", default: "המערכת בתחזוקה. נחזור בקרוב." },
 ];
 
 // ------------------------------------------------------------------
@@ -162,6 +168,15 @@ function SettingsPage() {
           title="הודעות ותוכן"
           description="טקסטים גלובליים שמוצגים לשחקנים"
           fields={CONTENT_FIELDS}
+          values={data}
+          loading={settings.isLoading}
+          onSave={saveMany}
+        />
+
+        <Section
+          title="מצב תחזוקה"
+          description="חסימת האפליקציה לשחקנים זמנית"
+          fields={MAINTENANCE_FIELDS}
           values={data}
           loading={settings.isLoading}
           onSave={saveMany}

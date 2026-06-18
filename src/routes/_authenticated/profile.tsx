@@ -7,8 +7,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getStats, deleteAccount, resetAccount,
-  updatePreferences, setAvatarPath, getAvatarUrl,
+  updatePreferences, setAvatarPath, getAvatarUrl, updatePlayerLevel,
 } from "@/lib/account.functions";
+import { PLAYER_LEVELS } from "@/components/DisplayNameSetup";
 
 import { PALETTES, type Palette } from "@/hooks/use-theme";
 import { toast } from "sonner";
@@ -53,6 +54,7 @@ function Profile() {
   const doUpdatePrefs = useServerFn(updatePreferences);
   const doSetAvatar = useServerFn(setAvatarPath);
   const fetchAvatar = useServerFn(getAvatarUrl);
+  const doUpdateLevel = useServerFn(updatePlayerLevel);
   const qc = useQueryClient();
 
   const { data } = useQuery({ queryKey: ["stats"], queryFn: () => fetchStats(), enabled: !!user });
@@ -284,6 +286,30 @@ function Profile() {
 
         {/* Game settings */}
         <Card icon={<Gamepad2 className="size-5 text-primary" />} title="הגדרות משחק">
+          <div>
+            <div className="text-sm font-medium mb-2">רמת שחקן</div>
+            <select
+              value={(p as any).player_level ?? ""}
+              onChange={async (e) => {
+                const n = Number(e.target.value);
+                if (!Number.isInteger(n) || n < 1 || n > 5) return;
+                try {
+                  await doUpdateLevel({ data: { playerLevel: n } });
+                  refresh();
+                  toast.success("רמת השחקן עודכנה");
+                } catch (err: any) { toast.error(err.message); }
+              }}
+              className="w-full px-3 py-2.5 rounded-xl border bg-background text-right"
+            >
+              <option value="">בחרו רמה</option>
+              {PLAYER_LEVELS.map((l) => (
+                <option key={l.value} value={l.value}>{l.label}</option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground mt-1">
+              נתונים אלו משמשים להתאמת שאלות אישיות לרמת השחקן
+            </p>
+          </div>
           <Toggle
             label="מעבר אוטומטי להגדרה הבאה"
             hint="לאחר פתרון מוצלח, המשחק יעבור אוטומטית להגדרה הבאה תוך 3 שניות"
