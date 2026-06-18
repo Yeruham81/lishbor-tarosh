@@ -198,7 +198,7 @@ function Profile() {
               <span className="font-display text-lg font-bold truncate">{p.display_name ?? p.username}</span>
               <span className="text-xs text-muted-foreground shrink-0">קבוע</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">הכינוי נקבע פעם אחת ולא ניתן לשינוי.</p>
+            <p className="text-xs text-muted-foreground mt-2">הכינוי נקבע בעת ההרשמה למשחק ואינו ניתן לשינוי</p>
           </div>
 
           {/* Avatar */}
