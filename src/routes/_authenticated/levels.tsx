@@ -36,6 +36,7 @@ function Levels() {
     <AppShell>
       <div className="container mx-auto px-4 py-8 max-w-2xl space-y-10">
         <section>
+          <Barchart3 className="size-12 mx-auto text-primary mb-2" />
           <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">איך אני</h1>
           <p className="text-center text-muted-foreground mb-4">מעקב ביצועים, שלבים, אתגרים וסטטיסטיקות</p>
 
