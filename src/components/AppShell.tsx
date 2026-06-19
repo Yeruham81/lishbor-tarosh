@@ -191,7 +191,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   to="/submit-puzzle"
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
                 >
-                  <PlusCircle className="size-4" /> הוספת הגדרה
+                  הוספת הגדרה
                 </Link>
               ) : (
                 <span />
