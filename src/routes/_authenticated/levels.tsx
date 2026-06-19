@@ -15,7 +15,9 @@ export const Route = createFileRoute("/_authenticated/levels")({ component: Leve
 function Levels() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  useEffect(() => { if (!loading && !user) navigate({ to: "/auth" }); }, [user, loading, navigate]);
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [user, loading, navigate]);
   const fetchProfile = useServerFn(getProfile);
   const fetchStats = useServerFn(getStats);
   const { data: p } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile(), enabled: !!user });
@@ -34,7 +36,7 @@ function Levels() {
     <AppShell>
       <div className="container mx-auto px-4 py-8 max-w-2xl space-y-10">
         <section>
-          <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">שלבים</h1>
+          <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">איך אני</h1>
           <p className="text-center text-muted-foreground mb-4">מעקב ביצועים, אתגרים, התקדמות וסטטיסטיקות</p>
 
           {/* Score summary */}
@@ -67,7 +69,9 @@ function Levels() {
               </div>
             </div>
           ) : (
-            <div className="text-muted-foreground text-base font-normal mb-5 text-center">הגעתם לשלב המקסימלי הזמין</div>
+            <div className="text-muted-foreground text-base font-normal mb-5 text-center">
+              הגעתם לשלב המקסימלי הזמין
+            </div>
           )}
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -77,12 +81,17 @@ function Levels() {
               const required = STAGE_THRESHOLDS[lvl - 1] ?? 0; // threshold to reach this stage
               if (!unlocked) {
                 return (
-                  <div key={lvl} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border bg-muted/30 min-h-[140px] text-center">
+                  <div
+                    key={lvl}
+                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border bg-muted/30 min-h-[140px] text-center"
+                  >
                     <div className="size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-lg bg-muted text-muted-foreground">
                       {lvl}
                     </div>
                     <div className="font-bold">שלב {lvl}</div>
-                    <div className="text-xs text-muted-foreground">דרושות {required.toLocaleString("he-IL")} נקודות</div>
+                    <div className="text-xs text-muted-foreground">
+                      דרושות {required.toLocaleString("he-IL")} נקודות
+                    </div>
                   </div>
                 );
               }
@@ -93,12 +102,16 @@ function Levels() {
                     current ? "bg-gradient-sunset text-white shadow-glow" : "bg-card"
                   }`}
                 >
-                  <div className={`size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-lg ${current ? "bg-white/20" : "bg-gradient-sunset text-white"}`}>
+                  <div
+                    className={`size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-lg ${current ? "bg-white/20" : "bg-gradient-sunset text-white"}`}
+                  >
                     {lvl}
                   </div>
                   <div className="font-bold">שלב {lvl}</div>
                   {current ? (
-                    <Link to="/play" className="px-3 py-1.5 rounded-lg bg-white text-primary font-bold text-sm">המשך</Link>
+                    <Link to="/play" className="px-3 py-1.5 rounded-lg bg-white text-primary font-bold text-sm">
+                      המשך
+                    </Link>
                   ) : (
                     <Check className="size-5 text-success" />
                   )}
@@ -139,7 +152,11 @@ function Levels() {
               <StatCard icon={<Target className="size-5" />} label="הגדרות פתורות" value={stats.definitionsSolved} />
               <StatCard icon={<Sparkles className="size-5" />} label="פתירות מושלמות" value={stats.perfectSolves} />
               <StatCard icon={<Percent className="size-5" />} label="אחוז הצלחה" value={`${stats.successRate}%`} />
-              <StatCard icon={<Flame className="size-5" />} label="רצף מושלם נוכחי" value={stats.currentPerfectStreak} />
+              <StatCard
+                icon={<Flame className="size-5" />}
+                label="רצף מושלם נוכחי"
+                value={stats.currentPerfectStreak}
+              />
               <StatCard icon={<Award className="size-5" />} label="שיא רצף מושלם" value={stats.bestPerfectStreak} />
               <StatCard icon={<Flame className="size-5" />} label="ימים רצופים" value={stats.currentPlayDaysStreak} />
               <StatCard icon={<Award className="size-5" />} label="שיא ימים רצופים" value={stats.bestPlayDaysStreak} />
@@ -157,7 +174,9 @@ function Levels() {
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number | string }) {
   return (
     <div className="bg-card border rounded-2xl p-4 shadow-card">
-      <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">{icon} {label}</div>
+      <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
+        {icon} {label}
+      </div>
       <div className="font-display text-3xl font-extrabold text-gradient-sunset">{value}</div>
     </div>
   );
