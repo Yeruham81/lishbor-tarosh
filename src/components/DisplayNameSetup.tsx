@@ -101,7 +101,7 @@ export function DisplayNameSetup() {
         />
         <p className="text-xs text-muted-foreground mt-1">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
         <div>
-          <div className="flex items-center gap-2 bg-warning/10 border border-warning/30 rounded-xl px-3 py-1.5 text-xs">
+          <div className="flex items-center gap-2 bg-warning/10 border border-warning/30 rounded-xl px-3 py-1.5 text-xs mb-3">
             <AlertTriangle className="size-4 text-warning shrink-0" />
             <p className="text-foreground/90">שימו לב, את הכינוי לא תוכלו לשנות בהמשך</p>
           </div>
