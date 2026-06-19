@@ -101,6 +101,10 @@ export function DisplayNameSetup() {
         />
         <p className="text-xs text-muted-foreground mt-1">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
         <div>
+          <div className="flex items-start gap-2 bg-warning/10 border border-warning/30 rounded-xl p-3 text-xs">
+            <AlertTriangle className="size-4 text-warning shrink-0 mt-0.5" />
+            <p className="text-foreground/90">שימו לב, את הכינוי לא תוכלו לשנות בהמשך</p>
+          </div>
           <label className="block text-sm font-medium mb-1">גיל</label>
           <select
             value={age}
@@ -132,11 +136,6 @@ export function DisplayNameSetup() {
               </option>
             ))}
           </select>
-        </div>
-
-        <div className="flex items-start gap-2 bg-warning/10 border border-warning/30 rounded-xl p-3 text-xs">
-          <AlertTriangle className="size-4 text-warning shrink-0 mt-0.5" />
-          <p className="text-foreground/90">שימו לב, את הכינוי לא תוכלו לשנות בהמשך</p>
         </div>
 
         <button
