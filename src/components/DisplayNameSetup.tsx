@@ -129,7 +129,7 @@ export function DisplayNameSetup() {
             aria-label="רמה"
             className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="">איך אתם בהגדרות היגיון?</option>
+            <option value="">איך אתם בפתירת הגדרות היגיון?</option>
             {PLAYER_LEVELS.map((l) => (
               <option key={l.value} value={l.value}>
                 {l.label}
