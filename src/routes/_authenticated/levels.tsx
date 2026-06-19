@@ -150,11 +150,7 @@ function Levels() {
 
         {stats && (
           <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-2xl font-bold flex items-center gap-2">
-                <Award className="size-6 text-primary" /> סטטיסטיקות אישיות
-              </h2>
-            </div>
+            <h2 className="font-display text-xl font-bold mb-3">סטטיסטיקות אישיות</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <StatCard icon={<Trophy className="size-5" />} label="ניקוד כולל" value={totalScore} />
               <StatCard icon={<CheckCircle2 className="size-5" />} label="שלב נוכחי" value={currentStage} />
