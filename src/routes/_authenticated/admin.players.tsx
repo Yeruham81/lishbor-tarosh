@@ -48,7 +48,7 @@ const COLS = [
   { key: "player", label: "שחקן" },
   { key: "email", label: "אימייל" },
   { key: "age", label: "גיל" },
-  { key: "player_level", label: "רמת שחקן" },
+  { key: "player_level", label: "רמה" },
   { key: "level", label: "שלב" },
   { key: "score", label: "ניקוד" },
   { key: "solved", label: "פתורים" },
@@ -59,7 +59,11 @@ const COLS = [
 ];
 
 const PLAYER_LEVEL_LABELS: Record<number, string> = {
-  1: "מתחיל", 2: "מתקדם", 3: "מיומן", 4: "מקצוען", 5: "מומחה",
+  1: "מתחיל",
+  2: "מתקדם",
+  3: "מיומן",
+  4: "מקצוען",
+  5: "מומחה",
 };
 
 function PlayersPage() {
@@ -70,7 +74,6 @@ function PlayersPage() {
     defaultFilters: { status: "all" },
   });
   useGlobalSearchSync(t.setSearch);
-
 
   const listFn = useServerFn(adminListPlayers);
   const blockFn = useServerFn(adminSetBlocked);
@@ -109,7 +112,10 @@ function PlayersPage() {
 
   const deletePlayer = useMutation({
     mutationFn: (user_id: string) => deletePlayerFn({ data: { user_id } }),
-    onSuccess: () => { toast.success("השחקן נמחק"); invalidate(); },
+    onSuccess: () => {
+      toast.success("השחקן נמחק");
+      invalidate();
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -232,7 +238,7 @@ function PlayersPage() {
             {t.isVisible("player") && <TableHead>שחקן</TableHead>}
             {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
             {t.isVisible("age") && <TableHead className="hidden lg:table-cell">גיל</TableHead>}
-            {t.isVisible("player_level") && <TableHead className="hidden lg:table-cell">רמת שחקן</TableHead>}
+            {t.isVisible("player_level") && <TableHead className="hidden lg:table-cell">רמה</TableHead>}
             {t.isVisible("level") && (
               <SortableHead sortKey="level" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
                 שלב
@@ -300,7 +306,7 @@ function PlayersPage() {
                 {t.isVisible("age") && <TableCell className="hidden lg:table-cell">{r.age ?? "—"}</TableCell>}
                 {t.isVisible("player_level") && (
                   <TableCell className="hidden lg:table-cell">
-                    {r.player_level ? PLAYER_LEVEL_LABELS[r.player_level as number] ?? r.player_level : "—"}
+                    {r.player_level ? (PLAYER_LEVEL_LABELS[r.player_level as number] ?? r.player_level) : "—"}
                   </TableCell>
                 )}
                 {t.isVisible("level") && <TableCell>{r.level ?? 1}</TableCell>}
@@ -366,17 +372,26 @@ function PlayersPage() {
       <PointsDialog target={pointsTarget} onClose={() => setPointsTarget(null)} onDone={invalidate} />
       <ViewDialog target={viewing} onClose={() => setViewing(null)} />
 
-      <Dialog open={!!confirmDelete} onOpenChange={(v) => { if (!v) setConfirmDelete(null); }}>
+      <Dialog
+        open={!!confirmDelete}
+        onOpenChange={(v) => {
+          if (!v) setConfirmDelete(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>מחיקת שחקן</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 text-sm">
-            <p>האם למחוק לצמיתות את <strong>{confirmDelete?.display_name ?? confirmDelete?.username}</strong>?</p>
+            <p>
+              האם למחוק לצמיתות את <strong>{confirmDelete?.display_name ?? confirmDelete?.username}</strong>?
+            </p>
             <p className="text-destructive">פעולה זו תמחק את חשבון השחקן וכל הנתונים הקשורים אליו. לא ניתן לשחזר.</p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDelete(null)}>ביטול</Button>
+            <Button variant="outline" onClick={() => setConfirmDelete(null)}>
+              ביטול
+            </Button>
             <Button
               variant="destructive"
               disabled={deletePlayer.isPending}

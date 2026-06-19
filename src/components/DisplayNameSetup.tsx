@@ -50,8 +50,12 @@ export function DisplayNameSetup() {
     trimmed.length >= 2 &&
     trimmed.length <= 20 &&
     NICK_RE.test(trimmed) &&
-    Number.isInteger(ageN) && ageN >= 18 && ageN <= 100 &&
-    Number.isInteger(levelN) && levelN >= 1 && levelN <= 5;
+    Number.isInteger(ageN) &&
+    ageN >= 18 &&
+    ageN <= 100 &&
+    Number.isInteger(levelN) &&
+    levelN >= 1 &&
+    levelN <= 5;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,19 +75,18 @@ export function DisplayNameSetup() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" dir="rtl">
+    <div
+      className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
+      dir="rtl"
+    >
       <form
         onSubmit={onSubmit}
         className="bg-card border rounded-3xl shadow-glow p-6 sm:p-8 max-w-md w-full space-y-4 max-h-[95vh] overflow-y-auto"
       >
         <div className="text-center">
           <UserCircle2 className="size-12 mx-auto text-primary mb-2" />
-          <h2 className="font-display text-2xl font-extrabold text-gradient-sunset">
-            בחרו כינוי
-          </h2>
-          <p className="text-sm text-muted-foreground mt-3">
-            בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים
-          </p>
+          <h2 className="font-display text-2xl font-extrabold text-gradient-sunset">בחרו כינוי</h2>
+          <p className="text-sm text-muted-foreground mt-3">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
         </div>
 
         <input
@@ -107,34 +110,34 @@ export function DisplayNameSetup() {
           >
             <option value="">בחרו גיל</option>
             {AGES.map((a) => (
-              <option key={a} value={a}>{a}</option>
+              <option key={a} value={a}>
+                {a}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">רמת שחקן</label>
+          <label className="block text-sm font-medium mb-1">רמה</label>
           <select
             value={level}
             onChange={(e) => setLevel(e.target.value)}
-            aria-label="רמת שחקן"
+            aria-label="רמה"
             className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">בחרו רמה</option>
             {PLAYER_LEVELS.map((l) => (
-              <option key={l.value} value={l.value}>{l.label}</option>
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
             ))}
           </select>
-          <p className="text-xs text-muted-foreground mt-1">
-            נתונים אלו משמשים להתאמת שאלות אישיות לרמת השחקן
-          </p>
+          <p className="text-xs text-muted-foreground mt-1">נתונים אלו ישמשו להתאמת השאלות לרמתכם</p>
         </div>
 
         <div className="flex items-start gap-2 bg-warning/10 border border-warning/30 rounded-xl p-3 text-sm">
           <AlertTriangle className="size-4 text-warning shrink-0 mt-0.5" />
-          <p className="text-foreground/90">
-            שימו לב, הכינוי והגיל נקבעים פעם אחת ולא ניתן לשנותם בהמשך
-          </p>
+          <p className="text-foreground/90">שימו לב, הכינוי והגיל נקבעים פעם אחת ולא ניתן לשנותם בהמשך</p>
         </div>
 
         <button
