@@ -59,11 +59,11 @@ const COLS = [
 ];
 
 const PLAYER_LEVEL_LABELS: Record<number, string> = {
-  1: "מתחיל",
-  2: "מתקדם",
-  3: "מיומן",
-  4: "מקצוען",
-  5: "מומחה",
+  1: "מתחיל/ה",
+  2: "מתקדם/ת",
+  3: "מיומן/ת",
+  4: "מקצוען/ית",
+  5: "מומחה/ית",
 };
 
 function PlayersPage() {

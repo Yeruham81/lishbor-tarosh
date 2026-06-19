@@ -9,11 +9,11 @@ import { UserCircle2, AlertTriangle } from "lucide-react";
 const NICK_RE = /^[A-Za-z\u0590-\u05FF ]+$/;
 
 export const PLAYER_LEVELS: { value: number; label: string }[] = [
-  { value: 1, label: "מתחיל" },
-  { value: 2, label: "מתקדם" },
-  { value: 3, label: "מיומן" },
-  { value: 4, label: "מקצוען" },
-  { value: 5, label: "מומחה" },
+  { value: 1, label: "מתחילים" },
+  { value: 2, label: "מתקדמים" },
+  { value: 3, label: "מיומנים" },
+  { value: 4, label: "מקצוענים" },
+  { value: 5, label: "מומחים" },
 ];
 
 const AGES = Array.from({ length: 100 - 18 + 1 }, (_, i) => 18 + i);
