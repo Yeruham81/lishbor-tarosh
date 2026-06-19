@@ -36,6 +36,7 @@ export function useFeatureFlags() {
     popupAnnouncement: typeof s.popup_announcement_text === "string" ? s.popup_announcement_text : "",
     disableAdsButtonVisible: asBool(s.disable_ads_button_visible, true),
     maintenanceMode: asBool(s.maintenance_mode, false),
-    maintenanceMessage: typeof s.maintenance_message === "string" ? s.maintenance_message : "המערכת בתחזוקה. נחזור בקרוב.",
+    maintenanceMessage:
+      typeof s.maintenance_message === "string" ? s.maintenance_message : "המשחק בתחזוקה. נחזור בקרוב.",
   };
 }

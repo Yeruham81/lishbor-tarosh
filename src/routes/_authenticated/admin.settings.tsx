@@ -34,18 +34,66 @@ type Field = {
 };
 
 const SCORING_FIELDS: Field[] = [
-  { key: "base_points_per_definition", label: "נקודות בסיס להגדרה", hint: "נקודות שמתקבלות על פתרון הגדרה", type: "number", default: 10, min: 0, max: 10000 },
-  { key: "points_penalty_per_mistake", label: "הפחתת נקודות על טעות", hint: "כמה נקודות יורדות על כל ניסיון שגוי", type: "number", default: 1, min: 0, max: 1000 },
-  { key: "points_penalty_per_hint", label: "הפחתת נקודות על רמז", hint: "כמה נקודות יורדות על שימוש ברמז", type: "number", default: 2, min: 0, max: 1000 },
+  {
+    key: "base_points_per_definition",
+    label: "נקודות בסיס להגדרה",
+    hint: "נקודות שמתקבלות על פתרון הגדרה",
+    type: "number",
+    default: 10,
+    min: 0,
+    max: 10000,
+  },
+  {
+    key: "points_penalty_per_mistake",
+    label: "הפחתת נקודות על טעות",
+    hint: "כמה נקודות יורדות על כל ניסיון שגוי",
+    type: "number",
+    default: 1,
+    min: 0,
+    max: 1000,
+  },
+  {
+    key: "points_penalty_per_hint",
+    label: "הפחתת נקודות על רמז",
+    hint: "כמה נקודות יורדות על שימוש ברמז",
+    type: "number",
+    default: 2,
+    min: 0,
+    max: 1000,
+  },
 ];
 
 const GAMEPLAY_BOOL_FIELDS: Field[] = [
   { key: "allow_skip", label: "אפשר דילוג", hint: "הצגת כפתור הדילוג בעת משחק", type: "boolean", default: true },
   { key: "allow_hints", label: "אפשר רמזים", hint: "הצגת כפתור הרמז בעת משחק", type: "boolean", default: true },
-  { key: "allow_player_submissions", label: "אפשר הגשות שחקנים", hint: "הצגת טופס הגשת הגדרות", type: "boolean", default: true },
-  { key: "allow_new_registrations", label: "אפשר הרשמות חדשות", hint: "אפשר ליצור חשבונות חדשים", type: "boolean", default: true },
-  { key: "leaderboard_visible", label: "אפשר הצגת לוח התוצאות", hint: "הסתרת הלוח מסתירה אותו לכל השחקנים", type: "boolean", default: true },
-  { key: "disable_ads_button_visible", label: "אפשר לבטל פרסומות", hint: 'הצגת כפתור "ביטול פרסומות"', type: "boolean", default: true },
+  {
+    key: "allow_player_submissions",
+    label: "אפשר הגשות שחקנים",
+    hint: "הצגת טופס הגשת הגדרות",
+    type: "boolean",
+    default: true,
+  },
+  {
+    key: "allow_new_registrations",
+    label: "אפשר הרשמות חדשות",
+    hint: "אפשר ליצור חשבונות חדשים",
+    type: "boolean",
+    default: true,
+  },
+  {
+    key: "leaderboard_visible",
+    label: "הצגת לוח התוצאות",
+    hint: "הסתרת הלוח מסתירה אותו לכל השחקנים",
+    type: "boolean",
+    default: true,
+  },
+  {
+    key: "disable_ads_button_visible",
+    label: 'הצגת כפתור "ביטול פרסומות"',
+    hint: "הצגת/הסתרת הכפתור (בקרוב — לפי תכונה עתידית)",
+    type: "boolean",
+    default: true,
+  },
 ];
 
 const GAMEPLAY_NUM_FIELDS: Field[] = [
@@ -53,19 +101,56 @@ const GAMEPLAY_NUM_FIELDS: Field[] = [
   { key: "daily_streak_bonus", label: "בונוס רצף יומי", type: "number", default: 5, min: 0, max: 1000 },
   { key: "max_streak_multiplier", label: "מכפיל רצף מקסימלי", type: "number", default: 3, min: 1, max: 20 },
   { key: "required_streak_days", label: "ימים נדרשים לרצף", type: "number", default: 7, min: 1, max: 365 },
-  { key: "submission_cooldown_minutes", label: "המתנה בין הגשות (דקות)", type: "number", default: 60, min: 0, max: 10000 },
+  {
+    key: "submission_cooldown_minutes",
+    label: "המתנה בין הגשות (דקות)",
+    type: "number",
+    default: 60,
+    min: 0,
+    max: 10000,
+  },
   { key: "max_submissions_per_day", label: "מקסימום הגשות ביום", type: "number", default: 5, min: 0, max: 1000 },
 ];
 
 const CONTENT_FIELDS: Field[] = [
-  { key: "global_announcement_banner", label: "באנר הודעה גלובלי", hint: "טקסט שמופיע בראש המשחק", type: "text", default: "" },
-  { key: "popup_announcement_text", label: "חלונית הודעת פופאפ", hint: "טקסט שמופיע בכניסה ראשונית למשחק", type: "textarea", default: "" },
-  { key: "minimum_supported_app_version", label: "גרסת מינימום נתמכת", hint: "לדוגמה: 1.4.0", type: "text", default: "" },
+  {
+    key: "global_announcement_banner",
+    label: "באנר הודעה גלובלי",
+    hint: "טקסט שמופיע בראש האפליקציה",
+    type: "text",
+    default: "",
+  },
+  {
+    key: "popup_announcement_text",
+    label: "טקסט הודעת פופאפ",
+    hint: "מוצג בעלייה ראשונית",
+    type: "textarea",
+    default: "",
+  },
+  {
+    key: "minimum_supported_app_version",
+    label: "גרסת מינימום נתמכת",
+    hint: "לדוגמה: 1.4.0",
+    type: "text",
+    default: "",
+  },
 ];
 
 const MAINTENANCE_FIELDS: Field[] = [
-  { key: "maintenance_mode", label: "מצב תחזוקה", hint: "כאשר פעיל, שחקנים ללא הרשאת מנהל יראו הודעת תחזוקה", type: "boolean", default: false },
-  { key: "maintenance_message", label: "הודעת תחזוקה", hint: "הטקסט שיוצג לשחקנים בעת הפעלת מצב תחזוקה", type: "textarea", default: "המערכת בתחזוקה. נחזור בקרוב." },
+  {
+    key: "maintenance_mode",
+    label: "מצב תחזוקה",
+    hint: "כאשר פעיל, שחקנים שאינם מנהלים יראו הודעת תחזוקה במקום האפליקציה",
+    type: "boolean",
+    default: false,
+  },
+  {
+    key: "maintenance_message",
+    label: "הודעת תחזוקה",
+    hint: "ההודעה שתוצג לשחקנים בעת מצב תחזוקה",
+    type: "textarea",
+    default: "המשחק בתחזוקה. נחזור בקרוב.",
+  },
 ];
 
 // ------------------------------------------------------------------
@@ -175,7 +260,7 @@ function SettingsPage() {
 
         <Section
           title="מצב תחזוקה"
-          description="השהיית המשחק באופן זמני"
+          description="חסימת האפליקציה לשחקנים זמנית"
           fields={MAINTENANCE_FIELDS}
           values={data}
           loading={settings.isLoading}
@@ -284,9 +369,7 @@ function Section({
             <CardTitle className="text-base">{title}</CardTitle>
             {description && <CardDescription>{description}</CardDescription>}
           </div>
-          {dirty && (
-            <span className="text-xs text-amber-600 font-medium whitespace-nowrap">שינויים שלא נשמרו</span>
-          )}
+          {dirty && <span className="text-xs text-amber-600 font-medium whitespace-nowrap">שינויים שלא נשמרו</span>}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
