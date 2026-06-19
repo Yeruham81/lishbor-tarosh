@@ -99,7 +99,7 @@ export function DisplayNameSetup() {
           placeholder="כינוי"
           className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
         />
-        <p className="text-xs text-muted-foreground mt-1">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
+        <p className="text-xs text-muted-foreground mt-0.5">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
         <div>
           <div className="flex items-center gap-2 bg-warning/10 border border-warning/30 rounded-xl px-3 py-1.5 text-xs mb-3">
             <AlertTriangle className="size-4 text-warning shrink-0" />
