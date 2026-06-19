@@ -99,12 +99,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </NavLink>
             )}
             {user && (
-              <NavLink to="/levels" icon={<BarChart3 className="size-4" />}>
-                איך אני
-              </NavLink>
-            )}
-            {user && (
-              <NavLink to="/leaderboard" icon={<BarChart3 className="size-4" />}>
+              <NavLink to="/leaderboard" icon={<Trophy3 className="size-4" />}>
                 מי בראש
               </NavLink>
             )}
