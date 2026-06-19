@@ -260,7 +260,7 @@ function SettingsPage() {
 
         <Section
           title="מצב תחזוקה"
-          description="חסימת האפליקציה לשחקנים זמנית"
+          description="השהיית האפשרות לשחק באופן זמני"
           fields={MAINTENANCE_FIELDS}
           values={data}
           loading={settings.isLoading}
