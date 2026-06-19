@@ -64,8 +64,8 @@ const CONTENT_FIELDS: Field[] = [
 ];
 
 const MAINTENANCE_FIELDS: Field[] = [
-  { key: "maintenance_mode", label: "מצב תחזוקה", hint: "כאשר פעיל, שחקנים שאינם מנהלים יראו הודעת תחזוקה במקום האפליקציה", type: "boolean", default: false },
-  { key: "maintenance_message", label: "הודעת תחזוקה", hint: "ההודעה שתוצג לשחקנים בעת מצב תחזוקה", type: "textarea", default: "המערכת בתחזוקה. נחזור בקרוב." },
+  { key: "maintenance_mode", label: "מצב תחזוקה", hint: "כאשר פעיל, שחקנים ללא הרשאת מנהל יראו הודעת תחזוקה", type: "boolean", default: false },
+  { key: "maintenance_message", label: "הודעת תחזוקה", hint: "הטקסט שיוצג לשחקנים בעת הפעלת מצב תחזוקה", type: "textarea", default: "המערכת בתחזוקה. נחזור בקרוב." },
 ];
 
 // ------------------------------------------------------------------
