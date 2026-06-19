@@ -22,7 +22,9 @@ const TABS: { value: Period; label: string }[] = [
 function LB() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  useEffect(() => { if (!loading && !user) navigate({ to: "/auth" }); }, [user, loading, navigate]);
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [user, loading, navigate]);
   const [period, setPeriod] = useState<Period>("today");
   const flags = useFeatureFlags();
 
@@ -31,7 +33,7 @@ function LB() {
       <AppShell>
         <div className="container mx-auto px-4 py-16 max-w-2xl text-center">
           <Trophy className="size-12 mx-auto text-muted-foreground mb-3" />
-          <h1 className="font-display text-2xl font-bold mb-2">טבלת המובילים אינה זמינה כעת</h1>
+          <h1 className="font-display text-2xl font-bold mb-2">טבלת מי בראש אינה זמינה כעת</h1>
           <p className="text-muted-foreground">מנהל המערכת הסתיר את הלוח באופן זמני.</p>
         </div>
       </AppShell>
@@ -43,13 +45,15 @@ function LB() {
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="text-center mb-6">
           <Trophy className="size-12 mx-auto text-primary mb-2" />
-          <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">טבלת המובילים</h1>
+          <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">מי בראש</h1>
         </div>
 
         <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} dir="rtl">
           <TabsList className="grid grid-cols-4 w-full mb-4">
             {TABS.map((t) => (
-              <TabsTrigger key={t.value} value={t.value}>{t.label}</TabsTrigger>
+              <TabsTrigger key={t.value} value={t.value}>
+                {t.label}
+              </TabsTrigger>
             ))}
           </TabsList>
           {TABS.map((t) => (
@@ -76,7 +80,11 @@ function Board({ period, currentUserId }: { period: Period; currentUserId?: stri
 
   const rows = data ?? [];
   if (rows.length === 0) {
-    return <div className="bg-card border rounded-3xl shadow-card p-8 text-center text-muted-foreground">אין עדיין שחקנים בתקופה זו</div>;
+    return (
+      <div className="bg-card border rounded-3xl shadow-card p-8 text-center text-muted-foreground">
+        אין עדיין שחקנים בתקופה זו
+      </div>
+    );
   }
 
   return (
@@ -100,12 +108,11 @@ function Row({ row, rank, isMe, hasBorder }: { row: any; rank: number; isMe: boo
       </div>
       <div className="flex-1 min-w-0">
         <div className="font-bold truncate">{row.display_name ?? row.username}</div>
-        <div className="text-xs text-muted-foreground">שלב {row.level} • {row.solved_count} פתרונות • שיא רצף {row.best_streak}</div>
+        <div className="text-xs text-muted-foreground">
+          שלב {row.level} • {row.solved_count} פתרונות • שיא רצף {row.best_streak}
+        </div>
       </div>
-      <div
-        className="font-display text-2xl font-extrabold text-gradient-sunset"
-        style={medal.scoreStyle}
-      >
+      <div className="font-display text-2xl font-extrabold text-gradient-sunset" style={medal.scoreStyle}>
         {row.score}
       </div>
     </div>
@@ -122,24 +129,45 @@ function rankStyles(rank: number): {
     return {
       badge: "text-white shadow-lg",
       icon: <Trophy className="size-5" />,
-      style: { background: "linear-gradient(135deg, #FFD700, #FFA500)", boxShadow: "0 4px 14px rgba(255, 180, 0, 0.45)" },
-      scoreStyle: { background: "linear-gradient(135deg, #FFD700, #FFA500)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
+      style: {
+        background: "linear-gradient(135deg, #FFD700, #FFA500)",
+        boxShadow: "0 4px 14px rgba(255, 180, 0, 0.45)",
+      },
+      scoreStyle: {
+        background: "linear-gradient(135deg, #FFD700, #FFA500)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+      },
     };
   }
   if (rank === 2) {
     return {
       badge: "text-white shadow-md",
       icon: <Medal className="size-5" />,
-      style: { background: "linear-gradient(135deg, #E5E7EB, #9CA3AF)", boxShadow: "0 4px 12px rgba(156, 163, 175, 0.45)" },
-      scoreStyle: { background: "linear-gradient(135deg, #C0C0C0, #6B7280)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
+      style: {
+        background: "linear-gradient(135deg, #E5E7EB, #9CA3AF)",
+        boxShadow: "0 4px 12px rgba(156, 163, 175, 0.45)",
+      },
+      scoreStyle: {
+        background: "linear-gradient(135deg, #C0C0C0, #6B7280)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+      },
     };
   }
   if (rank === 3) {
     return {
       badge: "text-white shadow-md",
       icon: <Award className="size-5" />,
-      style: { background: "linear-gradient(135deg, #CD7F32, #8B4513)", boxShadow: "0 4px 12px rgba(205, 127, 50, 0.45)" },
-      scoreStyle: { background: "linear-gradient(135deg, #CD7F32, #8B4513)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
+      style: {
+        background: "linear-gradient(135deg, #CD7F32, #8B4513)",
+        boxShadow: "0 4px 12px rgba(205, 127, 50, 0.45)",
+      },
+      scoreStyle: {
+        background: "linear-gradient(135deg, #CD7F32, #8B4513)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+      },
     };
   }
   return { badge: "bg-muted text-muted-foreground" };
