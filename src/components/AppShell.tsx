@@ -113,7 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 onClick={onDisableAds}
                 aria-label="ביטול פרסומות"
                 title="ביטול פרסומות"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border-2 border-primary bg-primary/10 hover:bg-primary/20 transition font-medium text-foreground ms-2"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border-2 border-primary bg-primary/10 hover:bg-primary/20 transition font-medium text-foreground ms-3"
               >
                 <BadgeDollarSign className="size-4" /> ביטול פרסומות
               </button>
