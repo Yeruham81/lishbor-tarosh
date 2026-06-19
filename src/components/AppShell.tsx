@@ -126,7 +126,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 onClick={onDisableAds}
                 aria-label="ביטול פרסומות"
                 title="ביטול פרסומות"
-                className="md:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border bg-muted/40 hover:bg-muted transition font-medium text-sm text-muted-foreground"
+                className="md:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border-2 border-primary shadow-sm transition font-medium text-sm text-muted-foreground"
               >
                 ביטול פרסומות
               </button>
