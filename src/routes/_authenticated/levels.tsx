@@ -46,6 +46,11 @@ function Levels() {
               {totalScore.toLocaleString("he-IL")}
             </div>
           </div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display text-2xl font-bold flex items-center gap-2">
+              <Award className="size-6 text-primary" /> שלבים
+            </h2>
+          </div>
 
           {next ? (
             <div className="mb-5">
