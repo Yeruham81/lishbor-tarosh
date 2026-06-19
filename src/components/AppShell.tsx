@@ -85,17 +85,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="text-gradient-sunset">לשבור ת'ראש</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 text-sm">
-            {flags.disableAdsButtonVisible && (
-              <button
-                type="button"
-                onClick={onDisableAds}
-                aria-label="ביטול פרסומות"
-                title="ביטול פרסומות"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-muted transition font-medium text-muted-foreground"
-              >
-                <BadgeDollarSign className="size-4" /> ביטול פרסומות
-              </button>
-            )}
             <NavLink to="/" icon={<Home className="size-4" />}>
               בית
             </NavLink>
@@ -116,6 +105,18 @@ export function AppShell({ children }: { children: ReactNode }) {
               <NavLink to="/profile" icon={<User className="size-4" />}>
                 פרופיל
               </NavLink>
+            )}
+
+            {flags.disableAdsButtonVisible && (
+              <button
+                type="button"
+                onClick={onDisableAds}
+                aria-label="ביטול פרסומות"
+                title="ביטול פרסומות"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-muted transition font-medium text-muted-foreground"
+              >
+                <BadgeDollarSign className="size-4" /> ביטול פרסומות
+              </button>
             )}
           </nav>
           <div className="flex items-center gap-2">
