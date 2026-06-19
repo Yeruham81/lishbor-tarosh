@@ -108,7 +108,7 @@ export function DisplayNameSetup() {
             aria-label="גיל"
             className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="">בחרו גיל</option>
+            <option value="">בני כמה אתם?</option>
             {AGES.map((a) => (
               <option key={a} value={a}>
                 {a}
@@ -125,7 +125,7 @@ export function DisplayNameSetup() {
             aria-label="רמה"
             className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="">בחרו רמה</option>
+            <option value="">איך אתם בהגדרות היגיון?</option>
             {PLAYER_LEVELS.map((l) => (
               <option key={l.value} value={l.value}>
                 {l.label}
@@ -137,7 +137,7 @@ export function DisplayNameSetup() {
 
         <div className="flex items-start gap-2 bg-warning/10 border border-warning/30 rounded-xl p-3 text-sm">
           <AlertTriangle className="size-4 text-warning shrink-0 mt-0.5" />
-          <p className="text-foreground/90">שימו לב, הכינוי והגיל נקבעים פעם אחת ולא ניתן לשנותם בהמשך</p>
+          <p className="text-foreground/90">שימו לב, את הכינוי שתבחרו לא תוכלו לשנות בהמשך</p>
         </div>
 
         <button
