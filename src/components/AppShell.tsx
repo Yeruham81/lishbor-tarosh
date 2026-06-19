@@ -107,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </NavLink>
             )}
 
-            {flags.disableAdsButtonVisible && (
+            {user && flags.disableAdsButtonVisible && (
               <button
                 type="button"
                 onClick={onDisableAds}
