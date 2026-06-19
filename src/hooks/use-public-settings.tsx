@@ -37,6 +37,6 @@ export function useFeatureFlags() {
     disableAdsButtonVisible: asBool(s.disable_ads_button_visible, true),
     maintenanceMode: asBool(s.maintenance_mode, false),
     maintenanceMessage:
-      typeof s.maintenance_message === "string" ? s.maintenance_message : "המשחק בתחזוקה. נחזור בקרוב.",
+      typeof s.maintenance_message === "string" ? s.maintenance_message : "המשחק בתחזוקה, נחזור בקרוב.",
   };
 }

@@ -149,7 +149,7 @@ const MAINTENANCE_FIELDS: Field[] = [
     label: "הודעת תחזוקה",
     hint: "ההודעה שתוצג לשחקנים בעת מצב תחזוקה",
     type: "textarea",
-    default: "המשחק בתחזוקה. נחזור בקרוב.",
+    default: "המשחק בתחזוקה, נחזור בקרוב.",
   },
 ];
 

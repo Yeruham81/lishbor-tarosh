@@ -8,5 +8,5 @@ ALTER TABLE public.profiles
 INSERT INTO public.app_settings(key, value) VALUES
   ('disable_ads_button_visible', 'true'::jsonb),
   ('maintenance_mode', 'false'::jsonb),
-  ('maintenance_message', '"המשחק בתחזוקה. נחזור בקרוב."'::jsonb)
+  ('maintenance_message', '"המשחק בתחזוקה, נחזור בקרוב."'::jsonb)
 ON CONFLICT (key) DO NOTHING;
