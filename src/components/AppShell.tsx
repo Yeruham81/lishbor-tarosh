@@ -128,7 +128,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                 title="ביטול פרסומות"
                 className="md:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border bg-muted/40 hover:bg-muted transition font-medium text-sm text-muted-foreground"
               >
-                <BadgeDollarSign className="size-4" />
                 ביטול פרסומות
               </button>
             )}
