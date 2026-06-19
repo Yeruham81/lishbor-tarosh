@@ -85,10 +85,10 @@ export function DisplayNameSetup() {
       >
         <div className="text-center">
           <UserCircle2 className="size-12 mx-auto text-primary mb-2" />
-          <h2 className="font-display text-2xl font-extrabold text-gradient-sunset">בחרו כינוי</h2>
+          <h2 className="font-display text-2xl font-extrabold text-gradient-sunset">עוד רגע מתחילים</h2>
           <p className="text-sm text-muted-foreground mt-3">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
         </div>
-
+        <label className="block text-sm font-medium mb-1">בחרו כינוי</label>
         <input
           dir="auto"
           autoFocus
@@ -99,7 +99,7 @@ export function DisplayNameSetup() {
           placeholder="כינוי"
           className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
         />
-
+        <p className="text-xs text-muted-foreground mt-1">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
         <div>
           <label className="block text-sm font-medium mb-1">גיל</label>
           <select
