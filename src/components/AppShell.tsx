@@ -1,7 +1,20 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { Trophy, User, Home, Gamepad2, LogOut, BarChart3, Mail, PlusCircle, HelpCircle, X, BadgeDollarSign, Wrench } from "lucide-react";
+import {
+  Trophy,
+  User,
+  Home,
+  Gamepad2,
+  LogOut,
+  BarChart3,
+  Mail,
+  PlusCircle,
+  HelpCircle,
+  X,
+  BadgeDollarSign,
+  Wrench,
+} from "lucide-react";
 import brandIcon from "@/assets/lishbor-icon.jpg.asset.json";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -45,9 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   });
   const isAdmin = !!roleQ.data?.isAdmin;
 
-  const onDisableAds = () => {
-    toast.message("בקרוב — האפשרות תהיה זמינה בעתיד");
-  };
+  const onDisableAds = () => {};
 
   // Maintenance mode: block non-admins entirely.
   if (!flags.loading && flags.maintenanceMode && !isAdmin && !(user && roleQ.isLoading)) {
@@ -65,9 +76,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       {flags.globalAnnouncement && flags.globalAnnouncement.trim() && (
-        <div className="bg-gradient-sunset text-white text-center text-sm py-2 px-4">
-          {flags.globalAnnouncement}
-        </div>
+        <div className="bg-gradient-sunset text-white text-center text-sm py-2 px-4">{flags.globalAnnouncement}</div>
       )}
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between gap-3">
