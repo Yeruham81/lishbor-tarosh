@@ -98,9 +98,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 איך אני
               </NavLink>
             )}
-            <NavLink to="/leaderboard" icon={<Trophy className="size-4" />}>
-              מי בראש
-            </NavLink>
+            {user && (
+              <NavLink to="/levels" icon={<BarChart3 className="size-4" />}>
+                איך אני
+              </NavLink>
+            )}
+            {user && (
+              <NavLink to="/leaderboard" icon={<BarChart3 className="size-4" />}>
+                מי בראש
+              </NavLink>
+            )}
             {user && (
               <NavLink to="/profile" icon={<User className="size-4" />}>
                 פרופיל
