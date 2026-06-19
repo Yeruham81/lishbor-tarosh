@@ -8,7 +8,7 @@ import { getProfile } from "@/lib/game.functions";
 import { getStats } from "@/lib/account.functions";
 import { STAGE_THRESHOLDS, stageFromScore, nextStageInfo } from "@/lib/progression";
 import { AchievementsByCategory } from "@/components/Achievements";
-import { Check, Award, Trophy, CheckCircle2, Target, Sparkles, Percent, Flame, Lightbulb } from "lucide-react";
+import { Check, Award, Trophy, CheckCircle2, Target, Sparkles, Percent, Flame, Lightbulb, BarChart3 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/levels")({ component: Levels });
 
@@ -36,7 +36,7 @@ function Levels() {
     <AppShell>
       <div className="container mx-auto px-4 py-8 max-w-2xl space-y-10">
         <section>
-          <Barchart className="size-12 mx-auto text-primary mb-2" />
+          <BarChart3 className="size-12 mx-auto text-primary mb-2" />
           <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">איך אני</h1>
           <p className="text-center text-muted-foreground mb-4">מעקב ביצועים, שלבים, אתגרים וסטטיסטיקות</p>
 
