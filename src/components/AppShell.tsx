@@ -127,7 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </nav>
           <div className="flex items-center gap-2">
-            {flags.disableAdsButtonVisible && (
+            {user && flags.disableAdsButtonVisible && (
               <button
                 type="button"
                 onClick={onDisableAds}
