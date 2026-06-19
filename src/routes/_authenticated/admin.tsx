@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, isRedirect, redirect, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   FileText,
@@ -18,8 +18,18 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { AdminSearchProvider, useAdminSearchContext } from "@/components/admin/admin-search-context";
+import { getMyRole } from "@/lib/account.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  beforeLoad: async () => {
+    try {
+      const { isAdmin } = await getMyRole();
+      if (!isAdmin) throw redirect({ to: "/" });
+    } catch (e) {
+      if (isRedirect(e)) throw e;
+      throw redirect({ to: "/" });
+    }
+  },
   component: AdminLayout,
 });
 
