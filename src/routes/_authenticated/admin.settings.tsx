@@ -58,8 +58,8 @@ const GAMEPLAY_NUM_FIELDS: Field[] = [
 ];
 
 const CONTENT_FIELDS: Field[] = [
-  { key: "global_announcement_banner", label: "באנר הודעה גלובלי", hint: "טקסט שמופיע בראש האפליקציה", type: "text", default: "" },
-  { key: "popup_announcement_text", label: "טקסט הודעת פופאפ", hint: "מוצג בעלייה ראשונית", type: "textarea", default: "" },
+  { key: "global_announcement_banner", label: "באנר הודעה גלובלי", hint: "טקסט שמופיע בראש המשחק", type: "text", default: "" },
+  { key: "popup_announcement_text", label: "חלונית הודעת פופאפ", hint: "טקסט שמופיע בכניסה ראשונית למשחק", type: "textarea", default: "" },
   { key: "minimum_supported_app_version", label: "גרסת מינימום נתמכת", hint: "לדוגמה: 1.4.0", type: "text", default: "" },
 ];
 
