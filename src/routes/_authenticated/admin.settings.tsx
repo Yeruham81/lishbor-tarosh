@@ -44,8 +44,8 @@ const GAMEPLAY_BOOL_FIELDS: Field[] = [
   { key: "allow_hints", label: "אפשר רמזים", hint: "הצגת כפתור הרמז בעת משחק", type: "boolean", default: true },
   { key: "allow_player_submissions", label: "אפשר הגשות שחקנים", hint: "הצגת טופס הגשת הגדרות", type: "boolean", default: true },
   { key: "allow_new_registrations", label: "אפשר הרשמות חדשות", hint: "אפשר ליצור חשבונות חדשים", type: "boolean", default: true },
-  { key: "leaderboard_visible", label: "הצגת לוח התוצאות", hint: "הסתרת הלוח מסתירה אותו לכל השחקנים", type: "boolean", default: true },
-  { key: "disable_ads_button_visible", label: 'הצגת כפתור "ביטול פרסומות"', hint: "הצגת/הסתרת הכפתור (בקרוב — לפי תכונה עתידית)", type: "boolean", default: true },
+  { key: "leaderboard_visible", label: "אפשר הצגת לוח התוצאות", hint: "הסתרת הלוח מסתירה אותו לכל השחקנים", type: "boolean", default: true },
+  { key: "disable_ads_button_visible", label: "אפשר לבטל פרסומות", hint: 'הצגת כפתור "ביטול פרסומות"', type: "boolean", default: true },
 ];
 
 const GAMEPLAY_NUM_FIELDS: Field[] = [
