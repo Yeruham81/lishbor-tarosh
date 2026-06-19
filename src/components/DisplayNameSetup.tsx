@@ -86,7 +86,9 @@ export function DisplayNameSetup() {
         <div className="text-center">
           <UserCircle2 className="size-12 mx-auto text-primary mb-2" />
           <h2 className="font-display text-2xl font-extrabold text-gradient-sunset">עוד רגע מתחילים</h2>
-          <p className="text-sm text-muted-foreground mt-3">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
+          <p className="text-sm text-muted-foreground mt-3">
+            כמה דברים קטנים שיעזרו לנו להכיר אתכם ולהתאים את המשחק אליכם
+          </p>
         </div>
         <label className="block text-sm font-medium mb-1">בחרו כינוי</label>
         <input
@@ -137,7 +139,7 @@ export function DisplayNameSetup() {
 
         <div className="flex items-start gap-2 bg-warning/10 border border-warning/30 rounded-xl p-3 text-sm">
           <AlertTriangle className="size-4 text-warning shrink-0 mt-0.5" />
-          <p className="text-foreground/90">שימו לב, את הכינוי שתבחרו לא תוכלו לשנות בהמשך</p>
+          <p className="text-foreground/90">שימו לב, את הכינוי לא תוכלו לשנות בהמשך</p>
         </div>
 
         <button
