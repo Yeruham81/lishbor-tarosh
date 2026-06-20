@@ -389,7 +389,9 @@ function DefinitionsPage() {
                 )}
                 {t.isVisible("answer") && <TableCell className="font-semibold">{r.answer}</TableCell>}
                 {t.isVisible("explanation") && (
-                  <TableCell className="max-w-[240px] truncate text-sm text-muted-foreground">{r.explanation ?? "—"}</TableCell>
+                  <TableCell className="max-w-[240px] truncate text-sm text-muted-foreground">
+                    {r.explanation ?? "—"}
+                  </TableCell>
                 )}
                 {t.isVisible("category") && <TableCell>{r.category ?? "—"}</TableCell>}
                 {t.isVisible("difficulty") && <TableCell>{r.difficulty ?? "—"}</TableCell>}
@@ -545,7 +547,7 @@ function RowActions({
           <MoreHorizontal className="size-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="text-right" dir="rtl">
         <DropdownMenuItem onClick={onEdit}>עריכה</DropdownMenuItem>
         <DropdownMenuItem onClick={onDuplicate}>שכפול</DropdownMenuItem>
         <DropdownMenuSeparator />
