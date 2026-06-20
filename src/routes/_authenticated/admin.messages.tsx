@@ -1,14 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  PageHeader, TableToolbar, SortableHead, StatusBadge, DataTableShell, PaginationBar,
+  PageHeader,
+  TableToolbar,
+  SortableHead,
+  StatusBadge,
+  DataTableShell,
+  PaginationBar,
 } from "@/components/admin/AdminUI";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Eye, Reply, Download } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
@@ -23,8 +32,7 @@ export const Route = createFileRoute("/_authenticated/admin/messages")({
   component: MessagesPage,
 });
 
-const statusHe = (s: string) =>
-  ({ new: "חדש", in_progress: "בטיפול", resolved: "נפתר", closed: "סגור" }[s] ?? s);
+const statusHe = (s: string) => ({ new: "חדש", in_progress: "בטיפול", resolved: "נפתר", closed: "סגור" })[s] ?? s;
 
 const TYPE_HE: Record<string, string> = {
   bug: "תקלה",
@@ -52,7 +60,11 @@ const COLS = [
 
 function MessagesPage() {
   const qc = useQueryClient();
-  const t = useAdminTable("messages", { defaultSort: "created_at", defaultPageSize: 20, defaultFilters: { status: "all" } });
+  const t = useAdminTable("messages", {
+    defaultSort: "created_at",
+    defaultPageSize: 20,
+    defaultFilters: { status: "all" },
+  });
   useGlobalSearchSync(t.setSearch);
 
   const listFn = useServerFn(adminListMessages);
@@ -81,7 +93,10 @@ function MessagesPage() {
 
   const update = useMutation({
     mutationFn: (v: any) => updateFn({ data: v }),
-    onSuccess: () => { toast.success("עודכן"); invalidate(); },
+    onSuccess: () => {
+      toast.success("עודכן");
+      invalidate();
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -89,19 +104,27 @@ function MessagesPage() {
     try {
       const res: any = await exportFn({ data: { dataset: "messages", includeDeleted: false } });
       const data = res?.messages ?? [];
-      if (data.length === 0) { toast.message("אין נתונים לייצוא"); return; }
+      if (data.length === 0) {
+        toast.message("אין נתונים לייצוא");
+        return;
+      }
       if (fmt === "csv") downloadCSV(data, "messages");
       else downloadXLSX({ messages: data }, "messages");
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
-  const statusOptions = useMemo(() => [
-    { label: "הכל", value: "all" },
-    { label: "חדש", value: "new" },
-    { label: "בטיפול", value: "in_progress" },
-    { label: "נפתר", value: "resolved" },
-    { label: "סגור", value: "closed" },
-  ], []);
+  const statusOptions = useMemo(
+    () => [
+      { label: "הכל", value: "all" },
+      { label: "חדש", value: "new" },
+      { label: "בטיפול", value: "in_progress" },
+      { label: "נפתר", value: "resolved" },
+      { label: "סגור", value: "closed" },
+    ],
+    [],
+  );
 
   return (
     <div>
@@ -111,7 +134,9 @@ function MessagesPage() {
         actions={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline"><Download className="size-4 ml-1" /> ייצוא</Button>
+              <Button variant="outline">
+                <Download className="size-4 ml-1" /> ייצוא
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => runExport("csv")}>CSV</DropdownMenuItem>
@@ -126,9 +151,21 @@ function MessagesPage() {
         onSearchChange={t.setSearch}
         searchPlaceholder="חיפוש לפי שם / נושא / הודעה..."
         filters={[
-          { key: "status", label: "סטטוס", value: t.filters.status ?? "all", onChange: (v) => t.setFilter("status", v), options: statusOptions, width: "w-[150px]" },
+          {
+            key: "status",
+            label: "סטטוס",
+            value: t.filters.status ?? "all",
+            onChange: (v) => t.setFilter("status", v),
+            options: statusOptions,
+            width: "w-[150px]",
+          },
         ]}
-        columns={COLS.map((c) => ({ key: c.key, label: c.label, visible: t.isVisible(c.key), onToggle: () => t.toggleCol(c.key) }))}
+        columns={COLS.map((c) => ({
+          key: c.key,
+          label: c.label,
+          visible: t.isVisible(c.key),
+          onToggle: () => t.toggleCol(c.key),
+        }))}
       />
 
       <DataTableShell
@@ -139,60 +176,110 @@ function MessagesPage() {
             {t.isVisible("type") && <TableHead>סוג</TableHead>}
             {t.isVisible("subject") && <TableHead>נושא</TableHead>}
             {t.isVisible("message") && <TableHead className="hidden lg:table-cell">הודעה</TableHead>}
-            {t.isVisible("status") && <SortableHead sortKey="status" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>סטטוס</SortableHead>}
-            {t.isVisible("created") && <SortableHead sortKey="created_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>תאריך</SortableHead>}
+            {t.isVisible("status") && (
+              <SortableHead sortKey="status" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
+                סטטוס
+              </SortableHead>
+            )}
+            {t.isVisible("created") && (
+              <SortableHead sortKey="created_at" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
+                תאריך
+              </SortableHead>
+            )}
             <TableHead className="text-left">פעולות</TableHead>
           </>
         }
         rows={
-          list.isLoading
-            ? <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
-            : rows.length === 0
-              ? <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">אין פניות</TableCell></TableRow>
-              : rows.map((r) => (
-                <TableRow key={r.id}>
-                  {t.isVisible("name") && <TableCell className="font-medium">{r.name ?? "—"}</TableCell>}
-                  {t.isVisible("email") && <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>}
-                  {t.isVisible("type") && (
-                    <TableCell>
-                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${TYPE_CLASS[r.type] ?? TYPE_CLASS.other}`}>
-                        {TYPE_HE[r.type] ?? r.type ?? "—"}
-                      </span>
-                    </TableCell>
-                  )}
-                  {t.isVisible("subject") && <TableCell>{r.subject ?? "—"}</TableCell>}
-                  {t.isVisible("message") && <TableCell className="hidden lg:table-cell max-w-[280px] truncate text-sm text-muted-foreground">{r.message}</TableCell>}
-                  {t.isVisible("status") && <TableCell><StatusBadge status={statusHe(r.status)} /></TableCell>}
-                  {t.isVisible("created") && (
-                    <TableCell className="text-xs text-muted-foreground">
-                      {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
-                    </TableCell>
-                  )}
-                  <TableCell className="text-left">
-                    <div className="flex items-center gap-1 justify-end">
-                      <Button size="icon" variant="ghost" className="size-8" onClick={() => { setViewing(r); if (!r.read_at) update.mutate({ id: r.id, mark_read: true }); }}>
-                        <Eye className="size-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="size-8" onClick={() => setReplying(r)}>
-                        <Reply className="size-4" />
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button size="icon" variant="ghost" className="size-8"><MoreHorizontal className="size-4" /></Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => update.mutate({ id: r.id, mark_read: true })}>סמן כנקרא</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "new" })}>סטטוס: חדש</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "in_progress" })}>סטטוס: בטיפול</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "resolved" })}>סטטוס: נפתר</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "closed" })}>סטטוס: סגור</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+          list.isLoading ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                טוען...
+              </TableCell>
+            </TableRow>
+          ) : rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                אין פניות
+              </TableCell>
+            </TableRow>
+          ) : (
+            rows.map((r) => (
+              <TableRow key={r.id}>
+                {t.isVisible("name") && <TableCell className="font-medium">{r.name ?? "—"}</TableCell>}
+                {t.isVisible("email") && (
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
+                )}
+                {t.isVisible("type") && (
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${TYPE_CLASS[r.type] ?? TYPE_CLASS.other}`}
+                    >
+                      {TYPE_HE[r.type] ?? r.type ?? "—"}
+                    </span>
                   </TableCell>
-                </TableRow>
-              ))
+                )}
+                {t.isVisible("subject") && <TableCell>{r.subject ?? "—"}</TableCell>}
+                {t.isVisible("message") && (
+                  <TableCell className="hidden lg:table-cell max-w-[280px] truncate text-sm text-muted-foreground">
+                    {r.message}
+                  </TableCell>
+                )}
+                {t.isVisible("status") && (
+                  <TableCell>
+                    <StatusBadge status={statusHe(r.status)} />
+                  </TableCell>
+                )}
+                {t.isVisible("created") && (
+                  <TableCell className="text-xs text-muted-foreground">
+                    {r.created_at ? new Date(r.created_at).toLocaleDateString("he-IL") : "—"}
+                  </TableCell>
+                )}
+                <TableCell className="text-left">
+                  <div className="flex items-center gap-1 justify-end">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-8"
+                      onClick={() => {
+                        setViewing(r);
+                        if (!r.read_at) update.mutate({ id: r.id, mark_read: true });
+                      }}
+                    >
+                      <Eye className="size-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="size-8" onClick={() => setReplying(r)}>
+                      <Reply className="size-4" />
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" className="size-8">
+                          <MoreHorizontal className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="text-right" dir="rtl">
+                        <DropdownMenuItem onClick={() => update.mutate({ id: r.id, mark_read: true })}>
+                          סמן כנקרא
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "new" })}>
+                          סטטוס: חדש
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "in_progress" })}>
+                          סטטוס: בטיפול
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "resolved" })}>
+                          סטטוס: נפתר
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => update.mutate({ id: r.id, status: "closed" })}>
+                          סטטוס: סגור
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )
         }
         footer={
           <PaginationBar
@@ -206,16 +293,27 @@ function MessagesPage() {
         }
       />
 
-      <Dialog open={!!viewing} onOpenChange={(v) => { if (!v) setViewing(null); }}>
+      <Dialog
+        open={!!viewing}
+        onOpenChange={(v) => {
+          if (!v) setViewing(null);
+        }}
+      >
         <DialogContent>
-          <DialogHeader><DialogTitle>{viewing?.subject ?? "פנייה"}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{viewing?.subject ?? "פנייה"}</DialogTitle>
+          </DialogHeader>
           <div className="space-y-2 text-sm">
-            <div><span className="text-muted-foreground">מאת:</span> {viewing?.name} ({viewing?.email})</div>
+            <div>
+              <span className="text-muted-foreground">מאת:</span> {viewing?.name} ({viewing?.email})
+            </div>
             <div className="whitespace-pre-wrap p-3 rounded-lg bg-muted">{viewing?.message}</div>
             {viewing?.reply_text && (
               <div>
                 <div className="text-muted-foreground mt-3">תגובה ששלחת:</div>
-                <div className="whitespace-pre-wrap p-3 rounded-lg bg-primary/5 border border-primary/20">{viewing.reply_text}</div>
+                <div className="whitespace-pre-wrap p-3 rounded-lg bg-primary/5 border border-primary/20">
+                  {viewing.reply_text}
+                </div>
               </div>
             )}
           </div>
@@ -225,7 +323,10 @@ function MessagesPage() {
       <ReplyDialog
         msg={replying}
         onClose={() => setReplying(null)}
-        onSaved={() => { setReplying(null); invalidate(); }}
+        onSaved={() => {
+          setReplying(null);
+          invalidate();
+        }}
       />
     </div>
   );
@@ -240,20 +341,36 @@ function ReplyDialog({ msg, onClose, onSaved }: { msg: any | null; onClose: () =
       toast.success("תגובה נשלחה");
       setText("");
       onSaved();
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
   return (
-    <Dialog open={!!msg} onOpenChange={(v) => { if (!v) { setText(""); onClose(); } }}>
+    <Dialog
+      open={!!msg}
+      onOpenChange={(v) => {
+        if (!v) {
+          setText("");
+          onClose();
+        }
+      }}
+    >
       <DialogContent>
-        <DialogHeader><DialogTitle>תגובה לפנייה</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>תגובה לפנייה</DialogTitle>
+        </DialogHeader>
         <div className="space-y-2 text-sm">
           <div className="text-muted-foreground">פנייה מקורית מ-{msg?.name}:</div>
           <div className="whitespace-pre-wrap p-3 rounded-lg bg-muted">{msg?.message}</div>
           <Textarea rows={6} placeholder="כתוב תגובה..." value={text} onChange={(e) => setText(e.target.value)} />
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ביטול</Button>
-          <Button disabled={!text.trim()} onClick={send}>שליחה</Button>
+          <Button variant="outline" onClick={onClose}>
+            ביטול
+          </Button>
+          <Button disabled={!text.trim()} onClick={send}>
+            שליחה
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
