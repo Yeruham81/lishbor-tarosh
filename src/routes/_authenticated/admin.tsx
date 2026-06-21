@@ -51,7 +51,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <nav className="flex flex-col gap-1 p-3">
       <div className="px-3 py-4">
         <div className="font-display text-lg font-extrabold text-gradient-sunset">לשבור ת'ראש</div>
-        <div className="text-xs text-muted-foreground mt-0.5">ניהול התוכן והגדרות המערכת</div>
+        <div className="text-xs text-muted-foreground mt-0.5">ניהול התוכן המשתמשים והמערכת</div>
       </div>
       {NAV.map((item) => {
         const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
