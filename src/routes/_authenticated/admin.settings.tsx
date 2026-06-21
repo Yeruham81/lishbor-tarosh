@@ -233,7 +233,7 @@ function SettingsPage() {
 
         <Section
           title="אפשרויות"
-          description="הפעלה/השבתה של אפשרויות cמשחק"
+          description="הפעלה/השבתה של אפשרויות במשחק"
           fields={GAMEPLAY_BOOL_FIELDS}
           values={data}
           loading={settings.isLoading}
