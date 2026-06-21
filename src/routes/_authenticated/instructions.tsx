@@ -56,7 +56,7 @@ function Instructions() {
             <TabsContent value="rules" className="text-right leading-relaxed space-y-4">
               <h2 className="font-display text-xl font-bold">איך משחקים?</h2>
               <p className="text-muted-foreground">
-                בכל פעם תוצג לכם הגדרת היגיון שעליכם לפתור בעזרת המקלדת העברית שעל המסך.
+                בכל פעם תוצג לכם הגדרת היגיון שעליכם לפתור על ידי הקשה על אותיות במקלדת הוירטואלית.
               </p>
               <p className="text-muted-foreground">
                 אם האות שבחרתם קיימת בתשובה היא תיחשף בכל המקומות שבהם היא מופיעה. אם האות שבחרתם לא קיימת בתשובה, היא תיחשב כטעות. לאחר שתי טעויות תוכלו להשתמש ברמז, שיחשוף אות נוספת.
