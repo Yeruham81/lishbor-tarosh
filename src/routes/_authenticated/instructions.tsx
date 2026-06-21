@@ -72,10 +72,10 @@ function Instructions() {
             <TabsContent value="scoring" className="text-right leading-relaxed space-y-4">
               <h2 className="font-display text-xl font-bold">איך מחושב הניקוד?</h2>
               <p className="text-muted-foreground">
-                כל הגדרה מתחילה ב‑10 נקודות - שלוש הטעויות הראשונות לא עולות דבר כדי לתת לכם מרחב לחשוב ולנסות לפתור.
+                אתם מתחילים כל הגדרה עם 10 נקודות - שלוש הטעויות הראשונות לא מורידות ניקוד.
               </p>
               <p className="text-muted-foreground">
-                החל מהטעות הרביעית כל אות שגויה גורעת נקודה אחת. שימוש ברמז גורע שתי נקודות. הציון המינימלי האפשרי על
+                החל מהטעות הרביעית כל אות שגויה מורידה נקודה אחת. שימוש ברמז גורע שתי נקודות. הציון המינימלי האפשרי על
                 פתרון הגדרה הוא 2 נקודות.
               </p>
               <p className="text-muted-foreground whitespace-pre-line">
