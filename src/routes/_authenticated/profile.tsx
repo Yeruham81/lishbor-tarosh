@@ -420,7 +420,6 @@ function Profile() {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-muted-foreground mt-1">נתונים אלו ישמשו להתאמת השאלות לרמתכם</p>
           </div>
           <Toggle
             label="מעבר אוטומטי להגדרה הבאה"
