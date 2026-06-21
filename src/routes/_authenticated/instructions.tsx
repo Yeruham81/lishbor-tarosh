@@ -72,7 +72,7 @@ function Instructions() {
             <TabsContent value="scoring" className="text-right leading-relaxed space-y-4">
               <h2 className="font-display text-xl font-bold">איך מחושב הניקוד?</h2>
               <p className="text-muted-foreground">
-                אתם מתחילים כל הגדרה עם 10 נקודות.
+                אתם מתחילים כל הגדרה עם 10 נקודות -&nbsp;נסו לשמור עליהן עד לפתרון.
               </p>
               <p className="text-muted-foreground">
                 &nbsp;שלוש הטעויות הראשונות לא מורידות ניקוד. מהטעות הרביעית ואילך, כל אות שגויה מורידה נקודה אחת. שימוש ברמז מוריד שתי נקודות. דילוג להגדרה הבאה לא מוריד נקודות, אך מאפס את הרצף.&nbsp;
