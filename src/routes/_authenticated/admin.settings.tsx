@@ -232,8 +232,8 @@ function SettingsPage() {
         />
 
         <Section
-          title="הגדרות משחק - הפעלות"
-          description="הפעלה/השבתה של רכיבי משחק"
+          title="אפשרויות משחק"
+          description="הפעלה/השבתה של אפשרויות משחק"
           fields={GAMEPLAY_BOOL_FIELDS}
           values={data}
           loading={settings.isLoading}
@@ -241,7 +241,7 @@ function SettingsPage() {
         />
 
         <Section
-          title="הגדרות משחק - מספרים"
+          title="מספרים"
           description="פרמטרים מספריים של המשחק"
           fields={GAMEPLAY_NUM_FIELDS}
           values={data}
