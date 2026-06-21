@@ -88,7 +88,7 @@ function Instructions() {
             <TabsContent value="tips" className="text-right leading-relaxed space-y-4">
               <h2 className="font-display text-xl font-bold">טיפים מנצחים</h2>
               <p className="text-muted-foreground whitespace-pre-line">
-                קראו את ההגדרה היטב ונסו לחשוב מחוץ לקופסה - כל מילה חשובה אבל לא תמיד במשמעותה הפשוטה או המוכרת ביותר.
+                קראו את ההגדרה היטב ונסו לחשוב מחוץ לקופסה - כל מילה חשובה אבל לאו דווקא במשמעותה הפשוטה או המוכרת ביותר.
               </p>
               <p className="text-muted-foreground">
                 שימו לב לאורך הפתרון - למשל מילה בת שתי אותיות היא לרוב מילת קישור או מילית. גם מספר המילים והמבנה שלהן
