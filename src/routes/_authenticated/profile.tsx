@@ -395,7 +395,7 @@ function Profile() {
         </Card>
 
         {/* Game settings */}
-        <Card icon={<Gamepad2 className="size-5 text-primary" />} title="הגדרות משחק">
+        <Card icon={<Gamepad2 className="size-5 text-primary" />} title="ניהול המשחק">
           <div>
             <div className="text-sm font-medium mb-2">רמה</div>
             <select
