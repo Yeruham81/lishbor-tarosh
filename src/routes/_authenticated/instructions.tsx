@@ -65,9 +65,8 @@ function Instructions() {
                 לאחר שתי טעויות תוכלו להשתמש ברמז, שיחשוף אות נוספת. אם נתקעתם תוכלו ללחוץ 'דלג' ולעבור להגדרה הבאה.
               </p>
               <p className="text-muted-foreground">
-                השלימו את הפיתרון כדי להתקדם להגדרה הבאה, לצבור נקודות, לעבור שלבים ולהשלים אתגרים.
+                המטרה: לפתור כמה שיותר הגדרות, לצבור נקודות, לעבור שלבים ולהשלים אתגרים.
               </p>
-              <p className="text-muted-foreground">המטרה: לפתור כמה שיותר הגדרות, ולעלות שלבים.</p>
             </TabsContent>
 
             <TabsContent value="scoring" className="text-right leading-relaxed space-y-4">
