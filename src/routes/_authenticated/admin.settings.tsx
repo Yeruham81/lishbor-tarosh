@@ -251,7 +251,7 @@ function SettingsPage() {
 
         <Section
           title="הודעות ותוכן"
-          description="טקסטים גלובליים שמוצגים לשחקנים"
+          description="הצגת טקסטים גלובליים לשחקנים"
           fields={CONTENT_FIELDS}
           values={data}
           loading={settings.isLoading}
