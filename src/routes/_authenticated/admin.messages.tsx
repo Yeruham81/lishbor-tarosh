@@ -256,7 +256,7 @@ function MessagesPage() {
                           <MoreHorizontal className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="text-right" dir="rtl">
+                      <DropdownMenuContent align="end" className="text-right">
                         <DropdownMenuItem onClick={() => update.mutate({ id: r.id, mark_read: true })}>
                           סמן כנקרא
                         </DropdownMenuItem>

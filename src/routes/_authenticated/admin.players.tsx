@@ -331,7 +331,7 @@ function PlayersPage() {
                         <MoreHorizontal className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="text-right" dir="rtl">
+                    <DropdownMenuContent align="end" className="text-right">
                       <DropdownMenuItem onClick={() => setViewing(r)}>צפייה</DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
