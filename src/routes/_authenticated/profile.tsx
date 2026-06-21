@@ -413,7 +413,7 @@ function Profile() {
               }}
               className="w-full px-3 py-2.5 rounded-xl border bg-background text-right"
             >
-              <option value="">בחרו רמה</option>
+              <option value="">איך אתם בפתירת הגדרות היגיון?</option>
               {PLAYER_LEVELS.map((l) => (
                 <option key={l.value} value={l.value}>
                   {l.label}
