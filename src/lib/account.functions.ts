@@ -92,10 +92,17 @@ export const deleteAccount = createServerFn({ method: "POST" })
 const confirmSchema = z.object({
   displayName: z
     .string()
-    .trim()
-    .min(2, "הכינוי קצר מדי (לפחות 2 תווים)")
-    .max(20, "הכינוי ארוך מדי (עד 20 תווים)")
-    .regex(/^[A-Za-z\u0590-\u05FF ]+$/, "ניתן להשתמש באותיות עברית/אנגלית ורווחים בלבד"),
+    .transform((s) => s.replace(/\s+/g, " ").trim())
+    .pipe(
+      z
+        .string()
+        .min(2, "הכינוי קצר מדי (לפחות 2 תווים)")
+        .max(20, "הכינוי ארוך מדי (עד 20 תווים)")
+        .regex(
+          /^[A-Za-z\u0590-\u05FF0-9 .,_-]{2,20}$/,
+          "ניתן להשתמש באותיות עברית/אנגלית, מספרים, רווחים ו- . , _ - בלבד",
+        ),
+    ),
   age: z.number().int().min(18, "גיל לא תקין").max(100, "גיל לא תקין"),
   playerLevel: z.number().int().min(1).max(5),
 });
