@@ -6,7 +6,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { UserCircle2, AlertTriangle } from "lucide-react";
 
-const NICK_RE = /^[A-Za-z\u0590-\u05FF ]+$/;
+const NICK_RE = /^[A-Za-z\u0590-\u05FF0-9 .,_-]{2,20}$/;
+const normalizeNick = (s: string) => s.replace(/\s+/g, " ").trim();
 
 export const PLAYER_LEVELS: { value: number; label: string }[] = [
   { value: 1, label: "מתחילים" },
@@ -43,12 +44,10 @@ export function DisplayNameSetup() {
 
   if (!user || !data || data.confirmed) return null;
 
-  const trimmed = name.trim();
+  const trimmed = normalizeNick(name);
   const ageN = Number(age);
   const levelN = Number(level);
   const valid =
-    trimmed.length >= 2 &&
-    trimmed.length <= 20 &&
     NICK_RE.test(trimmed) &&
     Number.isInteger(ageN) &&
     ageN >= 18 &&
