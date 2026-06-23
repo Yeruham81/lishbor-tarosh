@@ -133,7 +133,7 @@ function AdminLayout() {
                   </Avatar>
                   <div className="hidden sm:block text-right">
                     <div className="text-sm font-semibold leading-tight">מנהל המערכת</div>
-                    <div className="text-xs text-muted-foreground">lishbor-tarosh</div>
+                    <div className="text-xs text-muted-foreground">Lishbor-Tarosh</div>
                   </div>
                 </div>
               </div>
