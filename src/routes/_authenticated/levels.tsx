@@ -38,7 +38,7 @@ function Levels() {
         <section>
           <BarChart3 className="size-12 mx-auto text-primary mb-2" />
           <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">איך אני</h1>
-          <p className="text-center text-muted-foreground mb-4">מעקב ביצועים - שלבים, אתגרים וסטטיסטיקות</p>
+          <p className="text-center text-muted-foreground mb-4">מעקב ביצועים - שלבים, אתגרים וסטטיסטיקות אישיות</p>
 
           {/* Score summary */}
           <div className="bg-card border rounded-2xl p-4 mb-5 text-center shadow-card">
