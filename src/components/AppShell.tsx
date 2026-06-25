@@ -167,12 +167,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           מקום שמור למודעה (Google AdSense)
         </div>
       </div>
+      {/* Footer actions: יציאה (left) | יצירת קשר (center) | הוספת הגדרה (right) */}
       <footer className="border-t bg-muted/20 mt-2">
         <div className="container mx-auto px-4 py-5 space-y-3">
-          {/* ================= DESKTOP ================= */}
-          <div className="hidden md:flex items-center justify-between gap-2">
-            {/* יציאה */}
-            <div>
+          <div dir="ltr" className="grid grid-cols-3 items-center gap-2">
+            {/* LEFT — יציאה */}
+            <div className="flex justify-start">
               {user ? (
                 <button
                   onClick={signOut}
@@ -184,24 +184,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span />
               )}
             </div>
-
-            {/* אמצע */}
-            <div className="flex items-center gap-2">
+            {/* CENTER — יצירת קשר + מדיניות פרטיות + תנאי שימוש */}
+            <div className="flex justify-center flex-wrap gap-2">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
               >
                 <Mail className="size-4" /> יצירת קשר
               </Link>
-
-              <button
-                type="button"
-                onClick={() => setTermsOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
-              >
-                <FileText className="size-4" /> תנאי שימוש
-              </button>
-
               <button
                 type="button"
                 onClick={() => setPrivacyOpen(true)}
@@ -209,10 +199,16 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 <ShieldCheck className="size-4" /> מדיניות פרטיות
               </button>
+              <button
+                type="button"
+                onClick={() => setTermsOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <FileText className="size-4" /> תנאי שימוש
+              </button>
             </div>
-
-            {/* הוספת הגדרה */}
-            <div>
+            {/* RIGHT — הוספת הגדרה */}
+            <div className="flex justify-end">
               {user && flags.allowPlayerSubmissions ? (
                 <Link
                   to="/submit-puzzle"
@@ -225,65 +221,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             </div>
           </div>
-
-          {/* ================= MOBILE ================= */}
-          <div className="grid grid-cols-3 gap-2 items-center">
-            {/* יציאה */}
-            {user ? (
-              <button
-                onClick={signOut}
-                className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium whitespace-nowrap"
-              >
-                <LogOut className="size-4" /> יציאה
-              </button>
-            ) : (
-              <div />
-            )}
-
-            {/* יצירת קשר */}
-            <Link
-              to="/contact"
-              className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium whitespace-nowrap"
-            >
-              <Mail className="size-4" /> יצירת קשר
-            </Link>
-
-            {/* הוספת הגדרה */}
-            {user && flags.allowPlayerSubmissions ? (
-              <Link
-                to="/submit-puzzle"
-                className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-gradient-sunset text-white text-xs font-semibold whitespace-nowrap"
-              >
-                הוספת הגדרה
-              </Link>
-            ) : (
-              <div />
-            )}
-          </div>
-
-          {/* ROW 2 - 2 buttons + center text */}
-          <div className="grid grid-cols-3 items-center text-xs text-muted-foreground">
-            {/* left */}
-            <button
-              onClick={() => setTermsOpen(true)}
-              className="cursor-pointer font-medium hover:underline text-center"
-            >
-              תנאי שימוש
-            </button>
-
-            {/* center */}
-            <div className="text-center">© 2026 לשבור ת'ראש</div>
-
-            {/* right */}
-            <button
-              onClick={() => setPrivacyOpen(true)}
-              className="cursor-pointer font-medium hover:underline text-center"
-            >
-              מדיניות פרטיות
-            </button>
-          </div>
-
-          {/* COPYRIGHT (desktop only optional duplicate safety) */}
           <div className="text-center text-xs text-muted-foreground">© {new Date().getFullYear()} לשבור ת'ראש</div>
         </div>
       </footer>
