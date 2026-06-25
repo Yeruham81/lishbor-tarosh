@@ -36,6 +36,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const onInstructions = pathname === "/instructions";
   const showMobileHelp = !!user && (onPlay || onInstructions);
   const flags = useFeatureFlags();
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
 
   // Popup announcement: show once per session per message text.
   const popupText = flags.popupAnnouncement?.trim() ?? "";
