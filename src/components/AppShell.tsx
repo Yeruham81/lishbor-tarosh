@@ -228,12 +228,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           {/* ================= MOBILE ================= */}
           <div className="md:hidden space-y-2">
-            {/* ROW 1 - 3 buttons */}
+            {/* ROW 1 - 3 buttons (NEVER wraps) */}
             <div className="grid grid-cols-3 gap-2">
               {user ? (
                 <button
                   onClick={signOut}
-                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
+                  className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
                 >
                   <LogOut className="size-4" /> יציאה
                 </button>
@@ -243,7 +243,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
               <Link
                 to="/contact"
-                className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
+                className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
               >
                 <Mail className="size-4" /> יצירת קשר
               </Link>
@@ -251,7 +251,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {user && flags.allowPlayerSubmissions ? (
                 <Link
                   to="/submit-puzzle"
-                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-gradient-sunset text-white text-xs font-semibold"
+                  className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-gradient-sunset text-white text-xs font-semibold"
                 >
                   הוספת הגדרה
                 </Link>
@@ -260,18 +260,15 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             </div>
 
-            {/* ROW 2 - 2 buttons + text */}
+            {/* ROW 2 - legal */}
             <div className="grid grid-cols-3 items-center text-xs text-muted-foreground">
-              {/* left */}
-              <button onClick={() => setTermsOpen(true)} className="text-center hover:underline">
+              <button onClick={() => setTermsOpen(true)} className="hover:underline text-center">
                 תנאי שימוש
               </button>
 
-              {/* center */}
               <div className="text-center">© {new Date().getFullYear()} לשבור ת'ראש</div>
 
-              {/* right */}
-              <button onClick={() => setPrivacyOpen(true)} className="text-center hover:underline">
+              <button onClick={() => setPrivacyOpen(true)} className="hover:underline text-center">
                 מדיניות פרטיות
               </button>
             </div>
