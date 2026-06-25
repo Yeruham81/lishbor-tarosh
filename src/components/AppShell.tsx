@@ -171,15 +171,15 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="container mx-auto px-4 py-5 space-y-3">
           {/* ================= DESKTOP ================= */}
           <div className="hidden md:grid grid-cols-5 items-center gap-2">
-            {/* יציאה */}
+            {/* LEFT — הוספת הגדרה (עבר מהימין לשמאל) */}
             <div className="flex justify-start">
-              {user ? (
-                <button
-                  onClick={signOut}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              {user && flags.allowPlayerSubmissions ? (
+                <Link
+                  to="/submit-puzzle"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
                 >
-                  <LogOut className="size-4" /> יציאה
-                </button>
+                  הוספת הגדרה
+                </Link>
               ) : (
                 <span />
               )}
@@ -211,15 +211,15 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ShieldCheck className="size-4" /> מדיניות פרטיות
             </button>
 
-            {/* הוספת הגדרה */}
+            {/* RIGHT — יציאה */}
             <div className="flex justify-end">
-              {user && flags.allowPlayerSubmissions ? (
-                <Link
-                  to="/submit-puzzle"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
+              {user ? (
+                <button
+                  onClick={signOut}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
                 >
-                  הוספת הגדרה
-                </Link>
+                  <LogOut className="size-4" /> יציאה
+                </button>
               ) : (
                 <span />
               )}
