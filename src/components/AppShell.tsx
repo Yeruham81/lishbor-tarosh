@@ -262,13 +262,22 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             {/* ROW 2 - legal */}
             <div className="grid grid-cols-3 items-center text-xs text-muted-foreground">
-              <button onClick={() => setTermsOpen(true)} className="hover:underline text-center">
+              {/* left */}
+              <button
+                onClick={() => setTermsOpen(true)}
+                className="inline-flex items-center justify-center px-2 py-1 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+              >
                 תנאי שימוש
               </button>
 
+              {/* center */}
               <div className="text-center">© {new Date().getFullYear()} לשבור ת'ראש</div>
 
-              <button onClick={() => setPrivacyOpen(true)} className="hover:underline text-center">
+              {/* right */}
+              <button
+                onClick={() => setPrivacyOpen(true)}
+                className="inline-flex items-center justify-center px-2 py-1 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+              >
                 מדיניות פרטיות
               </button>
             </div>
