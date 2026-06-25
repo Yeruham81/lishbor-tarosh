@@ -14,11 +14,16 @@ import {
   X,
   BadgeDollarSign,
   Wrench,
+  ShieldCheck,
+  FileText,
 } from "lucide-react";
 import brandIcon from "@/assets/lishbor-icon.jpg.asset.json";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { LegalModal } from "@/components/LegalModal";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { privacyPolicy, termsOfUse } from "@/content/legal";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyRole } from "@/lib/account.functions";
@@ -31,6 +36,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const onInstructions = pathname === "/instructions";
   const showMobileHelp = !!user && (onPlay || onInstructions);
   const flags = useFeatureFlags();
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
 
   // Popup announcement: show once per session per message text.
   const popupText = flags.popupAnnouncement?.trim() ?? "";
@@ -177,14 +184,28 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span />
               )}
             </div>
-            {/* CENTER — יצירת קשר */}
-            <div className="flex justify-center">
+            {/* CENTER — יצירת קשר + מדיניות פרטיות + תנאי שימוש */}
+            <div className="flex justify-center flex-wrap gap-2">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
               >
                 <Mail className="size-4" /> יצירת קשר
               </Link>
+              <button
+                type="button"
+                onClick={() => setPrivacyOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <ShieldCheck className="size-4" /> מדיניות פרטיות
+              </button>
+              <button
+                type="button"
+                onClick={() => setTermsOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <FileText className="size-4" /> תנאי שימוש
+              </button>
             </div>
             {/* RIGHT — הוספת הגדרה */}
             <div className="flex justify-end">
@@ -244,6 +265,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </DialogContent>
         </Dialog>
       )}
+
+      <LegalModal open={privacyOpen} onOpenChange={setPrivacyOpen} doc={privacyPolicy} />
+      <LegalModal open={termsOpen} onOpenChange={setTermsOpen} doc={termsOfUse} />
+      <CookieConsentBanner />
     </div>
   );
 }
