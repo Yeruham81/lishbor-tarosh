@@ -14,11 +14,16 @@ import {
   X,
   BadgeDollarSign,
   Wrench,
+  ShieldCheck,
+  FileText,
 } from "lucide-react";
 import brandIcon from "@/assets/lishbor-icon.jpg.asset.json";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { LegalModal } from "@/components/LegalModal";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { privacyPolicy, termsOfUse } from "@/content/legal";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyRole } from "@/lib/account.functions";
