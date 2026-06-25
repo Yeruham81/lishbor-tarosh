@@ -167,11 +167,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           מקום שמור למודעה (Google AdSense)
         </div>
       </div>
-      {/* Footer actions: יציאה (left) | יצירת קשר (center) | הוספת הגדרה (right) */}
       <footer className="border-t bg-muted/20 mt-2">
         <div className="container mx-auto px-4 py-5 space-y-3">
-          <div dir="ltr" className="grid grid-cols-3 items-center gap-2">
-            {/* LEFT — יציאה */}
+          {/* ================= DESKTOP ================= */}
+          <div className="hidden md:grid grid-cols-5 items-center gap-2">
+            {/* יציאה */}
             <div className="flex justify-start">
               {user ? (
                 <button
@@ -184,30 +184,34 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span />
               )}
             </div>
-            {/* CENTER — יצירת קשר + מדיניות פרטיות + תנאי שימוש */}
-            <div className="flex justify-center flex-wrap gap-2">
-              <Link
-                to="/contact"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
-              >
-                <Mail className="size-4" /> יצירת קשר
-              </Link>
-              <button
-                type="button"
-                onClick={() => setPrivacyOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
-              >
-                <ShieldCheck className="size-4" /> מדיניות פרטיות
-              </button>
-              <button
-                type="button"
-                onClick={() => setTermsOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
-              >
-                <FileText className="size-4" /> תנאי שימוש
-              </button>
-            </div>
-            {/* RIGHT — הוספת הגדרה */}
+
+            {/* יצירת קשר */}
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+            >
+              <Mail className="size-4" /> יצירת קשר
+            </Link>
+
+            {/* תנאי שימוש */}
+            <button
+              type="button"
+              onClick={() => setTermsOpen(true)}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+            >
+              <FileText className="size-4" /> תנאי שימוש
+            </button>
+
+            {/* מדיניות פרטיות */}
+            <button
+              type="button"
+              onClick={() => setPrivacyOpen(true)}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+            >
+              <ShieldCheck className="size-4" /> מדיניות פרטיות
+            </button>
+
+            {/* הוספת הגדרה */}
             <div className="flex justify-end">
               {user && flags.allowPlayerSubmissions ? (
                 <Link
@@ -221,9 +225,59 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             </div>
           </div>
-          <div className="text-center text-xs text-muted-foreground">© {new Date().getFullYear()} לשבור ת'ראש</div>
+
+          {/* ================= MOBILE ================= */}
+          <div className="md:hidden space-y-2">
+            {/* ROW 1 - 3 buttons */}
+            <div className="grid grid-cols-3 gap-2">
+              {user ? (
+                <button
+                  onClick={signOut}
+                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
+                >
+                  <LogOut className="size-4" /> יציאה
+                </button>
+              ) : (
+                <div />
+              )}
+
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
+              >
+                <Mail className="size-4" /> יצירת קשר
+              </Link>
+
+              {user && flags.allowPlayerSubmissions ? (
+                <Link
+                  to="/submit-puzzle"
+                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-gradient-sunset text-white text-xs font-semibold"
+                >
+                  הוספת הגדרה
+                </Link>
+              ) : (
+                <div />
+              )}
+            </div>
+
+            {/* ROW 2 - 2 buttons + text */}
+            <div className="grid grid-cols-3 items-center text-xs text-muted-foreground">
+              {/* left */}
+              <button onClick={() => setTermsOpen(true)} className="text-center hover:underline">
+                תנאי שימוש
+              </button>
+
+              {/* center */}
+              <div className="text-center">© {new Date().getFullYear()} לשבור ת'ראש</div>
+
+              {/* right */}
+              <button onClick={() => setPrivacyOpen(true)} className="text-center hover:underline">
+                מדיניות פרטיות
+              </button>
+            </div>
+          </div>
         </div>
-      </footer>
+      </footer>{" "}
       {/* Mobile bottom nav */}
       {user && (
         <nav className="md:hidden sticky bottom-0 border-t bg-background/95 backdrop-blur-xl">
@@ -251,7 +305,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </nav>
       )}
-
       {popupText && (
         <Dialog open={popupOpen} onOpenChange={setPopupOpen}>
           <DialogContent>
@@ -265,7 +318,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </DialogContent>
         </Dialog>
       )}
-
       <LegalModal open={privacyOpen} onOpenChange={setPrivacyOpen} doc={privacyPolicy} />
       <LegalModal open={termsOpen} onOpenChange={setTermsOpen} doc={termsOfUse} />
       <CookieConsentBanner />
