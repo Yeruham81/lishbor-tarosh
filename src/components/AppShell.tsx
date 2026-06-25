@@ -184,14 +184,28 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span />
               )}
             </div>
-            {/* CENTER — יצירת קשר */}
-            <div className="flex justify-center">
+            {/* CENTER — יצירת קשר + מדיניות פרטיות + תנאי שימוש */}
+            <div className="flex justify-center flex-wrap gap-2">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
               >
                 <Mail className="size-4" /> יצירת קשר
               </Link>
+              <button
+                type="button"
+                onClick={() => setPrivacyOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <ShieldCheck className="size-4" /> מדיניות פרטיות
+              </button>
+              <button
+                type="button"
+                onClick={() => setTermsOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <FileText className="size-4" /> תנאי שימוש
+              </button>
             </div>
             {/* RIGHT — הוספת הגדרה */}
             <div className="flex justify-end">
