@@ -261,30 +261,21 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
 
             {/* ROW 2 - 2 buttons + center text */}
-<div className="grid grid-cols-3 items-center text-xs text-muted-foreground">
+            <div className="grid grid-cols-3 items-center text-xs text-muted-foreground">
+              {/* left */}
+              <button onClick={() => setTermsOpen(true)} className="text-right">
+                תנאי שימוש
+              </button>
 
-  {/* left */}
-  <button
-    onClick={() => setTermsOpen(true)}
-    className="cursor-pointer font-medium hover:underline text-center"
-  >
-    תנאי שימוש
-  </button>
+              {/* center */}
+              <div className="text-center">© 2026 לשבור ת'ראש</div>
 
-  {/* center */}
-  <div className="text-center">
-    © 2026 לשבור ת'ראש
-  </div>
-
-  {/* right */}
-  <button
-    onClick={() => setPrivacyOpen(true)}
-    className="cursor-pointer font-medium hover:underline text-center"
-  >
-    מדיניות פרטיות
-  </button>
-
-</div>
+              {/* right */}
+              <button onClick={() => setPrivacyOpen(true)} className="text-left">
+                מדיניות פרטיות
+              </button>
+            </div>
+          </div>
 
           {/* COPYRIGHT (desktop only optional duplicate safety) */}
           <div className="text-center text-xs text-muted-foreground">© {new Date().getFullYear()} לשבור ת'ראש</div>
