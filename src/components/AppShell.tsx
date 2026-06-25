@@ -185,7 +185,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             </div>
             {/* CENTER — יצירת קשר + מדיניות פרטיות + תנאי שימוש */}
-            <div className="flex justify-center flex-wrap gap-2">
+            <div className="flex justify-center gap-1 flex-nowrap overflow-x-auto">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
