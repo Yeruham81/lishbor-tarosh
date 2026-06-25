@@ -265,6 +265,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </DialogContent>
         </Dialog>
       )}
+
+      <LegalModal open={privacyOpen} onOpenChange={setPrivacyOpen} doc={privacyPolicy} />
+      <LegalModal open={termsOpen} onOpenChange={setTermsOpen} doc={termsOfUse} />
+      <CookieConsentBanner />
     </div>
   );
 }
