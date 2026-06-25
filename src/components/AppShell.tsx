@@ -229,41 +229,18 @@ export function AppShell({ children }: { children: ReactNode }) {
           {/* ================= MOBILE ================= */}
           <div className="md:hidden space-y-2">
             {/* ROW 1 - 3 buttons (NEVER wraps) */}
-           <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2">
+              {user ? (
+                <button
+                  onClick={signOut}
+                  className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
+                >
+                  <LogOut className="size-4" /> יציאה
+                </button>
+              ) : (
+                <div />
+              )}
 
-  {/* LEFT — הוספת הגדרה (הוחלף עם יציאה) */}
-  {user && flags.allowPlayerSubmissions ? (
-    <Link
-      to="/submit-puzzle"
-      className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-gradient-sunset text-white text-xs font-semibold"
-    >
-      הוספת הגדרה
-    </Link>
-  ) : (
-    <div />
-  )}
-
-  {/* CENTER — יצירת קשר */}
-  <Link
-    to="/contact"
-    className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
-  >
-    <Mail className="size-4" /> יצירת קשר
-  </Link>
-
-  {/* RIGHT — יציאה */}
-  {user ? (
-    <button
-      onClick={signOut}
-      className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
-    >
-      <LogOut className="size-4" /> יציאה
-    </button>
-  ) : (
-    <div />
-  )}
-
-</div>
               <Link
                 to="/contact"
                 className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
