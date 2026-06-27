@@ -11,7 +11,8 @@ export type SolveEvent =
 type Burst = { id: number; text: string };
 type ModalEvent =
   | { id: number; kind: "stage_up"; stage: number }
-  | { id: number; kind: "achievement"; title: string; category: SolveEvent extends { kind: "achievement"; category: infer C } ? C : string };
+  | { id: number; kind: "achievement"; title: string; category: "solved" | "perfect" | "perfect_streak" | "play_days" };
+
 
 /**
  * Surfaces solve events as visual notifications:
