@@ -14,6 +14,8 @@ import { Lightbulb, SkipForward } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { GameTopBar } from "@/components/GameTopBar";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
+import { useSolveNotifications } from "@/components/SolveNotifications";
+
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
 
@@ -122,6 +124,8 @@ function Play() {
   const [shake, setShake] = useState(false);
   const [busy, setBusy] = useState(false);
   const prevRevealedCount = useRef(0);
+  const notif = useSolveNotifications();
+
 
   // Auto-advance countdown (seconds remaining, or null when inactive)
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -199,6 +203,8 @@ function Play() {
         toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
         qc.invalidateQueries({ queryKey: ["profile"] });
       }
+      notif.emit((r as any).events);
+
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -218,6 +224,8 @@ function Play() {
         toast.success("🎉 נפתר עם רמז!");
         qc.invalidateQueries({ queryKey: ["profile"] });
       } else toast.info("נחשפה אות חדשה");
+      notif.emit((r as any).events);
+
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -252,8 +260,10 @@ function Play() {
 
   return (
     <AppShell>
+      {notif.progressModal}
       <div className="container mx-auto px-4 py-3 max-w-3xl">
         <GameTopBar profile={profile} helpVariant="help" />
+
 
 
         {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען הגדרה...</div>}
