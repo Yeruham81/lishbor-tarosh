@@ -42,25 +42,56 @@ export function ShareButtons({ text, url, title = "לשבור ת'ראש" }: Prop
   };
 
   const links = [
-    { label: "WhatsApp", icon: <MessageCircle className="size-4" />, href: `https://wa.me/?text=${enc(fullText)}`, cls: "bg-[#25D366] text-white" },
-    { label: "Telegram", icon: <Send className="size-4" />, href: `https://t.me/share/url?url=${enc(shareUrl)}&text=${enc(text)}`, cls: "bg-[#0088cc] text-white" },
-    { label: "Facebook", icon: <Facebook className="size-4" />, href: `https://www.facebook.com/sharer/sharer.php?u=${enc(shareUrl)}&quote=${enc(text)}`, cls: "bg-[#1877F2] text-white" },
-    { label: "X", icon: <Twitter className="size-4" />, href: `https://twitter.com/intent/tweet?text=${enc(fullText)}`, cls: "bg-foreground text-background" },
+    {
+      label: "WhatsApp",
+      icon: <MessageCircle className="size-4" />,
+      href: `https://wa.me/?text=${enc(fullText)}`,
+      cls: "bg-[#25D366] text-white",
+    },
+    {
+      label: "Telegram",
+      icon: <Send className="size-4" />,
+      href: `https://t.me/share/url?url=${enc(shareUrl)}&text=${enc(text)}`,
+      cls: "bg-[#0088cc] text-white",
+    },
+    {
+      label: "Facebook",
+      icon: <Facebook className="size-4" />,
+      href: `https://www.facebook.com/sharer/sharer.php?u=${enc(shareUrl)}&quote=${enc(text)}`,
+      cls: "bg-[#1877F2] text-white",
+    },
+    {
+      label: "X",
+      icon: <Twitter className="size-4" />,
+      href: `https://twitter.com/intent/tweet?text=${enc(fullText)}`,
+      cls: "bg-foreground text-background",
+    },
   ];
 
   return (
     <div className="flex flex-wrap gap-2 justify-center">
-      <button onClick={native} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition">
-        <Share2 className="size-4" /> שתף
+      <button
+        onClick={native}
+        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
+      >
+        <Share2 className="size-4" /> שיתוף
       </button>
       {links.map((l) => (
-        <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer"
-          className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition ${l.cls}`}>
+        <a
+          key={l.label}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition ${l.cls}`}
+        >
           {l.icon} {l.label}
         </a>
       ))}
-      <button onClick={copy} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border bg-card text-sm hover:bg-muted transition">
-        {copied ? <Check className="size-4" /> : <Copy className="size-4" />} העתק
+      <button
+        onClick={copy}
+        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border bg-card text-sm hover:bg-muted transition"
+      >
+        {copied ? <Check className="size-4" /> : <Copy className="size-4" />} העתקה
       </button>
     </div>
   );
