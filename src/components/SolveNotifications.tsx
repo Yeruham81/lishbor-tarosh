@@ -123,7 +123,7 @@ function ProgressionModal({
       aria-live="polite"
       dir="rtl"
     >
-      <div className="relative w-full max-w-md text-center bg-gradient-sunset text-white rounded-3xl shadow-glow border-2 border-white/30 p-6 sm:p-8 animate-scale-in">
+      <div className="relative w-full max-w-md text-center bg-gradient-sunset text-white rounded-3xl shadow-glow border-2 border-white/30 p-6 sm:p-8 animate-fade-in">
         <button
           type="button"
           onClick={onDismiss}
