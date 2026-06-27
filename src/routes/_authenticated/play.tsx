@@ -124,6 +124,8 @@ function Play() {
   const [shake, setShake] = useState(false);
   const [busy, setBusy] = useState(false);
   const prevRevealedCount = useRef(0);
+  const notif = useSolveNotifications();
+
 
   // Auto-advance countdown (seconds remaining, or null when inactive)
   const [countdown, setCountdown] = useState<number | null>(null);
