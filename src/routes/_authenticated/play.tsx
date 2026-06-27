@@ -224,6 +224,8 @@ function Play() {
         toast.success("🎉 נפתר עם רמז!");
         qc.invalidateQueries({ queryKey: ["profile"] });
       } else toast.info("נחשפה אות חדשה");
+      notif.emit((r as any).events);
+
     } catch (e: any) {
       toast.error(e.message);
     } finally {
