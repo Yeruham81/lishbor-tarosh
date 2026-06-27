@@ -203,6 +203,8 @@ function Play() {
         toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
         qc.invalidateQueries({ queryKey: ["profile"] });
       }
+      notif.emit((r as any).events);
+
     } catch (e: any) {
       toast.error(e.message);
     } finally {
