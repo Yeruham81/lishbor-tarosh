@@ -260,8 +260,10 @@ function Play() {
 
   return (
     <AppShell>
+      {notif.progressModal}
       <div className="container mx-auto px-4 py-3 max-w-3xl">
         <GameTopBar profile={profile} helpVariant="help" />
+
 
 
         {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען הגדרה...</div>}
