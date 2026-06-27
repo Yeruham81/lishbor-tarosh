@@ -10,7 +10,9 @@ interface Props {
 
 export function ShareButtons({ text, url, title = "לשבור ת'ראש" }: Props) {
   const [copied, setCopied] = useState(false);
+
   const shareUrl = url ?? (typeof window !== "undefined" ? window.location.origin : "");
+
   const fullText = url ? `${text}\n${url}` : `${text}\n${shareUrl}`;
   const enc = encodeURIComponent;
 
@@ -27,9 +29,14 @@ export function ShareButtons({ text, url, title = "לשבור ת'ראש" }: Prop
 
   const native = async () => {
     const nav: any = typeof navigator !== "undefined" ? navigator : null;
+
     if (nav && typeof nav.share === "function") {
       try {
-        await nav.share({ title, text, url: shareUrl });
+        await nav.share({
+          title,
+          text,
+          url: shareUrl,
+        });
         return;
       } catch (e: any) {
         if (e?.name !== "AbortError") {
@@ -69,29 +76,37 @@ export function ShareButtons({ text, url, title = "לשבור ת'ראש" }: Prop
   ];
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center">
+    <div className="flex flex-wrap sm:flex-nowrap gap-2 justify-center">
+      {/* Native share */}
       <button
         onClick={native}
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
+        className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
       >
-        <Share2 className="size-4" /> שיתוף
+        <Share2 className="size-4" />
+        <span className="hidden sm:inline">שיתוף</span>
       </button>
+
+      {/* Social links */}
       {links.map((l) => (
         <a
           key={l.label}
           href={l.href}
           target="_blank"
           rel="noopener noreferrer"
-          className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition ${l.cls}`}
+          className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition ${l.cls}`}
         >
-          {l.icon} {l.label}
+          {l.icon}
+          <span className="hidden sm:inline">{l.label}</span>
         </a>
       ))}
+
+      {/* Copy */}
       <button
         onClick={copy}
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border bg-card text-sm hover:bg-muted transition"
+        className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl border bg-card text-sm hover:bg-muted transition"
       >
-        {copied ? <Check className="size-4" /> : <Copy className="size-4" />} העתקה
+        {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+        <span className="hidden sm:inline">העתקה</span>
       </button>
     </div>
   );
