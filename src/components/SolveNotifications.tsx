@@ -6,13 +6,17 @@ export type SolveEvent =
   | { kind: "score"; points: number }
   | { kind: "perfect_bonus"; points: number; streak: number }
   | { kind: "stage_up"; stage: number }
-  | { kind: "achievement"; title: string; category: "solved" | "perfect" | "perfect_streak" | "play_days"; threshold: number };
+  | {
+      kind: "achievement";
+      title: string;
+      category: "solved" | "perfect" | "perfect_streak" | "play_days";
+      threshold: number;
+    };
 
 type Burst = { id: number; text: string };
 type ModalEvent =
   | { id: number; kind: "stage_up"; stage: number }
   | { id: number; kind: "achievement"; title: string; category: "solved" | "perfect" | "perfect_streak" | "play_days" };
-
 
 /**
  * Surfaces solve events as visual notifications:
@@ -142,14 +146,14 @@ function ProgressionModal({
           <>
             <div className="text-sm font-medium opacity-90">שלב חדש נפתח</div>
             <div className="font-display text-5xl font-extrabold my-2 drop-shadow">שלב {event.stage}</div>
-            <div className="text-base opacity-95">הגעת לשלב {event.stage}! המשך כך 🎉</div>
+            <div className="text-base opacity-95">הגעת לשלב {event.stage}! כל הכבוד 🎉</div>
             <Trophy className="absolute -top-4 -right-4 size-10 text-yellow-300 drop-shadow" />
           </>
         ) : (
           <>
             <div className="text-sm font-medium opacity-90">הישג חדש נפתח</div>
             <div className="font-display text-2xl sm:text-3xl font-extrabold my-2 drop-shadow">{event.title}</div>
-            <div className="text-sm opacity-90">כבוד! המשך לאסוף הישגים 🏆</div>
+            <div className="text-sm opacity-90">כבוד! להישג הבא 🏆</div>
           </>
         )}
 
@@ -168,4 +172,3 @@ function ProgressionModal({
     </div>
   );
 }
-
