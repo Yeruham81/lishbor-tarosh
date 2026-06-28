@@ -153,7 +153,7 @@ function ProgressionModal({
           <>
             <div className="text-sm font-medium opacity-90">הישג חדש נפתח</div>
             <div className="font-display text-2xl sm:text-3xl font-extrabold my-2 drop-shadow">{event.title}</div>
-            <div className="text-sm opacity-90">כבוד! להישג הבא 🏆</div>
+            <div className="text-sm opacity-90">כל הכבוד! 🏆</div>
           </>
         )}
 
