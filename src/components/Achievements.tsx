@@ -23,26 +23,34 @@ function valueFor(category: AchievementCategory, s: AchievementStats): number {
   if (category === "solved") return s.solvedCount;
   if (category === "perfect") return s.perfectSolves;
   if (category === "perfect_streak") {
-    // Use best run so completed tiers don't un-complete when streak resets.
     return Math.max(s.currentPerfectStreak ?? 0, s.bestPerfectStreak ?? 0);
   }
-  // For consecutive-day achievements, use the best run reached so they don't
-  // un-complete when the user misses a day.
-  return Math.max(s.playDaysStreak, s.bestPlayDaysStreak ?? 0);
+  // For consecutive-day achievements, show CURRENT streak as the progress
+  // value so the bar moves day-by-day. Completion uses best below.
+  return s.playDaysStreak;
+}
+
+function bestFor(category: AchievementCategory, s: AchievementStats): number {
+  if (category === "play_days") return Math.max(s.playDaysStreak, s.bestPlayDaysStreak ?? 0);
+  if (category === "perfect_streak") return Math.max(s.currentPerfectStreak ?? 0, s.bestPerfectStreak ?? 0);
+  return valueFor(category, s);
 }
 
 export function buildAchievementsForStats(s: AchievementStats): AchievementView[] {
   const defs = buildAchievementDefs();
   return defs.map((d) => {
     const v = valueFor(d.category, s);
+    const best = bestFor(d.category, s);
+    const done = best >= d.threshold;
     return {
       ...d,
-      done: v >= d.threshold,
+      done,
       remaining: Math.max(0, d.threshold - v),
       current: v,
     };
   });
 }
+
 
 // Group achievements by category. Within each category, show:
 //  - All already-completed tiers
