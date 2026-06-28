@@ -144,7 +144,7 @@ function ProgressionModal({
 
         {isStage ? (
           <>
-            <div className="text-sm font-medium opacity-90">שלב חדש נפתח</div>
+            <div className="text-sm font-medium opacity-90">שלב חדש נפתח 🎉</div>
             <div className="font-display text-5xl font-extrabold my-2 drop-shadow">שלב {event.stage}</div>
             <div className="text-base opacity-95">הגעת לשלב {event.stage}! כל הכבוד 🎉</div>
             <Trophy className="absolute -top-4 -right-4 size-10 text-yellow-300 drop-shadow" />
