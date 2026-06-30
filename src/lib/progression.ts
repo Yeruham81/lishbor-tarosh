@@ -111,7 +111,7 @@ function perfectTitle(n: number) {
   return `${n.toLocaleString("he-IL")} פתירות מושלמות`;
 }
 function perfectStreakTitle(n: number) {
-  return `רצף של ${n.toLocaleString("he-IL")} פתירות מושלמות`;
+  return `${n.toLocaleString("he-IL")} פתירות מושלמות ברצף`;
 }
 function daysTitle(n: number) {
   return `${n.toLocaleString("he-IL")} ימים רצופים`;
