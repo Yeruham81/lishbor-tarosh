@@ -8,7 +8,18 @@ import { getProfile } from "@/lib/game.functions";
 import { getStats } from "@/lib/account.functions";
 import { STAGE_THRESHOLDS, stageFromScore, nextStageInfo } from "@/lib/progression";
 import { AchievementsByCategory } from "@/components/Achievements";
-import { Check, Award, Trophy, CheckCircle2, Target, Sparkles, Percent, Flame, Lightbulb, BarChart3 } from "lucide-react";
+import {
+  Check,
+  Award,
+  Trophy,
+  CheckCircle2,
+  Target,
+  Sparkles,
+  Percent,
+  Flame,
+  Lightbulb,
+  BarChart3,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/levels")({ component: Levels });
 
@@ -75,12 +86,10 @@ function Levels() {
               </div>
             </div>
           ) : (
-            <div className="text-muted-foreground text-base font-normal mb-5 text-center">
-              הגעתם לשלב המקסימלי הזמין
-            </div>
+            <div className="text-muted-foreground text-base font-normal mb-5 text-center">הגעתם לשלב האחרון הזמין</div>
           )}
 
-          <div className="grid grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {visibleStages.map((lvl) => {
               const unlocked = lvl <= currentStage;
               const current = lvl === currentStage && unlocked;
@@ -89,15 +98,14 @@ function Levels() {
                 return (
                   <div
                     key={lvl}
-                    className="flex flex-col items-center justify-center gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl border bg-muted/30 min-h-[88px] sm:min-h-[140px] text-center"
+                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border bg-muted/30 min-h-[140px] text-center"
                   >
-                    <div className="size-9 sm:size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-base sm:text-lg bg-muted text-muted-foreground">
+                    <div className="size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-lg bg-muted text-muted-foreground">
                       {lvl}
                     </div>
-                    <div className="font-bold text-xs sm:text-base hidden sm:block">שלב {lvl}</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground leading-tight">
-                      <span className="sm:hidden">{required.toLocaleString("he-IL")}</span>
-                      <span className="hidden sm:inline">דרושות {required.toLocaleString("he-IL")} נקודות</span>
+                    <div className="font-bold">שלב {lvl}</div>
+                    <div className="text-xs text-muted-foreground">
+                      דרושות {required.toLocaleString("he-IL")} נקודות
                     </div>
                   </div>
                 );
@@ -105,27 +113,22 @@ function Levels() {
               return (
                 <div
                   key={lvl}
-                  className={`flex flex-col items-center justify-between gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl border text-center min-h-[88px] sm:min-h-[140px] ${
+                  className={`flex flex-col items-center justify-between gap-2 p-4 rounded-2xl border text-center min-h-[140px] ${
                     current ? "bg-gradient-sunset text-white shadow-glow" : "bg-card"
                   }`}
                 >
                   <div
-                    className={`size-9 sm:size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-base sm:text-lg ${current ? "bg-white/20" : "bg-gradient-sunset text-white"}`}
+                    className={`size-12 rounded-xl flex items-center justify-center font-display font-extrabold text-lg ${current ? "bg-white/20" : "bg-gradient-sunset text-white"}`}
                   >
                     {lvl}
                   </div>
+                  <div className="font-bold">שלב {lvl}</div>
                   {current ? (
-                    <>
-                      <div className="font-bold text-xs sm:text-base leading-tight">שלב {lvl}</div>
-                      <Link to="/play" className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-white text-primary font-bold text-xs sm:text-sm">
-                        המשך
-                      </Link>
-                    </>
+                    <Link to="/play" className="px-3 py-1.5 rounded-lg bg-white text-primary font-bold text-sm">
+                      המשך
+                    </Link>
                   ) : (
-                    <>
-                      <div className="font-bold text-xs sm:text-base hidden sm:block">שלב {lvl}</div>
-                      <Check className="size-4 sm:size-5 text-success" />
-                    </>
+                    <Check className="size-5 text-success" />
                   )}
                 </div>
               );
