@@ -343,6 +343,8 @@ export type Database = {
       profiles: {
         Row: {
           accessibility_prefs: Json
+          active_day_date: string | null
+          active_day_solves: number
           age: number | null
           auth_provider: string | null
           auto_next: boolean
@@ -379,6 +381,8 @@ export type Database = {
         }
         Insert: {
           accessibility_prefs?: Json
+          active_day_date?: string | null
+          active_day_solves?: number
           age?: number | null
           auth_provider?: string | null
           auto_next?: boolean
@@ -415,6 +419,8 @@ export type Database = {
         }
         Update: {
           accessibility_prefs?: Json
+          active_day_date?: string | null
+          active_day_solves?: number
           age?: number | null
           auth_provider?: string | null
           auto_next?: boolean
