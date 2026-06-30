@@ -305,21 +305,61 @@ export const skipClue = createServerFn({ method: "POST" })
 
 // ---- Profile mutators ----
 
-// Track that the user played today (consecutive play-days streak).
+// Minimum solves on a single day to count it as an "active" play day for the
+// consecutive-days challenge.
+const ACTIVE_DAY_SOLVE_THRESHOLD = 5;
+
+// Per-served-clue bookkeeping. NOTE: the consecutive-days streak is no longer
+// touched here — it only advances after the player has solved
+// ACTIVE_DAY_SOLVE_THRESHOLD clues today (see maybeBumpActiveDayStreak).
 async function bumpPlayCounters(_supabase: any, userId: string) {
-  const today = todayIsoDate();
   const { data: p } = await supabaseAdmin.from("profiles")
-    .select("last_play_date, current_play_days_streak, best_play_days_streak, definitions_played")
+    .select("definitions_played")
     .eq("id", userId).single();
   if (!p) return;
-  const newStreak = nextPlayDaysStreak(p.last_play_date, p.current_play_days_streak ?? 0, today);
   await supabaseAdmin.from("profiles").update({
-    last_play_date: today,
-    current_play_days_streak: newStreak,
-    best_play_days_streak: Math.max(p.best_play_days_streak ?? 0, newStreak),
     definitions_played: (p.definitions_played ?? 0) + 1,
     last_seen_at: new Date().toISOString(),
   }).eq("id", userId);
+}
+
+// Track today's solve count and, only when it crosses the daily threshold,
+// advance the consecutive-play-days streak. Returns { oldStreak, newStreak }
+// so the caller can emit tier-crossed achievements.
+async function maybeBumpActiveDayStreak(userId: string): Promise<{ oldStreak: number; newStreak: number }> {
+  const today = todayIsoDate();
+  const { data: p } = await supabaseAdmin.from("profiles")
+    .select("active_day_date, active_day_solves, current_play_days_streak, best_play_days_streak, last_play_date")
+    .eq("id", userId).single();
+  if (!p) return { oldStreak: 0, newStreak: 0 };
+
+  let solves = (p as any).active_day_solves ?? 0;
+  let dayDate: string | null = (p as any).active_day_date ?? null;
+  if (dayDate !== today) {
+    solves = 1;
+    dayDate = today;
+  } else {
+    solves += 1;
+  }
+
+  const oldStreak = p.current_play_days_streak ?? 0;
+  let newStreak = oldStreak;
+  let lastPlayDate = p.last_play_date;
+  if (solves === ACTIVE_DAY_SOLVE_THRESHOLD && p.last_play_date !== today) {
+    newStreak = nextPlayDaysStreak(p.last_play_date, oldStreak, today);
+    lastPlayDate = today;
+  }
+  const bestStreak = Math.max(p.best_play_days_streak ?? 0, newStreak);
+
+  await supabaseAdmin.from("profiles").update({
+    active_day_date: dayDate,
+    active_day_solves: solves,
+    last_play_date: lastPlayDate,
+    current_play_days_streak: newStreak,
+    best_play_days_streak: bestStreak,
+  } as any).eq("id", userId);
+
+  return { oldStreak, newStreak };
 }
 
 
@@ -328,8 +368,11 @@ async function bumpPlayCounters(_supabase: any, userId: string) {
 async function applySolveResult(
   _supabase: any, userId: string, points: number, perfect: boolean, newWrongLetters: number,
 ): Promise<SolveEvent[]> {
+  // First, advance the daily-solve counter / consecutive-days streak.
+  const dayStreak = await maybeBumpActiveDayStreak(userId);
+
   const { data: p } = await supabaseAdmin.from("profiles")
-    .select("total_score, current_streak, best_streak, solved_count, perfect_solves, wrong_letters_total, current_play_days_streak, best_play_days_streak")
+    .select("total_score, current_streak, best_streak, solved_count, perfect_solves, wrong_letters_total")
     .eq("id", userId).single();
   if (!p) return [];
   const newPerfectStreak = perfect ? (p.current_streak ?? 0) + 1 : 0;
@@ -342,7 +385,6 @@ async function applySolveResult(
   const newSolved = oldSolved + 1;
   const oldPerfect = p.perfect_solves ?? 0;
   const newPerfectTotal = oldPerfect + (perfect ? 1 : 0);
-  const playDays = Math.max(p.current_play_days_streak ?? 0, p.best_play_days_streak ?? 0);
 
   await supabaseAdmin.from("profiles").update({
     total_score: newScore,
@@ -371,11 +413,9 @@ async function applySolveResult(
       events.push({ kind: "achievement", category: "perfect_streak", threshold: t, title: findAchievementTitle("perfect_streak", t) });
     }
   }
-  // Play days threshold check (already updated on bumpPlayCounters earlier in flow).
-  for (const t of ACHIEVEMENT_TIERS.play_days) {
-    if (playDays === t) {
-      events.push({ kind: "achievement", category: "play_days", threshold: t, title: findAchievementTitle("play_days", t) });
-    }
+  // Play-days tier crossings (now driven by the daily-solve threshold).
+  for (const t of tiersCrossed(ACHIEVEMENT_TIERS.play_days, dayStreak.oldStreak, dayStreak.newStreak)) {
+    events.push({ kind: "achievement", category: "play_days", threshold: t, title: findAchievementTitle("play_days", t) });
   }
   return events;
 }

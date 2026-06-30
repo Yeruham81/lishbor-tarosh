@@ -91,6 +91,7 @@ function DefinitionsPage() {
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const [createNonce, setCreateNonce] = useState(0);
   const [importOpen, setImportOpen] = useState(false);
 
   const cats = useQuery({ queryKey: ["admin", "categories"], queryFn: () => catsFn() });
@@ -291,15 +292,21 @@ function DefinitionsPage() {
               </Button>
             </DialogTrigger>
             <DefinitionModal
-              key={editing?.id ?? "new"}
+              key={editing?.id ?? `new-${createNonce}`}
               initial={editing}
+              isCreating={!editing}
               onSave={async (payload) => {
                 try {
                   await upsertFn({ data: payload });
                   toast.success(editing ? "ההגדרה עודכנה" : "ההגדרה נוצרה");
-                  setOpen(false);
-                  setEditing(null);
                   invalidate();
+                  if (editing) {
+                    setOpen(false);
+                    setEditing(null);
+                  } else {
+                    // Keep dialog open and clear the form for the next entry.
+                    setCreateNonce((n) => n + 1);
+                  }
                 } catch (e: any) {
                   toast.error(e.message);
                 }
@@ -573,10 +580,12 @@ function RowActions({
 
 function DefinitionModal({
   initial,
+  isCreating,
   onSave,
   onClose,
 }: {
   initial: any | null;
+  isCreating?: boolean;
   onSave: (p: any) => void;
   onClose: () => void;
 }) {
