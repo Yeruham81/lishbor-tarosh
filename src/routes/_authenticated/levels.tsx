@@ -104,9 +104,7 @@ function Levels() {
                       {lvl}
                     </div>
                     <div className="font-bold">שלב {lvl}</div>
-                    <div className="text-xs text-muted-foreground">
-                      דרושות {required.toLocaleString("he-IL")} נקודות
-                    </div>
+                    <div className="text-xs text-muted-foreground">{required.toLocaleString("he-IL")} נקודות</div>
                   </div>
                 );
               }
