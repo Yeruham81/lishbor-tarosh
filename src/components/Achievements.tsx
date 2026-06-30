@@ -87,7 +87,7 @@ export function AchievementsByCategory({ stats }: { stats: AchievementStats }) {
           {g.items.length === 0 ? (
             <div className="text-sm text-muted-foreground py-3">אין עדיין הישגים בקטגוריה זו</div>
           ) : (
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {g.items.map((a) => (
                 <AchievementCard key={a.id} a={a} />
               ))}
@@ -103,22 +103,22 @@ function AchievementCard({ a }: { a: AchievementView }) {
   const pct = a.done ? 100 : Math.min(100, Math.round((a.current / a.threshold) * 100));
   return (
     <div
-      className={`p-4 rounded-2xl border shadow-card transition ${
+      className={`p-3 sm:p-4 rounded-2xl border shadow-card transition ${
         a.done ? "bg-gradient-sunset text-white border-transparent" : "bg-card"
       }`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2 sm:gap-3">
         <div
-          className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${
+          className={`size-8 sm:size-10 rounded-xl flex items-center justify-center shrink-0 ${
             a.done ? "bg-white/20" : "bg-muted text-muted-foreground"
           }`}
         >
-          {a.done ? <Trophy className="size-5" /> : <Lock className="size-4" />}
+          {a.done ? <Trophy className="size-4 sm:size-5" /> : <Lock className="size-3.5 sm:size-4" />}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-bold">{a.title}</div>
+          <div className="font-bold text-sm sm:text-base leading-tight">{a.title}</div>
           <div
-            className={`text-xs ${a.done ? "text-white/80" : "text-muted-foreground"}`}
+            className={`text-[11px] sm:text-xs leading-tight mt-0.5 ${a.done ? "text-white/80" : "text-muted-foreground"}`}
           >
             {a.description}
           </div>
@@ -130,7 +130,7 @@ function AchievementCard({ a }: { a: AchievementView }) {
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <div className="text-xs text-muted-foreground mt-1 tabular-nums">
+              <div className="text-[11px] sm:text-xs text-muted-foreground mt-1 tabular-nums">
                 {a.current.toLocaleString("he-IL")} / {a.threshold.toLocaleString("he-IL")}
               </div>
             </div>
