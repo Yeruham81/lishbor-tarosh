@@ -56,6 +56,7 @@ export const resetAccount = createServerFn({ method: "POST" })
         solved_count: 0,
         current_streak: 0,
         best_streak: 0,
+        highest_streak: 0,
         level: 1,
         perfect_solves: 0,
         definitions_played: 0,
@@ -65,6 +66,8 @@ export const resetAccount = createServerFn({ method: "POST" })
         current_play_days_streak: 0,
         best_play_days_streak: 0,
         last_play_date: null,
+        active_day_date: null,
+        active_day_solves: 0,
       } as any)
       .eq("id", userId);
     return { ok: true };
