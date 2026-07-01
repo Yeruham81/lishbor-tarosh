@@ -89,7 +89,7 @@ function Levels() {
             <div className="text-muted-foreground text-base font-normal mb-5 text-center">הגעתם לשלב האחרון הזמין</div>
           )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div className={`grid ${visibleStages.length >= 4 ? "grid-cols-4" : "grid-cols-2"} sm:grid-cols-3 md:grid-cols-4 gap-3`}>
             {visibleStages.map((lvl) => {
               const unlocked = lvl <= currentStage;
               const current = lvl === currentStage && unlocked;
