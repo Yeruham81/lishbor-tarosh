@@ -49,7 +49,7 @@ function Levels() {
         <section>
           <BarChart3 className="size-12 mx-auto text-primary mb-2" />
           <h1 className="font-display text-4xl font-extrabold text-center mb-2 text-gradient-sunset">איך אני</h1>
-          <p className="text-center text-muted-foreground mb-4">מעקב ביצועים - שלבים, אתגרים וסטטיסטיקות אישיות</p>
+          <p className="text-center text-muted-foreground mb-4">מעקב שלבים, אתגרים וסטטיסטיקות אישיות</p>
 
           {/* Score summary */}
           <div className="bg-card border rounded-2xl p-4 mb-5 text-center shadow-card">
@@ -89,7 +89,9 @@ function Levels() {
             <div className="text-muted-foreground text-base font-normal mb-5 text-center">הגעתם לשלב האחרון הזמין</div>
           )}
 
-          <div className={`grid ${visibleStages.length >= 4 ? "grid-cols-4" : "grid-cols-2"} sm:grid-cols-3 md:grid-cols-4 gap-3`}>
+          <div
+            className={`grid ${visibleStages.length >= 4 ? "grid-cols-4" : "grid-cols-2"} sm:grid-cols-3 md:grid-cols-4 gap-3`}
+          >
             {visibleStages.map((lvl) => {
               const unlocked = lvl <= currentStage;
               const current = lvl === currentStage && unlocked;
