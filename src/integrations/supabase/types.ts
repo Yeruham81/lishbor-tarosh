@@ -104,6 +104,7 @@ export type Database = {
           category: string | null
           clue: string
           created_at: string
+          credit: string | null
           deleted_at: string | null
           difficulty: number
           dislikes_count: number
@@ -131,6 +132,7 @@ export type Database = {
           category?: string | null
           clue: string
           created_at?: string
+          credit?: string | null
           deleted_at?: string | null
           difficulty?: number
           dislikes_count?: number
@@ -158,6 +160,7 @@ export type Database = {
           category?: string | null
           clue?: string
           created_at?: string
+          credit?: string | null
           deleted_at?: string | null
           difficulty?: number
           dislikes_count?: number
