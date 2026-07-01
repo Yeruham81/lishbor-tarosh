@@ -301,6 +301,11 @@ function Play() {
                 )}
 
                 <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
+                {clue.credit && clue.credit.trim() && (
+                  <div dir="rtl" className="text-center text-xs text-muted-foreground -mt-3 mb-2">
+                    הגדרה מאת: {clue.credit}
+                  </div>
+                )}
 
                 {/* Word boxes */}
                 <div className="my-6">
