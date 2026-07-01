@@ -117,11 +117,6 @@ function AchievementCard({ a }: { a: AchievementView }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-bold text-sm sm:text-base leading-tight">{a.title}</div>
-          <div
-            className={`text-[11px] sm:text-xs leading-tight mt-0.5 ${a.done ? "text-white/80" : "text-muted-foreground"}`}
-          >
-            {a.description}
-          </div>
           {!a.done && (
             <div className="mt-2">
               <div className="h-2 rounded-full bg-muted overflow-hidden">
