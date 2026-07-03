@@ -161,7 +161,7 @@ export function buildAchievementDefs(): AchievementDef[] {
 export const CATEGORY_LABELS: Record<AchievementCategory, string> = {
   solved: "הגדרות פתורות",
   perfect: "פתירות מושלמות",
-  perfect_streak: "רצף פתירות מושלמות",
+  perfect_streak: "פתירות מושלמות ברצף",
   play_days: "ימים רצופים",
 };
 
