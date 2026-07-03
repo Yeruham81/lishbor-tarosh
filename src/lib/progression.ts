@@ -162,7 +162,7 @@ export const CATEGORY_LABELS: Record<AchievementCategory, string> = {
   solved: "הגדרות פתורות",
   perfect: "פתירות מושלמות",
   perfect_streak: "פתירות מושלמות ברצף",
-  play_days: "ימים רצופים",
+  play_days: "ימי משחק רצופים",
 };
 
 export const CATEGORY_REMAINING_LABEL: Record<AchievementCategory, (n: number) => string> = {
