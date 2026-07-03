@@ -177,7 +177,11 @@ function Levels() {
                 value={stats.currentPerfectStreak}
               />
               <StatCard icon={<Award className="size-5" />} label="שיא רצף מושלם" value={stats.bestPerfectStreak} />
-              <StatCard icon={<Flame className="size-5" />} label="ימים רצופים" value={stats.currentPlayDaysStreak} />
+              <StatCard
+                icon={<Flame className="size-5" />}
+                label="ימי משחק רצופים"
+                value={stats.currentPlayDaysStreak}
+              />
               <StatCard icon={<Award className="size-5" />} label="שיא ימים רצופים" value={stats.bestPlayDaysStreak} />
               <StatCard icon={<Lightbulb className="size-5" />} label="רמזים בשימוש" value={stats.totalHints} />
               <StatCard icon={<Target className="size-5" />} label="הגדרות ששוחקו" value={stats.definitionsPlayed} />
