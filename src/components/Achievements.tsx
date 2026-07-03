@@ -104,10 +104,12 @@ function AchievementCard({ a }: { a: AchievementView }) {
   return (
     <div
       className={`p-3 sm:p-4 rounded-2xl border shadow-card transition ${
-        a.done ? "bg-gradient-sunset text-white border-transparent" : "bg-card"
+        a.done
+          ? "bg-gradient-sunset text-white border-transparent flex flex-col justify-center"
+          : "bg-card"
       }`}
     >
-      <div className="flex items-start gap-2 sm:gap-3">
+      <div className={`flex gap-2 sm:gap-3 ${a.done ? "items-center" : "items-start"}`}>
         <div
           className={`size-8 sm:size-10 rounded-xl flex items-center justify-center shrink-0 ${
             a.done ? "bg-white/20" : "bg-muted text-muted-foreground"
