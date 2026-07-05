@@ -780,12 +780,20 @@ export const adminBulkApproveSubmissions = createServerFn({ method: "POST" })
   }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let ok = 0; const errors: string[] = [];
     for (const id of data.ids) {
-      const { error } = await context.supabase.rpc("admin_approve_submission", {
+      const { data: sub } = await supabaseAdmin
+        .from("puzzle_submissions").select("admin_notes").eq("id", id).maybeSingle();
+      const { data: clueId, error } = await context.supabase.rpc("admin_approve_submission", {
         _submission_id: id, _points: data.points, _difficulty: data.difficulty,
       });
-      if (error) errors.push(`${id}: ${error.message}`); else ok++;
+      if (error) { errors.push(`${id}: ${error.message}`); continue; }
+      const credit = (sub?.admin_notes ?? "").trim();
+      if (clueId && credit) {
+        await supabaseAdmin.from("clues").update({ credit } as any).eq("id", clueId as any);
+      }
+      ok++;
     }
     return { ok, errors };
   });
