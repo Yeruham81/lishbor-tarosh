@@ -683,7 +683,7 @@ function DefinitionModal({
               ...(initial?.id ? { id: initial.id } : {}),
               ...form,
               category: form.category || null,
-              type: form.type || null,
+              credit: form.credit || null,
               hint: form.hint || null,
               explanation: form.explanation || null,
             })
