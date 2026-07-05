@@ -66,6 +66,7 @@ const clueUpsertSchema = z.object({
   alt_answer: z.string().max(200).optional().nullable(),
   category: z.string().max(100).optional().nullable(),
   type: z.string().max(100).optional().nullable(),
+  credit: z.string().max(200).optional().nullable(),
   difficulty: z.number().int().min(1).max(5).default(1),
   hint: z.string().max(1000).optional().nullable(),
   explanation: z.string().max(2000).optional().nullable(),
