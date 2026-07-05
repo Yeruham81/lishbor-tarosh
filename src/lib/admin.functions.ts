@@ -250,10 +250,16 @@ export const adminApproveSubmission = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: sub } = await supabaseAdmin
+      .from("puzzle_submissions").select("admin_notes").eq("id", data.id).maybeSingle();
     const { data: clueId, error } = await context.supabase.rpc("admin_approve_submission", {
       _submission_id: data.id, _points: data.points, _difficulty: data.difficulty,
     });
     if (error) throw new Error(error.message);
+    const credit = (sub?.admin_notes ?? "").trim();
+    if (clueId && credit) {
+      await supabaseAdmin.from("clues").update({ credit } as any).eq("id", clueId as any);
+    }
     return { clueId };
   });
 
