@@ -101,6 +101,7 @@ export const adminUpsertDefinition = createServerFn({ method: "POST" })
       clue: data.clue, answer: data.answer, alt_answer: data.alt_answer,
       category: data.category, type: data.type, difficulty: data.difficulty,
       hint: data.hint, explanation: data.explanation, status: data.status,
+      credit: data.credit,
       internal_notes: data.internal_notes,
       publish_at: data.publish_at, expire_at: data.expire_at,
     };
