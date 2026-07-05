@@ -340,6 +340,7 @@ function DefinitionsPage() {
             )}
             {t.isVisible("explanation") && <TableHead>הסבר</TableHead>}
             {t.isVisible("category") && <TableHead>קטגוריה</TableHead>}
+            {t.isVisible("credit") && <TableHead>קרדיט</TableHead>}
             {t.isVisible("difficulty") && (
               <SortableHead sortKey="difficulty" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
                 קושי
