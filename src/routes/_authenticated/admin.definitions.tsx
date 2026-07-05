@@ -60,6 +60,7 @@ const COLS = [
   { key: "answer", label: "פתרון" },
   { key: "explanation", label: "הסבר" },
   { key: "category", label: "קטגוריה" },
+  { key: "credit", label: "קרדיט" },
   { key: "difficulty", label: "קושי" },
   { key: "status", label: "סטטוס" },
   { key: "ratings", label: "לייקים" },
@@ -339,6 +340,7 @@ function DefinitionsPage() {
             )}
             {t.isVisible("explanation") && <TableHead>הסבר</TableHead>}
             {t.isVisible("category") && <TableHead>קטגוריה</TableHead>}
+            {t.isVisible("credit") && <TableHead>קרדיט</TableHead>}
             {t.isVisible("difficulty") && (
               <SortableHead sortKey="difficulty" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
                 קושי
@@ -401,6 +403,7 @@ function DefinitionsPage() {
                   </TableCell>
                 )}
                 {t.isVisible("category") && <TableCell>{r.category ?? "—"}</TableCell>}
+                {t.isVisible("credit") && <TableCell>{r.credit ?? ""}</TableCell>}
                 {t.isVisible("difficulty") && <TableCell>{r.difficulty ?? "—"}</TableCell>}
                 {t.isVisible("status") && (
                   <TableCell>
@@ -593,7 +596,7 @@ function DefinitionModal({
     clue: initial?.clue ?? "",
     answer: initial?.answer ?? "",
     category: initial?.category ?? "",
-    type: initial?.type ?? "",
+    credit: initial?.credit ?? "",
     difficulty: initial?.difficulty ?? 1,
     hint: initial?.hint ?? "",
     explanation: initial?.explanation ?? "",
@@ -620,11 +623,11 @@ function DefinitionModal({
           <Input value={form.answer} onChange={(e) => set("answer", e.target.value)} placeholder="מספריים" />
         </div>
         <div className="space-y-1.5">
-          <Label>סוג</Label>
+          <Label>קרדיט</Label>
           <Input
-            value={form.type ?? ""}
-            onChange={(e) => set("type", e.target.value)}
-            placeholder="חידה / אסוציאציה / תיאור"
+            value={form.credit ?? ""}
+            onChange={(e) => set("credit", e.target.value)}
+            placeholder="כינוי השחקן להצגה"
           />
         </div>
         <div className="space-y-1.5">
@@ -680,7 +683,7 @@ function DefinitionModal({
               ...(initial?.id ? { id: initial.id } : {}),
               ...form,
               category: form.category || null,
-              type: form.type || null,
+              credit: form.credit || null,
               hint: form.hint || null,
               explanation: form.explanation || null,
             })

@@ -66,6 +66,7 @@ const clueUpsertSchema = z.object({
   alt_answer: z.string().max(200).optional().nullable(),
   category: z.string().max(100).optional().nullable(),
   type: z.string().max(100).optional().nullable(),
+  credit: z.string().max(200).optional().nullable(),
   difficulty: z.number().int().min(1).max(5).default(1),
   hint: z.string().max(1000).optional().nullable(),
   explanation: z.string().max(2000).optional().nullable(),
@@ -100,6 +101,7 @@ export const adminUpsertDefinition = createServerFn({ method: "POST" })
       clue: data.clue, answer: data.answer, alt_answer: data.alt_answer,
       category: data.category, type: data.type, difficulty: data.difficulty,
       hint: data.hint, explanation: data.explanation, status: data.status,
+      credit: data.credit,
       internal_notes: data.internal_notes,
       publish_at: data.publish_at, expire_at: data.expire_at,
     };
@@ -248,10 +250,16 @@ export const adminApproveSubmission = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: sub } = await supabaseAdmin
+      .from("puzzle_submissions").select("admin_notes").eq("id", data.id).maybeSingle();
     const { data: clueId, error } = await context.supabase.rpc("admin_approve_submission", {
       _submission_id: data.id, _points: data.points, _difficulty: data.difficulty,
     });
     if (error) throw new Error(error.message);
+    const credit = (sub?.admin_notes ?? "").trim();
+    if (clueId && credit) {
+      await supabaseAdmin.from("clues").update({ credit } as any).eq("id", clueId as any);
+    }
     return { clueId };
   });
 
@@ -772,12 +780,20 @@ export const adminBulkApproveSubmissions = createServerFn({ method: "POST" })
   }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let ok = 0; const errors: string[] = [];
     for (const id of data.ids) {
-      const { error } = await context.supabase.rpc("admin_approve_submission", {
+      const { data: sub } = await supabaseAdmin
+        .from("puzzle_submissions").select("admin_notes").eq("id", id).maybeSingle();
+      const { data: clueId, error } = await context.supabase.rpc("admin_approve_submission", {
         _submission_id: id, _points: data.points, _difficulty: data.difficulty,
       });
-      if (error) errors.push(`${id}: ${error.message}`); else ok++;
+      if (error) { errors.push(`${id}: ${error.message}`); continue; }
+      const credit = (sub?.admin_notes ?? "").trim();
+      if (clueId && credit) {
+        await supabaseAdmin.from("clues").update({ credit } as any).eq("id", clueId as any);
+      }
+      ok++;
     }
     return { ok, errors };
   });
