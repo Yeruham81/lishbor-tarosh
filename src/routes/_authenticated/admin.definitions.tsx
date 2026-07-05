@@ -623,11 +623,11 @@ function DefinitionModal({
           <Input value={form.answer} onChange={(e) => set("answer", e.target.value)} placeholder="מספריים" />
         </div>
         <div className="space-y-1.5">
-          <Label>סוג</Label>
+          <Label>קרדיט</Label>
           <Input
-            value={form.type ?? ""}
-            onChange={(e) => set("type", e.target.value)}
-            placeholder="חידה / אסוציאציה / תיאור"
+            value={form.credit ?? ""}
+            onChange={(e) => set("credit", e.target.value)}
+            placeholder="כינוי השחקן להצגה"
           />
         </div>
         <div className="space-y-1.5">
