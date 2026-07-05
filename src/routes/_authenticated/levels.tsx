@@ -197,10 +197,22 @@ function Levels() {
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number | string }) {
   return (
     <div className="bg-card border rounded-2xl p-4 shadow-card">
+      {/* Label */}
       <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1 text-right">
-        {icon} {label}
+        {icon}
+        {label}
       </div>
-      <div className="font-display text-3xl font-extrabold text-gradient-sunset text-center">{value}</div>
+
+      {/* Value - game style counter */}
+      <div className="text-center">
+        <div className="font-display text-3xl font-extrabold text-gradient-sunset tabular-nums relative inline-block">
+          {/* glow layer */}
+          <span className="absolute inset-0 blur-md opacity-40 text-primary">{value}</span>
+
+          {/* main value */}
+          <span className="relative">{value}</span>
+        </div>
+      </div>
     </div>
   );
 }
