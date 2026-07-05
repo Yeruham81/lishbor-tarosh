@@ -596,7 +596,7 @@ function DefinitionModal({
     clue: initial?.clue ?? "",
     answer: initial?.answer ?? "",
     category: initial?.category ?? "",
-    type: initial?.type ?? "",
+    credit: initial?.credit ?? "",
     difficulty: initial?.difficulty ?? 1,
     hint: initial?.hint ?? "",
     explanation: initial?.explanation ?? "",
