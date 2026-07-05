@@ -403,6 +403,7 @@ function DefinitionsPage() {
                   </TableCell>
                 )}
                 {t.isVisible("category") && <TableCell>{r.category ?? "—"}</TableCell>}
+                {t.isVisible("credit") && <TableCell>{r.credit ?? ""}</TableCell>}
                 {t.isVisible("difficulty") && <TableCell>{r.difficulty ?? "—"}</TableCell>}
                 {t.isVisible("status") && (
                   <TableCell>
