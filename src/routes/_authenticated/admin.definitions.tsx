@@ -60,6 +60,7 @@ const COLS = [
   { key: "answer", label: "פתרון" },
   { key: "explanation", label: "הסבר" },
   { key: "category", label: "קטגוריה" },
+  { key: "credit", label: "קרדיט" },
   { key: "difficulty", label: "קושי" },
   { key: "status", label: "סטטוס" },
   { key: "ratings", label: "לייקים" },
