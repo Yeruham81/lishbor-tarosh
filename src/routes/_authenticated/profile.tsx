@@ -434,7 +434,7 @@ function Profile() {
             <p className="text-xs text-muted-foreground -mt-1">הפעלת מתג משתיקה את ההתראה המתאימה.</p>
             <Toggle
               small
-              label="ביטול התראות על התקדמות ברמות"
+              label="ביטול התראות על מעבר שלבים"
               checked={!!mutes.mute_level_up}
               onChange={(v) => setMute({ mute_level_up: v })}
             />
