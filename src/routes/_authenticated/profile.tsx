@@ -431,7 +431,7 @@ function Profile() {
             <div className="text-sm font-medium flex items-center gap-2">
               <BellOff className="size-4" /> ביטול התראות
             </div>
-            <p className="text-xs text-muted-foreground -mt-1">הפעלת מתג משתיקה את ההתראה המתאימה.</p>
+            <p className="text-xs text-muted-foreground -mt-1">הפעלת מתג משתיקה את ההתראה המתאימה</p>
             <Toggle
               small
               label="ביטול התראות על מעבר שלבים"
