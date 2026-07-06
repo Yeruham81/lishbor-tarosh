@@ -468,7 +468,7 @@ function Profile() {
         {/* Display & colors */}
         <Card icon={<PaletteIcon className="size-5 text-primary" />} title="תצוגה וצבעים">
           <div>
-            <div className="text-sm font-medium mb-2">מצב</div>
+            <div className="text-sm font-medium mb-2">מצב תצוגה</div>
             <div className="flex gap-2">
               <button
                 onClick={() => setA11y({ mode: "light" })}
