@@ -131,10 +131,8 @@ function DemoPage() {
         <div className="container mx-auto px-4 py-12 max-w-lg">
           <div className="bg-card border rounded-3xl shadow-card p-6 sm:p-10 text-center">
             <div className="text-5xl mb-4">🎯</div>
-            <h1 className="font-display text-3xl font-extrabold text-gradient-sunset mb-3">
-              עוד המון הגדרות מחכות לכם!
-            </h1>
-            <h2 className="font-display text-xl font-bold mb-4">רוצים להמשיך לשחק?</h2>
+            <h1 className="font-display text-3xl font-extrabold text-gradient-sunset mb-3">רוצים להמשיך לשחק?</h1>
+            <h2 className="font-display text-xl font-bold mb-4">עוד המון הגדרות מחכות לכם!</h2>
             <p className="text-muted-foreground mb-6 leading-relaxed">
               לאחר הליך הרשמה קצרצר תוכלו לשמור את הניקוד שצברתם, לעבור שלבים, להשלים אתגרים, לצפות בסטטיסטיקות אישיות
               ולעקוב אחר ההתקדמות שלכם. כמו כן בכל זמן שתרצו תוכלו להתחבר ולהמשיך לשחק בדיוק מאותה נקודה שבה הפסקתם.
