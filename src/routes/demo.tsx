@@ -140,10 +140,15 @@ function DemoPage() {
               ולעקוב אחר ההתקדמות שלכם. כמו כן בכל זמן שתרצו תוכלו להתחבר ולהמשיך לשחק בדיוק מאותה נקודה שבה הפסקתם.
             </p>
             <button
-              onClick={() => navigate({ to: "/auth" })}
+              onClick={() =>
+                navigate({
+                  to: "/auth",
+                  search: { mode: "signup" },
+                })
+              }
               className="w-full px-8 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 active:scale-95 transition"
             >
-              הרשמה / התחברות
+              הרשמה
             </button>
             <Link to="/" className="block mt-4 text-sm text-muted-foreground hover:text-foreground">
               ← חזרה למסך הבית
