@@ -85,7 +85,7 @@ function AuthPage() {
       <div className="container mx-auto px-4 py-12 max-w-md">
         <div className="bg-card border rounded-3xl shadow-card p-6 sm:p-8">
           <h1 className="font-display text-3xl font-extrabold text-center mb-1 text-gradient-sunset">
-            {mode === "signin" ? "איזה כיף שחזרתם" : mode === "signup" ? "ברוכים הבאים" : "שכחתי סיסמא"}
+            {mode === "signin" ? "כיף שחזרתם" : mode === "signup" ? "ברוכים הבאים" : "שכחתי סיסמא"}
           </h1>
           <p className="text-center text-muted-foreground text-sm mb-6">
             {mode === "signin"
