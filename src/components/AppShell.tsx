@@ -34,6 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const onPlay = pathname === "/play";
   const onInstructions = pathname === "/instructions";
+  const onDemo = pathname === "/demo";
   const showMobileHelp = !!user && (onPlay || onInstructions);
   const flags = useFeatureFlags();
   const [privacyOpen, setPrivacyOpen] = useState(false);
@@ -162,11 +163,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
       <main className="flex-1">{children}</main>
       {/* Ad slot */}
-      <div className="container mx-auto px-4 py-4">
-        <div className="rounded-xl border border-dashed border-border bg-muted/30 text-muted-foreground text-xs text-center py-3">
-          מקום שמור למודעה (Google AdSense)
+      {!onDemo && (
+        <div className="container mx-auto px-4 py-4">
+          <div className="rounded-xl border border-dashed border-border bg-muted/30 text-muted-foreground text-xs text-center py-3">
+            מקום שמור למודעה (Google AdSense)
+          </div>
         </div>
-      </div>
+      )}
       <footer className="border-t bg-muted/20 mt-2">
         <div className="container mx-auto px-4 py-5 space-y-3">
           {/* ================= DESKTOP ================= */}
