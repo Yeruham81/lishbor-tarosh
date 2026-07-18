@@ -152,15 +152,15 @@ function DemoPage() {
 
   return (
     <AppShell>
-      <div className="grid grid-cols-3 gap-3 mb-4 items-stretch">
-        {" "}
-        {/* Local top bar — demo scoped, no auth-only links */}{" "}
-        <div className="grid grid-cols-3 gap-3 mb-4 items-stretch">
-          {" "}
-          <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />{" "}
-          <Stat label="שלב" value={1} icon={<Star className="size-4 text-warning" />} />{" "}
-          <Stat label="רצף" value={streak} icon={<Flame className="size-4 text-orange-500" />} />{" "}
+      <div className="container mx-auto px-4 py-3 max-w-3xl">
+        {/* Local top bar — demo scoped, no auth-only links */}
+        <div className="grid grid-cols-4 gap-3 mb-4 items-stretch">
+          <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />
+          <Stat label="שלב" value={1} icon={<Star className="size-4 text-warning" />} />
+          <Stat label="רצף" value={streak} icon={<Flame className="size-4 text-orange-500" />} />
+          <Stat label="התקדמות" value={progress} />
         </div>
+
         <div className="mb-4 flex items-center justify-between">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted text-xs font-medium">
             משחק לדוגמה • {progress}
@@ -169,6 +169,7 @@ function DemoPage() {
             ← יציאה
           </Link>
         </div>
+
         <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
           {!isSolved && (
             <div className="grid grid-cols-3 items-center mb-4">
