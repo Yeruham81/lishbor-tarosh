@@ -12,6 +12,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useState } from "react";
+import { DirectionProvider } from "@radix-ui/react-direction";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -96,6 +97,7 @@ function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <AdminSearchProvider>
+      <DirectionProvider dir="rtl">
       <div className="min-h-screen bg-muted/30" dir="rtl">
         <div className="flex">
           {/* Sidebar desktop */}
@@ -145,6 +147,7 @@ function AdminLayout() {
           </div>
         </div>
       </div>
+      </DirectionProvider>
     </AdminSearchProvider>
   );
 }
