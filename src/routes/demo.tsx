@@ -132,7 +132,7 @@ function DemoPage() {
           <div className="bg-card border rounded-3xl shadow-card p-6 sm:p-10 text-center">
             <div className="text-5xl mb-4">🎯</div>
             <h1 className="font-display text-3xl font-extrabold text-gradient-sunset mb-3">
-              עוד המון הגדרות היגיון מחכות לכם!
+              עוד המון הגדרות מחכות לכם!
             </h1>
             <h2 className="font-display text-xl font-bold mb-4">רוצים להמשיך לשחק?</h2>
             <p className="text-muted-foreground mb-6 leading-relaxed">
