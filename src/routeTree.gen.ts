@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubmitPuzzleRouteImport } from './routes/submit-puzzle'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -44,6 +45,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/contact'
+    | '/demo'
     | '/leaderboard'
     | '/reset-password'
     | '/submit-puzzle'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/contact'
+    | '/demo'
     | '/leaderboard'
     | '/reset-password'
     | '/submit-puzzle'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/contact'
+    | '/demo'
     | '/leaderboard'
     | '/reset-password'
     | '/submit-puzzle'
@@ -285,6 +297,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
+  DemoRoute: typeof DemoRoute
   LeaderboardRoute: typeof LeaderboardRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SubmitPuzzleRoute: typeof SubmitPuzzleRoute
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -493,6 +513,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
+  DemoRoute: DemoRoute,
   LeaderboardRoute: LeaderboardRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SubmitPuzzleRoute: SubmitPuzzleRoute,
@@ -501,13 +522,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
