@@ -22,13 +22,13 @@ function Index() {
         <div className="flex flex-col justify-center items-center gap-3">
           <Link
             to={user ? "/play" : "/auth"}
-            className="px-8 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 active:scale-95 transition"
+            className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-xl shadow-glow hover:scale-105 active:scale-95 transition"
           >
             {user ? "חזרה למשחק" : "התחילו לשחק"}
           </Link>
           <Link
             to="/demo"
-            className="px-8 py-4 rounded-2xl border-2 border-primary text-primary font-display font-bold text-lg bg-card hover:bg-muted hover:scale-105 active:scale-95 transition"
+            className="px-7 py-3 rounded-2xl border-2 border-primary text-primary font-display font-bold text-base bg-card hover:bg-muted hover:scale-105 active:scale-95 transition"
           >
             נסו משחק לדוגמה
           </Link>
