@@ -141,7 +141,7 @@ function DemoPage() {
               onClick={() => navigate({ to: "/auth" })}
               className="w-full px-8 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 active:scale-95 transition"
             >
-              המשך להרשמה / התחברות
+              הרשמה / התחברות
             </button>
             <Link to="/" className="block mt-4 text-sm text-muted-foreground hover:text-foreground">
               ← חזרה למסך הבית
