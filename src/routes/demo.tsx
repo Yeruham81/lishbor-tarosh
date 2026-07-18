@@ -163,7 +163,7 @@ function DemoPage() {
         </div>
         <div className="mb-4 flex items-center justify-between">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted text-xs font-medium">
-            משחק לדוגמה
+            משחק לדוגמה • {progress}
           </span>
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
             ← יציאה
