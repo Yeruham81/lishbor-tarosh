@@ -4,25 +4,11 @@ import { AppShell } from "@/components/AppShell";
 import { HebrewKeyboard } from "@/components/HebrewKeyboard";
 import { WordBoxes } from "@/components/WordDisplay";
 import { ShareButtons } from "@/components/ShareButtons";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Trophy, Flame, Star, Lightbulb, ThumbsUp, ThumbsDown } from "lucide-react";
 import { toast } from "sonner";
-import {
-  normalizeLetter,
-  normalizeWord,
-  buildRevealMask,
-  wordLengths,
-} from "@/lib/hebrew";
-import {
-  SCORING,
-  computeSolveScore,
-  currentSolveValue,
-} from "@/lib/progression";
+import { normalizeLetter, normalizeWord, buildRevealMask, wordLengths } from "@/lib/hebrew";
+import { SCORING, computeSolveScore, currentSolveValue } from "@/lib/progression";
 import { DEMO_CLUES } from "@/lib/demo-clues";
 
 export const Route = createFileRoute("/demo")({
@@ -32,14 +18,12 @@ export const Route = createFileRoute("/demo")({
       { title: "משחק לדוגמה — לשבור ת'ראש" },
       {
         name: "description",
-        content:
-          "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
+        content: "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
       },
       { property: "og:title", content: "משחק לדוגמה — לשבור ת'ראש" },
       {
         property: "og:description",
-        content:
-          "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
+        content: "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
       },
     ],
   }),
@@ -87,9 +71,7 @@ function DemoPage() {
     if (isCorrect) {
       const nextRevealed = [...revealed, letter];
       setRevealed(nextRevealed);
-      const solved = answerNorm
-        .split("")
-        .every((c) => c === " " || nextRevealed.includes(c));
+      const solved = answerNorm.split("").every((c) => c === " " || nextRevealed.includes(c));
       if (solved) {
         const earned = computeSolveScore(wrong.length, hintsUsed);
         const perfect = hintsUsed === 0 && wrong.length <= SCORING.FREE_WRONGS;
@@ -111,20 +93,14 @@ function DemoPage() {
       toast.info("הרמז זמין אחרי 2 טעויות");
       return;
     }
-    const candidates = Array.from(
-      new Set(
-        answerNorm.split("").filter((c) => c !== " " && !revealed.includes(c)),
-      ),
-    );
+    const candidates = Array.from(new Set(answerNorm.split("").filter((c) => c !== " " && !revealed.includes(c))));
     if (candidates.length === 0) return;
     const letter = candidates[Math.floor(Math.random() * candidates.length)];
     const nextRevealed = [...revealed, letter];
     const nextHints = hintsUsed + 1;
     setRevealed(nextRevealed);
     setHintsUsed(nextHints);
-    const solved = answerNorm
-      .split("")
-      .every((c) => c === " " || nextRevealed.includes(c));
+    const solved = answerNorm.split("").every((c) => c === " " || nextRevealed.includes(c));
     if (solved) {
       const earned = computeSolveScore(wrong.length, nextHints);
       setTotalScore((s) => s + earned);
@@ -155,12 +131,9 @@ function DemoPage() {
         <div className="container mx-auto px-4 py-12 max-w-lg">
           <div className="bg-card border rounded-3xl shadow-card p-6 sm:p-10 text-center">
             <div className="text-5xl mb-4">🎯</div>
-            <h1 className="font-display text-3xl font-extrabold text-gradient-sunset mb-3">
-              רוצים להמשיך?
-            </h1>
+            <h1 className="font-display text-3xl font-extrabold text-gradient-sunset mb-3">רוצים להמשיך?</h1>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              הירשמו כדי לשמור את הניקוד, להתקדם בשלבים, להשלים אתגרים, לצבור
-              הישגים ולצפות בסטטיסטיקות האישיות שלכם.
+              הירשמו כדי לשמור את הניקוד, להתקדם בשלבים, להשלים אתגרים, לצבור הישגים ולצפות בסטטיסטיקות האישיות שלכם.
             </p>
             <button
               onClick={() => navigate({ to: "/auth" })}
@@ -168,10 +141,7 @@ function DemoPage() {
             >
               המשך להרשמה / התחברות
             </button>
-            <Link
-              to="/"
-              className="block mt-4 text-sm text-muted-foreground hover:text-foreground"
-            >
+            <Link to="/" className="block mt-4 text-sm text-muted-foreground hover:text-foreground">
               ← חזרה למסך הבית
             </Link>
           </div>
@@ -195,10 +165,7 @@ function DemoPage() {
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted text-xs font-medium">
             משחק לדוגמה • {progress}
           </span>
-          <Link
-            to="/"
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
+          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
             ← יציאה
           </Link>
         </div>
@@ -224,9 +191,7 @@ function DemoPage() {
                   <span
                     key={i}
                     className={`size-3 rounded-full border ${
-                      i < wrong.length
-                        ? "bg-destructive border-destructive"
-                        : "bg-muted border-border"
+                      i < wrong.length ? "bg-destructive border-destructive" : "bg-muted border-border"
                     }`}
                   />
                 ))}
@@ -234,9 +199,7 @@ function DemoPage() {
             </div>
           )}
 
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">
-            {clue.clue}
-          </h2>
+          <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
 
           <div className="my-6">
             <WordBoxes wordLengths={lengths} mask={mask} shake={shake} />
@@ -244,20 +207,12 @@ function DemoPage() {
 
           {!isSolved ? (
             <div className="mb-2">
-              <HebrewKeyboard
-                onLetter={onLetter}
-                revealed={revealed}
-                wrong={wrong}
-                disabled={false}
-              />
+              <HebrewKeyboard onLetter={onLetter} revealed={revealed} wrong={wrong} disabled={false} />
             </div>
           ) : (
             <div className="py-6 animate-fade-in space-y-6">
               <Accordion type="single" collapsible className="text-right">
-                <AccordionItem
-                  value="explanation"
-                  className="border rounded-xl bg-muted/30 px-4"
-                >
+                <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
                   <AccordionTrigger className="text-sm font-medium hover:no-underline">
                     לא סגורים על הפתרון? קבלו הסבר:
                   </AccordionTrigger>
@@ -267,27 +222,20 @@ function DemoPage() {
                 </AccordionItem>
               </Accordion>
 
-
               <div className="text-center">
                 <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
-                <h3 className="font-display text-2xl font-bold mb-1">
-                  כל הכבוד!
-                </h3>
+                <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
                 <p className="text-muted-foreground">+{currentScore} נקודות</p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 sm:items-center">
                 <div className="order-2 sm:order-1 flex flex-col items-center gap-2">
-                  <p className="text-xs text-muted-foreground font-medium">
-                    מה דעתכם על ההגדרה?
-                  </p>
+                  <p className="text-xs text-muted-foreground font-medium">מה דעתכם על ההגדרה?</p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => clickRating(1)}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border text-sm font-medium transition ${
-                        rating === 1
-                          ? "bg-gradient-sunset text-white border-transparent"
-                          : "bg-card hover:bg-muted"
+                        rating === 1 ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"
                       }`}
                     >
                       <ThumbsUp className="size-4" /> אהבתי
@@ -295,9 +243,7 @@ function DemoPage() {
                     <button
                       onClick={() => clickRating(-1)}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border text-sm font-medium transition ${
-                        rating === -1
-                          ? "bg-destructive text-white border-transparent"
-                          : "bg-card hover:bg-muted"
+                        rating === -1 ? "bg-destructive text-white border-transparent" : "bg-card hover:bg-muted"
                       }`}
                     >
                       <ThumbsDown className="size-4" /> לא אהבתי
@@ -309,20 +255,14 @@ function DemoPage() {
                     onClick={onNext}
                     className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition"
                   >
-                    {index + 1 >= DEMO_CLUES.length
-                      ? "סיום המשחק לדוגמה"
-                      : "להגדרה הבאה"}
+                    להגדרה הבאה
                   </button>
                 </div>
               </div>
 
               <div className="space-y-3 text-center">
-                <p className="text-xs text-muted-foreground font-medium">
-                  שתפו את ההישג ואתגרו חברים
-                </p>
-                <ShareButtons
-                  text={`ניסיתי את "לשבור ת'ראש" 🧠 בואו לשחק גם!`}
-                />
+                <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
+                <ShareButtons text={`ניסיתי את "לשבור ת'ראש" 🧠 בואו לשחק גם!`} />
               </div>
             </div>
           )}
@@ -332,24 +272,14 @@ function DemoPage() {
   );
 }
 
-function Stat({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: number | string;
-  icon?: React.ReactNode;
-}) {
+function Stat({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) {
   return (
     <div className="bg-card border rounded-2xl p-2 text-center shadow-card">
       <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
         {icon}
         {label}
       </div>
-      <div className="font-display text-2xl font-extrabold text-gradient-sunset">
-        {value}
-      </div>
+      <div className="font-display text-2xl font-extrabold text-gradient-sunset">{value}</div>
     </div>
   );
 }
