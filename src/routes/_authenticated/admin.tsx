@@ -147,6 +147,7 @@ function AdminLayout() {
           </div>
         </div>
       </div>
+      </DirectionProvider>
     </AdminSearchProvider>
   );
 }
