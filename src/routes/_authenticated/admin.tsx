@@ -97,6 +97,7 @@ function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <AdminSearchProvider>
+      <DirectionProvider dir="rtl">
       <div className="min-h-screen bg-muted/30" dir="rtl">
         <div className="flex">
           {/* Sidebar desktop */}
