@@ -12,6 +12,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useState } from "react";
+import { DirectionProvider } from "@radix-ui/react-direction";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
