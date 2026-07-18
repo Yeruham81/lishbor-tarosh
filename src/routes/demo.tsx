@@ -264,8 +264,9 @@ function DemoPage() {
                   <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
                     {clue.explanation}
                   </AccordionContent>
-                </Accordion>
+                </AccordionItem>
               </Accordion>
+
 
               <div className="text-center">
                 <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
