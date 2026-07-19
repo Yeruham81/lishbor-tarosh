@@ -105,7 +105,7 @@ function Index() {
                 <Trophy className="size-7" />
               </div>
 
-              <h3 className="font-display text-2xl font-bold mb-4">התקדמו, השתפרו ושברו שיאים</h3>
+              <h3 className="font-display text-2xl font-bold mb-4">נקודות, אתגרים ושיאים</h3>
 
               <p className="text-muted-foreground leading-relaxed">
                 במהלך המשחק תוכלו לצבור נקודות, לעבור שלבים, להשלים אתגרים, להתמודד על מקום בטבלת השחקנים המובילים
