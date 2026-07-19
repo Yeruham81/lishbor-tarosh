@@ -73,14 +73,6 @@ function Index() {
                 לפותרים מתחילים שרוצים לצבור ניסיון ולהשתפר, וגם לחובבי תשבצי היגיון ותיקים שמחפשים אתגר אמיתי. המאגר
                 מתעדכן באופן שוטף ונוספות לו הגדרות חדשות כל הזמן כדי שתוכלו להמשיך לאתגר את עצמכם בכל פעם שתחזרו לשחק.
               </p>
-
-              <div className="flex flex-wrap gap-2 mt-6">
-                <span className="px-3 py-1.5 rounded-full bg-muted text-sm">מגוון נושאים</span>
-
-                <span className="px-3 py-1.5 rounded-full bg-muted text-sm">רמות קושי שונות</span>
-
-                <span className="px-3 py-1.5 rounded-full bg-muted text-sm">תוכן חדש באופן שוטף</span>
-              </div>
             </div>
 
             <div className="rounded-3xl bg-card border shadow-card p-6 sm:p-8 text-right">
