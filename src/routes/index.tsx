@@ -22,7 +22,7 @@ function Index() {
             <span className="text-gradient-sunset">לשבור ת'ראש</span>
           </h1>
 
-          <p className="text-[clamp(0.72rem,3.5vw,1.25rem)] sm:text-xl whitespace-nowrap tracking-tight text-muted-foreground mx-auto mb-8">
+          <p className="text-[clamp(0.8rem,3.9vw,1.25rem)] sm:text-xl whitespace-nowrap tracking-tighter text-muted-foreground w-[calc(100vw-1rem)] max-w-none mx-auto mb-8">
             כי זה לא רק מה אתם יודעים — זה גם איך אתם חושבים
           </p>
 
