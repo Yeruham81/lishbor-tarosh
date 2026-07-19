@@ -99,7 +99,7 @@ function Index() {
               מוכנים לאתגר את הראש?
             </h2>
 
-            <p className="max-w-3xl mx-auto text-muted-foreground leading-relaxed text-right sm:text-center">
+            <p className="max-w-3xl mx-auto text-lg sm:text-xl text-muted-foreground leading-relaxed text-right sm:text-center">
               המשחק זמין בחינם לכולם וללא הגבלה. כל מה שעליכם לעשות הוא להירשם באמצעות כתובת אימייל וסיסמה, או דרך חשבון
               Google או Apple, ולהתחיל לשחק.
             </p>
