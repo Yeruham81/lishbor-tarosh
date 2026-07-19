@@ -15,6 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { GameTopBar } from "@/components/GameTopBar";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { useSolveNotifications } from "@/components/SolveNotifications";
+import { AdSlot } from "@/components/ads/AdSlot";
 
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
@@ -395,6 +396,7 @@ function Play() {
             )}
           </div>
         )}
+        {clue?.isSolved && <AdSlot placement="post-solve-bottom" />}
       </div>
     </AppShell>
   );
