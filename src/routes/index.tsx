@@ -96,7 +96,7 @@ function Index() {
             </div>
 
             <h2 className="font-display text-2xl sm:text-4xl font-extrabold mb-4 whitespace-nowrap tracking-tight">
-              מוכנים לאתגר את הראש?
+              מוכנים לאתגר את עצמכם?
             </h2>
 
             <p className="max-w-3xl mx-auto text-lg sm:text-xl text-muted-foreground leading-relaxed text-right sm:text-center">
