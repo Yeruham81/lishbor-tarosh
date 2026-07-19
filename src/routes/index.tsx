@@ -41,39 +41,19 @@ function Index() {
               נסו משחק לדוגמה
             </Link>
           </div>
-        </div>
 
-        {/* Existing feature cards */}
-        <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto mt-16">
-          {[
-            {
-              icon: <Brain className="size-7" />,
-              t: "הפעילו את הראש",
-              d: "אתגרו את עצמכם עם הגדרות היגיון המשלבות ידע כללי וחשיבה יצירתית",
-            },
-            {
-              icon: <Zap className="size-7" />,
-              t: "השתפרו בכל משחק",
-              d: "צברו נקודות, השלימו אתגרים, עברו שלבים וקבעו בכל יום שיאים חדשים",
-            },
-            {
-              icon: <Trophy className="size-7" />,
-              t: "כמה רחוק תגיעו?",
-              d: "התחרו מול שחקנים אחרים, טפסו בדירוג ונסו לכבוש את המקום הראשון",
-            },
-          ].map((f, i) => (
-            <div key={i} className="p-6 rounded-2xl bg-card border shadow-card text-right">
-              <div className="inline-flex p-3 rounded-xl bg-gradient-flame text-white mb-3">{f.icon}</div>
-
-              <h3 className="font-display text-xl font-bold mb-1">{f.t}</h3>
-
-              <p className="text-muted-foreground text-base font-normal">{f.d}</p>
-            </div>
-          ))}
+          {/* Compact highlights */}
+          <div className="flex flex-wrap justify-center gap-3 mt-10">
+            {["ידע כללי ומשחקי מילים", "שלבים, אתגרים וסטטיסטיקות", "חינם וללא הגבלה"].map((item) => (
+              <div key={item} className="px-4 py-2 rounded-full bg-card border shadow-sm text-sm font-medium">
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* About the game */}
-        <div className="max-w-5xl mx-auto mt-20 sm:mt-24">
+        <div className="max-w-5xl mx-auto mt-16 sm:mt-20">
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-primary/10 text-primary mb-4">
               <Brain className="size-7" />
@@ -96,7 +76,7 @@ function Index() {
             </div>
           </div>
 
-          {/* Detailed cards */}
+          {/* Detailed benefit cards */}
           <div className="grid md:grid-cols-2 gap-6 mt-12">
             <div className="rounded-3xl bg-card border shadow-card p-6 sm:p-8 text-right">
               <div className="inline-flex p-3 rounded-2xl bg-gradient-flame text-white mb-5">
