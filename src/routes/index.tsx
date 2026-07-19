@@ -53,7 +53,7 @@ function Index() {
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold mb-5">הכול מתחיל בראש</h2>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed text-right">
-              „לשבור ת'ראש” הוא משחק מקורי וייחודי שבו עליכם לפתור הגדרות היגיון בעברית בעזרת ידע כללי, משחקי מילים
+              "לשבור ת'ראש” הוא משחק מקורי וייחודי שבו עליכם לפתור הגדרות היגיון בעברית בעזרת ידע כללי, משחקי מילים
               וחשיבה יצירתית. כל הגדרה תדרוש מכם לחשוב מחוץ לקופסה, להפגין ידע ולשים לב לפרטים.
             </p>
           </div>
