@@ -83,7 +83,7 @@ function Index() {
                 <Sparkles className="size-7" />
               </div>
 
-              <h3 className="font-display text-2xl font-bold mb-4">תמיד מחכה לכם אתגר חדש</h3>
+              <h3 className="font-display text-2xl font-bold mb-4">אתגר חדש בכל הגדרה</h3>
 
               <p className="text-muted-foreground leading-relaxed">
                 המשחק כולל מאגר ענק של הגדרות היגיון איכותיות במגוון רחב של נושאים וברמות קושי שונות. הוא מתאים גם
