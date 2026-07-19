@@ -129,7 +129,7 @@ function Index() {
               <Zap className="size-7" />
             </div>
 
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold mb-4">הכול בחינם וללא הגבלה</h2>
+            <h2 className="font-display text-3xl sm:text-4xl font-extrabold mb-4">מוכנים לאתגר את הראש?</h2>
 
             <p className="max-w-3xl mx-auto text-muted-foreground leading-relaxed text-right sm:text-center">
               המשחק זמין בחינם לכולם וללא הגבלה. כל מה שצריך לעשות הוא להירשם באמצעות כתובת אימייל וסיסמה, או דרך חשבון
