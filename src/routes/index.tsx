@@ -105,7 +105,7 @@ function Index() {
             </p>
 
             <p className="max-w-3xl mx-auto mt-5 text-lg sm:text-xl font-display font-bold leading-relaxed">
-              מכורים להגדרות של תשבצי היגיון? אוהבים חידות ואתגרים לחידוד החשיבה? בואו לשבור ת'ראש!
+              מכורים להגדרות של תשבצי היגיון? אוהבים חידות לחידוד החשיבה? בואו לשבור ת'ראש!
             </p>
 
             <div className="flex flex-col items-center gap-3 mt-8">
