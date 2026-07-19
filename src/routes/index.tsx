@@ -57,14 +57,6 @@ function Index() {
               וחשיבה יצירתית. כל הגדרה תדרוש מכם לחשוב מחוץ לקופסה, להוכיח מה אתם יודעים ולשים לב לפרטים עד שתגיעו
               לפתרון.
             </p>
-
-            <div className="flex flex-wrap justify-center gap-2 mt-6">
-              <span className="px-4 py-2 rounded-full bg-muted text-sm font-medium">ידע כללי</span>
-
-              <span className="px-4 py-2 rounded-full bg-muted text-sm font-medium">משחקי מילים</span>
-
-              <span className="px-4 py-2 rounded-full bg-muted text-sm font-medium">חשיבה יצירתית</span>
-            </div>
           </div>
 
           {/* Detailed benefit cards */}
