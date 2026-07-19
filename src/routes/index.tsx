@@ -87,14 +87,6 @@ function Index() {
                 ולעקוב אחר הביצועים שלכם בעמוד הסטטיסטיקות האישיות. יצאתם מהמשחק? תוכלו להתחבר שוב בכל שלב ולהמשיך לשחק
                 בדיוק מהנקודה שבה הפסקתם.
               </p>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-6">
-                {["נקודות", "שלבים", "אתגרים", "דירוג", "סטטיסטיקות", "שמירת התקדמות"].map((item) => (
-                  <div key={item} className="rounded-xl bg-muted px-3 py-2 text-sm font-medium text-center">
-                    {item}
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
 
