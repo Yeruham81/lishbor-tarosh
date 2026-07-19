@@ -510,6 +510,11 @@ const PUBLIC_SETTING_KEYS = [
   "disable_ads_button_visible",
   "maintenance_mode",
   "maintenance_message",
+  "ads_enabled",
+  "ads_test_mode",
+  "ads_post_solve_enabled",
+  "ads_game_enabled",
+  "h5_ads_enabled",
 ] as const;
 
 export const getPublicSettings = createServerFn({ method: "GET" })
