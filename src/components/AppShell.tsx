@@ -34,7 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const onPlay = pathname === "/play";
   const onInstructions = pathname === "/instructions";
-  const onDemo = pathname === "/demo";
+  void pathname;
   const showMobileHelp = !!user && (onPlay || onInstructions);
   const flags = useFeatureFlags();
   const [privacyOpen, setPrivacyOpen] = useState(false);
