@@ -7,33 +7,43 @@ export const Route = createFileRoute("/")({ component: Index });
 
 function Index() {
   const { user } = useAuth();
+
   return (
     <AppShell>
-      <section className="container mx-auto px-4 py-12 sm:py-20 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted text-sm font-medium mb-6">
-          <Sparkles className="size-4 text-primary" /> המשחק שעושה היגיון
-        </div>
-        <h1 className="font-display text-5xl sm:text-7xl font-black leading-tight mb-4">
-          <span className="text-gradient-sunset">לשבור ת'ראש</span>
-        </h1>
-        <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          כי זה לא רק מה אתם יודעים - זה גם איך אתם חושבים
-        </p>
-        <div className="flex flex-col justify-center items-center gap-3">
-          <Link
-            to={user ? "/play" : "/auth"}
-            className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-xl shadow-glow hover:scale-105 active:scale-95 transition"
-          >
-            {user ? "חזרה למשחק" : "התחילו לשחק"}
-          </Link>
-          <Link
-            to="/demo"
-            className="px-7 py-3 rounded-2xl border-2 border-primary text-primary font-display font-bold text-base bg-card hover:bg-muted hover:scale-105 active:scale-95 transition"
-          >
-            נסו משחק לדוגמה
-          </Link>
+      <section className="container mx-auto px-4 py-12 sm:py-20">
+        {/* Hero */}
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted text-sm font-medium mb-6">
+            <Sparkles className="size-4 text-primary" />
+            המשחק שעושה היגיון
+          </div>
+
+          <h1 className="font-display text-5xl sm:text-7xl font-black leading-tight mb-4">
+            <span className="text-gradient-sunset">לשבור ת'ראש</span>
+          </h1>
+
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            כי זה לא רק מה אתם יודעים - זה גם איך אתם חושבים
+          </p>
+
+          <div className="flex flex-col justify-center items-center gap-3">
+            <Link
+              to={user ? "/play" : "/auth"}
+              className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-xl shadow-glow hover:scale-105 active:scale-95 transition"
+            >
+              {user ? "חזרה למשחק" : "התחילו לשחק"}
+            </Link>
+
+            <Link
+              to="/demo"
+              className="px-7 py-3 rounded-2xl border-2 border-primary text-primary font-display font-bold text-base bg-card hover:bg-muted hover:scale-105 active:scale-95 transition"
+            >
+              נסו משחק לדוגמה
+            </Link>
+          </div>
         </div>
 
+        {/* Existing feature cards */}
         <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto mt-16">
           {[
             {
@@ -54,10 +64,119 @@ function Index() {
           ].map((f, i) => (
             <div key={i} className="p-6 rounded-2xl bg-card border shadow-card text-right">
               <div className="inline-flex p-3 rounded-xl bg-gradient-flame text-white mb-3">{f.icon}</div>
+
               <h3 className="font-display text-xl font-bold mb-1">{f.t}</h3>
+
               <p className="text-muted-foreground text-base font-normal">{f.d}</p>
             </div>
           ))}
+        </div>
+
+        {/* About the game */}
+        <div className="max-w-5xl mx-auto mt-20 sm:mt-24">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-primary/10 text-primary mb-4">
+              <Brain className="size-7" />
+            </div>
+
+            <h2 className="font-display text-3xl sm:text-4xl font-extrabold mb-5">מהו „לשבור ת'ראש”?</h2>
+
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed text-right">
+              „לשבור ת'ראש” הוא משחק מקורי וייחודי שבו עליכם לפתור הגדרות היגיון בעברית בעזרת ידע כללי, משחקי מילים
+              וחשיבה יצירתית. כל הגדרה תדרוש מכם לחשוב מחוץ לקופסה, להוכיח מה אתם יודעים ולשים לב לפרטים עד שתגיעו
+              לפתרון.
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-2 mt-6">
+              <span className="px-4 py-2 rounded-full bg-muted text-sm font-medium">ידע כללי</span>
+
+              <span className="px-4 py-2 rounded-full bg-muted text-sm font-medium">משחקי מילים</span>
+
+              <span className="px-4 py-2 rounded-full bg-muted text-sm font-medium">חשיבה יצירתית</span>
+            </div>
+          </div>
+
+          {/* Detailed cards */}
+          <div className="grid md:grid-cols-2 gap-6 mt-12">
+            <div className="rounded-3xl bg-card border shadow-card p-6 sm:p-8 text-right">
+              <div className="inline-flex p-3 rounded-2xl bg-gradient-flame text-white mb-5">
+                <Sparkles className="size-7" />
+              </div>
+
+              <h3 className="font-display text-2xl font-bold mb-4">תמיד מחכה לכם אתגר חדש</h3>
+
+              <p className="text-muted-foreground leading-relaxed">
+                המשחק כולל מאגר ענק של הגדרות היגיון איכותיות במגוון רחב של נושאים וברמות קושי שונות. הוא מתאים גם
+                לפותרים מתחילים שרוצים לצבור ניסיון ולהשתפר, וגם לחובבי תשבצי היגיון ותיקים שמחפשים אתגר אמיתי. המאגר
+                מתעדכן באופן שוטף ונוספות לו הגדרות חדשות כל הזמן כדי שתוכלו להמשיך לאתגר את עצמכם בכל פעם שתחזרו לשחק.
+              </p>
+
+              <div className="flex flex-wrap gap-2 mt-6">
+                <span className="px-3 py-1.5 rounded-full bg-muted text-sm">מגוון נושאים</span>
+
+                <span className="px-3 py-1.5 rounded-full bg-muted text-sm">רמות קושי שונות</span>
+
+                <span className="px-3 py-1.5 rounded-full bg-muted text-sm">תוכן חדש באופן שוטף</span>
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-card border shadow-card p-6 sm:p-8 text-right">
+              <div className="inline-flex p-3 rounded-2xl bg-gradient-flame text-white mb-5">
+                <Trophy className="size-7" />
+              </div>
+
+              <h3 className="font-display text-2xl font-bold mb-4">התקדמו, השתפרו ושברו שיאים</h3>
+
+              <p className="text-muted-foreground leading-relaxed">
+                במהלך המשחק תוכלו לצבור נקודות, לעבור שלבים, להשלים אתגרים, להתמודד על מקום בטבלת השחקנים המובילים
+                ולעקוב אחר הביצועים שלכם בעמוד הסטטיסטיקות האישיות. יצאתם מהמשחק? תוכלו להתחבר שוב בכל שלב ולהמשיך לשחק
+                בדיוק מהנקודה שבה הפסקתם.
+              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-6">
+                {["נקודות", "שלבים", "אתגרים", "דירוג", "סטטיסטיקות", "שמירת התקדמות"].map((item) => (
+                  <div key={item} className="rounded-xl bg-muted px-3 py-2 text-sm font-medium text-center">
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Final CTA */}
+          <div className="mt-8 rounded-3xl border bg-gradient-to-br from-primary/10 via-card to-secondary/10 shadow-card p-7 sm:p-10 text-center">
+            <div className="inline-flex p-3 rounded-2xl bg-gradient-sunset text-white mb-5">
+              <Zap className="size-7" />
+            </div>
+
+            <h2 className="font-display text-3xl sm:text-4xl font-extrabold mb-4">הכול בחינם וללא הגבלה</h2>
+
+            <p className="max-w-3xl mx-auto text-muted-foreground leading-relaxed text-right sm:text-center">
+              המשחק זמין בחינם לכולם וללא הגבלה. כל מה שצריך לעשות הוא להירשם באמצעות כתובת אימייל וסיסמה, או דרך חשבון
+              Google או Apple, ולהתחיל לשחק.
+            </p>
+
+            <p className="max-w-3xl mx-auto mt-5 text-lg sm:text-xl font-display font-bold leading-relaxed">
+              אם אתם מכורים לתשבצי היגיון או פשוט אוהבים חידות ואתגרים לחידוד החשיבה, זה הזמן להצטרף ולהתחיל לשבור
+              ת'ראש!
+            </p>
+
+            <div className="flex flex-col items-center gap-3 mt-8">
+              <Link
+                to={user ? "/play" : "/auth"}
+                className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-xl shadow-glow hover:scale-105 active:scale-95 transition"
+              >
+                {user ? "חזרה למשחק" : "התחילו לשחק"}
+              </Link>
+
+              <Link
+                to="/demo"
+                className="px-7 py-3 rounded-2xl border-2 border-primary text-primary font-display font-bold text-base bg-card hover:bg-muted hover:scale-105 active:scale-95 transition"
+              >
+                נסו משחק לדוגמה
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </AppShell>
