@@ -153,6 +153,44 @@ const MAINTENANCE_FIELDS: Field[] = [
   },
 ];
 
+const ADS_FIELDS: Field[] = [
+  {
+    key: "ads_enabled",
+    label: "הפעלת פרסומות",
+    hint: "מתג ראשי — כשכבוי לא מוצגים כלל מיקומי פרסומת",
+    type: "boolean",
+    default: false,
+  },
+  {
+    key: "ads_test_mode",
+    label: "מצב בדיקת פרסומות",
+    hint: "בשלב זה כל המתגים למטה שולטים במקומות שמורים לפיתוח בלבד ואינם מפעילים פרסומות אמיתיות של Google",
+    type: "boolean",
+    default: true,
+  },
+  {
+    key: "ads_post_solve_enabled",
+    label: "מודעה לאחר פתרון הגדרה",
+    hint: "מציג מיקום בדיקה במסך המשחק לאחר פתרון",
+    type: "boolean",
+    default: true,
+  },
+  {
+    key: "ads_game_enabled",
+    label: "מודעה במסך המשחק",
+    hint: "שמור לשלב עתידי — לא פעיל כרגע",
+    type: "boolean",
+    default: false,
+  },
+  {
+    key: "h5_ads_enabled",
+    label: "פרסומות מעבר במשחק",
+    hint: "פרסומות H5 Games Ads — שמור לשלב עתידי, לא פעיל כרגע",
+    type: "boolean",
+    default: false,
+  },
+];
+
 // ------------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------------
