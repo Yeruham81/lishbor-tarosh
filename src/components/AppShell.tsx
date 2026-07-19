@@ -162,14 +162,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="flex-1">{children}</main>
-      {/* Ad slot */}
-      {!onDemo && (
-        <div className="container mx-auto px-4 py-4">
-          <div className="rounded-xl border border-dashed border-border bg-muted/30 text-muted-foreground text-xs text-center py-3">
-            מקום שמור למודעה (Google AdSense)
-          </div>
-        </div>
-      )}
+      {/* Ads are declared per-route via <AdSlot />, never globally here.
+          A global slot would risk rendering on auth/legal/admin surfaces. */}
       <footer className="border-t bg-muted/20 mt-2">
         <div className="container mx-auto px-4 py-5 space-y-3">
           {/* ================= DESKTOP ================= */}
