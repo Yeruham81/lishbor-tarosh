@@ -45,7 +45,7 @@ function Index() {
 
         {/* About the game */}
         <div className="max-w-5xl mx-auto mt-12 sm:mt-16">
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="text-center max-w-3xl lg:max-w-4xl mx-auto">
             <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-primary/10 text-primary mb-4">
               <Brain className="size-7" />
             </div>
