@@ -101,7 +101,7 @@ function Index() {
             </h2>
 
             <p className="max-w-3xl mx-auto text-muted-foreground leading-relaxed text-right sm:text-center">
-              המשחק זמין בחינם לכולם וללא הגבלה. כל מה שצריך לעשות הוא להירשם באמצעות כתובת אימייל וסיסמה, או דרך חשבון
+              המשחק זמין בחינם לכולם וללא הגבלה. כל מה שעליכם לעשות הוא להירשם באמצעות כתובת אימייל וסיסמה, או דרך חשבון
               Google או Apple, ולהתחיל לשחק.
             </p>
 
