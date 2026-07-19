@@ -305,6 +305,16 @@ function SettingsPage() {
           onSave={saveMany}
         />
 
+        <Section
+          title="פרסומות"
+          description="מתגים אלה שולטים כרגע במיקומי בדיקה לפיתוח בלבד ואינם מפעילים פרסומות אמיתיות של Google"
+          fields={ADS_FIELDS}
+          values={data}
+          loading={settings.isLoading}
+          onSave={saveMany}
+        />
+
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">גיבוי וייצוא</CardTitle>
