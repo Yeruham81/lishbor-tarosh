@@ -67,7 +67,7 @@ function Index() {
 
               <h3 className="font-display text-2xl font-bold mb-4">אתגר חדש בכל הגדרה</h3>
 
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
                 המשחק כולל מאגר ענק של הגדרות היגיון איכותיות במגוון רחב של נושאים וברמות קושי שונות. הוא מתאים גם
                 לפותרים מתחילים שרוצים לצבור ניסיון ולהשתפר, וגם לחובבי תשבצי היגיון ותיקים שמחפשים אתגר אמיתי. המשחק
                 מתעדכן באופן שוטף ונוספות לו הגדרות חדשות כל הזמן כדי שתוכלו להמשיך לאתגר את עצמכם בכל פעם שתחזרו לשחק.
@@ -81,7 +81,7 @@ function Index() {
 
               <h3 className="font-display text-2xl font-bold mb-4">נקודות, אתגרים ושיאים</h3>
 
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
                 במהלך המשחק תוכלו לצבור נקודות, לעבור שלבים, להשלים אתגרים, להתמודד על מקום בטבלת השחקנים המובילים
                 ולעקוב אחר הביצועים שלכם בעמוד הסטטיסטיקות האישיות. יצאתם מהמשחק? בכל שלב תוכלו להתחבר שוב ולהמשיך לשחק
                 בדיוק מהנקודה שבה הפסקתם.
