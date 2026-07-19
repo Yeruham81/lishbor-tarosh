@@ -54,9 +54,6 @@ export function useAdEligibility(placement: AdPlacement): boolean {
     staleTime: 5 * 60_000,
   });
 
-  // Production render nothing during this phase — no live ad integration yet.
-  if (import.meta.env.PROD) return false;
-
   const adminLoading = flags.loading || (!!user && roleQ.isLoading);
   const isAdmin = !!roleQ.data?.isAdmin;
 
