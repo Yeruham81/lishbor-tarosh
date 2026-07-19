@@ -41,19 +41,10 @@ function Index() {
               נסו משחק לדוגמה
             </Link>
           </div>
-
-          {/* Compact highlights */}
-          <div className="flex flex-wrap justify-center gap-3 mt-10">
-            {["ידע כללי ומשחקי מילים", "שלבים, אתגרים וסטטיסטיקות", "חינם וללא הגבלה"].map((item) => (
-              <div key={item} className="px-4 py-2 rounded-full bg-card border shadow-sm text-sm font-medium">
-                {item}
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* About the game */}
-        <div className="max-w-5xl mx-auto mt-16 sm:mt-20">
+        <div className="max-w-5xl mx-auto mt-12 sm:mt-16">
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-primary/10 text-primary mb-4">
               <Brain className="size-7" />
