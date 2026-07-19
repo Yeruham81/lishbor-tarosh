@@ -23,7 +23,7 @@ function Index() {
           </h1>
 
           <p className="text-[clamp(0.85rem,4vw,1.25rem)] sm:text-xl whitespace-nowrap tracking-tighter text-muted-foreground w-[calc(100vw-1rem)] max-w-none mx-auto mb-8">
-            כי זה לא רק מה אתם יודעים — זה גם איך אתם חושבים
+            זה לא רק מה שאתם יודעים — זה גם איך אתם חושבים
           </p>
 
           <div className="flex flex-col justify-center items-center gap-3">
