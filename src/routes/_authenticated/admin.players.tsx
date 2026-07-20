@@ -46,8 +46,6 @@ export const Route = createFileRoute("/_authenticated/admin/players")({
 
 const COLS = [
   { key: "player", label: "שחקן" },
-  { key: "email", label: "אימייל" },
-  { key: "age", label: "גיל" },
   { key: "player_level", label: "רמה" },
   { key: "level", label: "שלב" },
   { key: "score", label: "ניקוד" },
@@ -236,8 +234,6 @@ function PlayersPage() {
               <Checkbox checked={allSelected} onCheckedChange={(c) => t.selectAll(allIds, !!c)} />
             </TableHead>
             {t.isVisible("player") && <TableHead>שחקן</TableHead>}
-            {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
-            {t.isVisible("age") && <TableHead className="hidden lg:table-cell">גיל</TableHead>}
             {t.isVisible("player_level") && <TableHead className="hidden lg:table-cell">רמה</TableHead>}
             {t.isVisible("level") && (
               <SortableHead sortKey="level" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
@@ -272,13 +268,13 @@ function PlayersPage() {
         rows={
           list.isLoading ? (
             <TableRow>
-              <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                 טוען...
               </TableCell>
             </TableRow>
           ) : rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                 אין שחקנים
               </TableCell>
             </TableRow>
@@ -300,10 +296,6 @@ function PlayersPage() {
                     </div>
                   </TableCell>
                 )}
-                {t.isVisible("email") && (
-                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
-                )}
-                {t.isVisible("age") && <TableCell className="hidden lg:table-cell">{r.age ?? "—"}</TableCell>}
                 {t.isVisible("player_level") && (
                   <TableCell className="hidden lg:table-cell">
                     {r.player_level ? (PLAYER_LEVEL_LABELS[r.player_level as number] ?? r.player_level) : "—"}
@@ -424,9 +416,6 @@ function ViewDialog({ target, onClose }: { target: any | null; onClose: () => vo
         </DialogHeader>
         {target && (
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <span className="text-muted-foreground">אימייל:</span> {target.email ?? "—"}
-            </div>
             <div>
               <span className="text-muted-foreground">שלב:</span> {target.level ?? 1}
             </div>
