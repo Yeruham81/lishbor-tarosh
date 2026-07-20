@@ -69,11 +69,27 @@ function Index() {
 
               <h3 className="font-display text-2xl font-bold mb-4">אתגר חדש בכל הגדרה</h3>
 
-              <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-                המשחק כולל מאגר ענק של הגדרות היגיון איכותיות במגוון רחב של נושאים וברמות קושי שונות. הוא מתאים גם
-                לפותרים מתחילים שרוצים לצבור ניסיון ולהשתפר, וגם לחובבי תשבצי היגיון ותיקים שמחפשים אתגר אמיתי. המשחק
-                מתעדכן בקביעות בהגדרות חדשות כדי שתוכלו להמשיך ליהנות ולאתגר את עצמכם בכל פעם שתחזרו לשחק.
-              </p>
+              <ul className="space-y-3 text-lg sm:text-xl text-muted-foreground leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold shrink-0">✓</span>
+                  <span>המשחק כולל מאגר ענק של הגדרות היגיון איכותיות במגוון רחב של נושאים וברמות קושי שונות.</span>
+                </li>
+
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold shrink-0">✓</span>
+                  <span>
+                    הוא מתאים גם לפותרים מתחילים שרוצים לצבור ניסיון ולהשתפר, וגם לחובבי תשבצי היגיון ותיקים שמחפשים
+                    אתגר אמיתי.
+                  </span>
+                </li>
+
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold shrink-0">✓</span>
+                  <span>
+                    המשחק מתעדכן בקביעות בהגדרות חדשות כדי שתוכלו להמשיך ליהנות ולאתגר את עצמכם בכל פעם שתחזרו לשחק.
+                  </span>
+                </li>
+              </ul>
             </div>
 
             <div className="rounded-3xl bg-card border shadow-card p-6 sm:p-8 text-right">
