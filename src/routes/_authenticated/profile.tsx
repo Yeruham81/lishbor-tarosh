@@ -15,6 +15,8 @@ import {
   updatePlayerLevel,
 } from "@/lib/account.functions";
 import { PLAYER_LEVELS } from "@/components/DisplayNameSetup";
+import { openCookiePreferences } from "@/lib/ads/consent";
+import { Cookie } from "lucide-react";
 
 import { PALETTES, type Palette } from "@/hooks/use-theme";
 import { toast } from "sonner";
@@ -552,6 +554,18 @@ function Profile() {
             onChange={(v) => setA11y({ screen_reader: v })}
           />
         </Card>
+
+        {/* Cookie preferences — subtle action at the bottom of the profile */}
+        <div dir="rtl" className="pt-2 text-center">
+          <button
+            type="button"
+            onClick={openCookiePreferences}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition"
+          >
+            <Cookie className="size-3.5" />
+            ניהול העדפות עוגיות
+          </button>
+        </div>
       </div>
     </AppShell>
   );
