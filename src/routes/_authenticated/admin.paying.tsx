@@ -32,8 +32,7 @@ function PayingPlayersPage() {
   const rows: any[] = q.data?.rows ?? [];
   const total = q.data?.total ?? 0;
 
-  const fmtDate = (d?: string | null) =>
-    d ? new Date(d).toLocaleDateString("he-IL") : "—";
+  const fmtDate = (d?: string | null) => (d ? new Date(d).toLocaleDateString("he-IL") : "—");
   const fmtAmount = (n?: number | null) =>
     typeof n === "number" ? `₪${n.toLocaleString("he-IL", { minimumFractionDigits: 2 })}` : "—";
 
@@ -45,7 +44,10 @@ function PayingPlayersPage() {
         <Input
           placeholder="חיפוש לפי שם / אימייל..."
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(0);
+          }}
         />
       </div>
 
@@ -53,7 +55,6 @@ function PayingPlayersPage() {
         headers={
           <>
             <TableHead>שם</TableHead>
-            <TableHead className="hidden md:table-cell">גיל</TableHead>
             <TableHead className="hidden md:table-cell">תאריך הרשמה</TableHead>
             <TableHead>תאריך תשלום</TableHead>
             <TableHead>סכום</TableHead>
@@ -62,18 +63,23 @@ function PayingPlayersPage() {
         rows={
           q.isLoading ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">טוען...</TableCell>
+              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                טוען...
+              </TableCell>
             </TableRow>
           ) : rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">אין שחקנים משלמים</TableCell>
+              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                אין שחקנים משלמים
+              </TableCell>
             </TableRow>
           ) : (
             rows.map((r) => (
               <TableRow key={r.id}>
                 <TableCell className="font-medium">{r.display_name ?? r.username}</TableCell>
-                <TableCell className="hidden md:table-cell">{r.age ?? "—"}</TableCell>
-                <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{fmtDate(r.created_at)}</TableCell>
+                <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                  {fmtDate(r.created_at)}
+                </TableCell>
                 <TableCell className="text-sm">{fmtDate(r.paid_at)}</TableCell>
                 <TableCell className="font-semibold">{fmtAmount(r.payment_amount)}</TableCell>
               </TableRow>
@@ -87,7 +93,10 @@ function PayingPlayersPage() {
             total={total}
             loading={q.isFetching}
             onPageChange={setPage}
-            onPageSizeChange={(n) => { setPageSize(n); setPage(0); }}
+            onPageSizeChange={(n) => {
+              setPageSize(n);
+              setPage(0);
+            }}
           />
         }
       />
