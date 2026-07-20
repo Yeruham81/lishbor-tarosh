@@ -198,7 +198,7 @@ function PlayersPage() {
       <TableToolbar
         search={t.search}
         onSearchChange={t.setSearch}
-        searchPlaceholder="חיפוש לפי שם משתמש / אימייל..."
+        searchPlaceholder="חיפוש"
         filters={[
           {
             key: "status",
