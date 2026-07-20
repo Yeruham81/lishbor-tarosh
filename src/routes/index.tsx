@@ -107,12 +107,9 @@ function Index() {
 
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-bold shrink-0">✓</span>
-                  <span>ככל שתשחקו יותר, תשתפרו ותתקדמו.</span>
-                </li>
-
-                <li className="flex items-start gap-2">
-                  <span className="text-primary font-bold shrink-0">✓</span>
-                  <span>תוכלו לעקוב אחר הביצועים וההתקדמות שלכם בעמוד הסטטיסטיקות האישיות.</span>
+                  <span>
+                    ככל שתשחקו יותר, תשתפרו ותצברו ניסיון. עמוד הסטטיסטיקות האישיות יעזור לכם לעקוב אחר ההתקדמות שלכם.
+                  </span>
                 </li>
 
                 <li className="flex items-start gap-2">
