@@ -96,11 +96,30 @@ function Index() {
 
               <h3 className="font-display text-2xl font-bold mb-4">נקודות, אתגרים ושיאים</h3>
 
-              <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-                במהלך המשחק תוכלו לצבור נקודות, לעבור שלבים, להשלים אתגרים ולהתמודד על המקום הראשון בטבלת השחקנים
-                המובילים. ככל שתשחקו יותר, תשתפרו ותתקדמו. אם תרצו לעקוב אחר הביצועים שלכם, תוכלו לעשות זאת בעמוד
-                הסטטיסטיקות האישיות. יצאתם מהמשחק? תוכלו להתחבר שוב בכל שלב ולהמשיך לשחק בדיוק מהנקודה שבה הפסקתם.
-              </p>
+              <ul className="space-y-3 text-lg sm:text-xl text-muted-foreground leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold shrink-0">✓</span>
+                  <span>
+                    במהלך המשחק תוכלו לצבור נקודות, לעבור שלבים, להשלים אתגרים ולהתמודד על המקום הראשון בטבלת השחקנים
+                    המובילים.
+                  </span>
+                </li>
+
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold shrink-0">✓</span>
+                  <span>ככל שתשחקו יותר, תשתפרו ותתקדמו.</span>
+                </li>
+
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold shrink-0">✓</span>
+                  <span>תוכלו לעקוב אחר הביצועים וההתקדמות שלכם בעמוד הסטטיסטיקות האישיות.</span>
+                </li>
+
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold shrink-0">✓</span>
+                  <span>יצאתם מהמשחק? תוכלו להתחבר שוב בכל שלב ולהמשיך לשחק בדיוק מהנקודה שבה הפסקתם.</span>
+                </li>
+              </ul>
             </div>
           </div>
 
