@@ -54,7 +54,7 @@ function Index() {
 
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold mb-5">הכול מתחיל בראש</h2>
 
-            <p className="text-xl sm:text-xl text-muted-foreground leading-relaxed text-right">
+            <p className="text-xl sm:text-xl text-muted-foreground leading-relaxed text-center">
               משחק הגדרות היגיון בעברית שמשלב ידע כללי, מיומנות במשחקי מילים וחשיבה מקורית מחוץ לקופסה
             </p>
           </div>
