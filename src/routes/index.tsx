@@ -72,22 +72,20 @@ function Index() {
               <ul className="space-y-3 text-lg sm:text-xl text-muted-foreground leading-relaxed">
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-bold shrink-0">✓</span>
-                  <span>המשחק כולל מאגר ענק של הגדרות היגיון איכותיות במגוון רחב של נושאים וברמות קושי שונות.</span>
+                  <span>מאגר ענק של הגדרות היגיון איכותיות במגוון רחב של נושאים וברמות קושי שונות.</span>
                 </li>
 
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-bold shrink-0">✓</span>
                   <span>
-                    הוא מתאים גם לפותרים מתחילים שרוצים לצבור ניסיון ולהשתפר, וגם לחובבי תשבצי היגיון ותיקים שמחפשים
-                    אתגר אמיתי.
+                    מתאים לפותרים מתחילים שרוצים לצבור ניסיון ולהשתפר כמו גם לחובבי תשבצי היגיון ותיקים שמחפשים אתגר
+                    אמיתי.
                   </span>
                 </li>
 
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-bold shrink-0">✓</span>
-                  <span>
-                    המשחק מתעדכן בקביעות בהגדרות חדשות כדי שתוכלו להמשיך ליהנות ולאתגר את עצמכם בכל פעם שתחזרו לשחק.
-                  </span>
+                  <span>הגדרות חדשות מתעדכנות כל הזמן כדי שתוכלו להמשיך לפתור וליהנות בכל פעם שתחזרו לשחק.</span>
                 </li>
               </ul>
             </div>
