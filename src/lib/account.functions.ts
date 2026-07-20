@@ -11,8 +11,11 @@ export const getStats = createServerFn({ method: "GET" })
     // read via admin scoped to owner.
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, age, player_level, is_paid, paid_at, payment_amount, created_at, updated_at")
-      .eq("id", userId).single();
+      .select(
+        "id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, player_level, is_paid, paid_at, payment_amount, created_at, updated_at",
+      )
+      .eq("id", userId)
+      .single();
 
     const p: any = profile ?? {};
     const totalSolved = p.solved_count ?? 0;
@@ -106,7 +109,6 @@ const confirmSchema = z.object({
           "ניתן להשתמש באותיות עברית/אנגלית, מספרים, רווחים ו- . , _ - בלבד",
         ),
     ),
-  age: z.number().int().min(18, "גיל לא תקין").max(100, "גיל לא תקין"),
   playerLevel: z.number().int().min(1).max(5),
 });
 
@@ -128,7 +130,6 @@ export const confirmDisplayName = createServerFn({ method: "POST" })
       .update({
         display_name: data.displayName,
         display_name_confirmed: true,
-        age: data.age,
         player_level: data.playerLevel,
       } as any)
       .eq("id", userId);
@@ -136,7 +137,7 @@ export const confirmDisplayName = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// Player level is editable in profile (age/nickname are immutable).
+// Player level is editable in profile; nickname is immutable.
 export const updatePlayerLevel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ playerLevel: z.number().int().min(1).max(5) }).parse(d))
@@ -172,8 +173,7 @@ export const getDisplayNameStatus = createServerFn({ method: "GET" })
       .single();
     // Try to extract a suggested name from JWT user_metadata
     const meta = (claims?.user_metadata ?? {}) as Record<string, any>;
-    const suggested: string | null =
-      meta.full_name || meta.name || meta.display_name || profile?.display_name || null;
+    const suggested: string | null = meta.full_name || meta.name || meta.display_name || profile?.display_name || null;
     return {
       confirmed: !!profile?.display_name_confirmed,
       current: profile?.display_name ?? profile?.username ?? "",
@@ -217,7 +217,10 @@ export const updatePreferences = createServerFn({ method: "POST" })
       const curPrefs = (cur?.accessibility_prefs ?? {}) as Record<string, any>;
       patch.accessibility_prefs = { ...curPrefs, ...data.accessibility_prefs };
     }
-    const { error } = await supabase.from("profiles").update(patch as any).eq("id", userId);
+    const { error } = await supabase
+      .from("profiles")
+      .update(patch as any)
+      .eq("id", userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -236,9 +239,7 @@ export const setAvatarPath = createServerFn({ method: "POST" })
     if (!data.path) {
       const { data: list } = await supabaseAdmin.storage.from("avatars").list(context.userId);
       if (list?.length) {
-        await supabaseAdmin.storage
-          .from("avatars")
-          .remove(list.map((f) => `${context.userId}/${f.name}`));
+        await supabaseAdmin.storage.from("avatars").remove(list.map((f) => `${context.userId}/${f.name}`));
       }
     }
     return { ok: true };
