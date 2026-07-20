@@ -19,3 +19,29 @@ export type AdEligibilityInput = {
    */
   hasRemoveAdsEntitlement?: boolean;
 };
+
+/**
+ * Reserved for a future phase — describes how an eligible ad should be served.
+ * Not consumed by any code path yet. Ad ELIGIBILITY is independent of the
+ * personalization preference; declining personalization must not remove ads,
+ * it only shifts the future mode toward "non-personalized" or "limited".
+ */
+export type AdServingMode = "personalized" | "non-personalized" | "limited" | "none";
+
+/** Typed shape returned by useAdConfig(). */
+export type AdConfig = {
+  enabled: boolean;
+  testMode: boolean;
+  h5Enabled: boolean;
+  publisherId: string;
+  placements: {
+    postSolveBottom: {
+      enabled: boolean;
+      slotId: string;
+    };
+    gameBottom: {
+      enabled: boolean;
+      slotId: string;
+    };
+  };
+};

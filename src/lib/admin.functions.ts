@@ -515,6 +515,9 @@ const PUBLIC_SETTING_KEYS = [
   "ads_post_solve_enabled",
   "ads_game_enabled",
   "h5_ads_enabled",
+  "adsense_publisher_id",
+  "adsense_post_solve_slot_id",
+  "adsense_game_slot_id",
 ] as const;
 
 export const getPublicSettings = createServerFn({ method: "GET" })
