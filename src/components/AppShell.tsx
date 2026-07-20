@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { LegalModal } from "@/components/LegalModal";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { CookiePreferencesDialog } from "@/components/CookiePreferencesDialog";
 import { privacyPolicy, termsOfUse } from "@/content/legal";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -326,6 +327,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <LegalModal open={privacyOpen} onOpenChange={setPrivacyOpen} doc={privacyPolicy} />
       <LegalModal open={termsOpen} onOpenChange={setTermsOpen} doc={termsOfUse} />
       <CookieConsentBanner />
+      <CookiePreferencesDialog />
     </div>
   );
 }

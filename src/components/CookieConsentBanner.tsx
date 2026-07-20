@@ -1,57 +1,39 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { LegalModal } from "@/components/LegalModal";
 import { cookieNotice, privacyPolicy } from "@/content/legal";
 import { Cookie } from "lucide-react";
-
-const STORAGE_KEY = "cookie_consent_v1";
-
-type Prefs = { essential: true; analytics: boolean; advertising: boolean };
-
-function readStored(): Prefs | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return { essential: true, analytics: !!parsed.analytics, advertising: !!parsed.advertising };
-  } catch {
-    return null;
-  }
-}
-
-function save(prefs: Prefs) {
-  try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ ...prefs, savedAt: new Date().toISOString(), version: 1 }),
-    );
-  } catch {}
-}
+import {
+  openCookiePreferences,
+  readConsent,
+  saveConsent,
+  CONSENT_CHANGED_EVENT,
+} from "@/lib/ads/consent";
 
 export function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
-  const [prefsOpen, setPrefsOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
-  const [analytics, setAnalytics] = useState(true);
-  const [advertising, setAdvertising] = useState(true);
 
   useEffect(() => {
-    if (!readStored()) setVisible(true);
+    const sync = () => setVisible(!readConsent());
+    sync();
+    const onChanged = () => sync();
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "cookie_consent_v1") sync();
+    };
+    window.addEventListener(CONSENT_CHANGED_EVENT, onChanged as EventListener);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(CONSENT_CHANGED_EVENT, onChanged as EventListener);
+      window.removeEventListener("storage", onStorage);
+    };
   }, []);
 
   const acceptAll = () => {
-    save({ essential: true, analytics: true, advertising: true });
-    setVisible(false);
-    setPrefsOpen(false);
+    saveConsent({ analytics: true, advertising: true });
   };
-
-  const savePrefs = () => {
-    save({ essential: true, analytics, advertising });
-    setVisible(false);
-    setPrefsOpen(false);
+  const rejectOptional = () => {
+    saveConsent({ analytics: false, advertising: false });
   };
 
   if (!visible) return null;
@@ -78,6 +60,10 @@ export function CookieConsentBanner() {
                 ))}
               </ul>
               <p className="text-sm text-muted-foreground">{cookieNotice.outro}</p>
+              <p className="text-xs text-muted-foreground">
+                המשחק ממומן באמצעות פרסומות. גם אם לא תאשרו פרסום מותאם אישית, ייתכן שיוצגו פרסומות שאינן
+                מותאמות אישית או פרסומות מוגבלות.
+              </p>
               <p className="text-sm">
                 למידע נוסף ראו את{" "}
                 <button
@@ -96,7 +82,10 @@ export function CookieConsentBanner() {
                 >
                   אישור הכל
                 </Button>
-                <Button variant="outline" onClick={() => setPrefsOpen(true)}>
+                <Button variant="outline" onClick={rejectOptional}>
+                  דחיית עוגיות לא חיוניות
+                </Button>
+                <Button variant="ghost" onClick={openCookiePreferences}>
                   ניהול העדפות
                 </Button>
               </div>
@@ -105,73 +94,7 @@ export function CookieConsentBanner() {
         </div>
       </div>
 
-      <Dialog open={prefsOpen} onOpenChange={setPrefsOpen}>
-        <DialogContent dir="rtl" className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl text-gradient-sunset text-right">
-              ניהול העדפות עוגיות
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 text-right text-sm">
-            <PrefRow
-              title="עוגיות חיוניות"
-              desc="נדרשות לתפקוד בסיסי של המערכת ולשמירת ההתחברות. לא ניתן לכבות."
-              checked
-              disabled
-              onChange={() => {}}
-            />
-            <PrefRow
-              title="עוגיות ניתוח"
-              desc="עוזרות לנו להבין כיצד נעשה שימוש במשחק ולשפר את החוויה."
-              checked={analytics}
-              onChange={setAnalytics}
-            />
-            <PrefRow
-              title="עוגיות פרסום"
-              desc="משמשות להצגת פרסומות מותאמות אישית ולמדידת ביצועיהן."
-              checked={advertising}
-              onChange={setAdvertising}
-            />
-          </div>
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={savePrefs} className="sm:order-1">
-              שמירת העדפות
-            </Button>
-            <Button
-              onClick={acceptAll}
-              className="bg-gradient-sunset text-white shadow-glow hover:opacity-90 font-semibold sm:order-2"
-            >
-              אישור הכל
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <LegalModal open={privacyOpen} onOpenChange={setPrivacyOpen} doc={privacyPolicy} />
     </>
-  );
-}
-
-function PrefRow({
-  title,
-  desc,
-  checked,
-  disabled,
-  onChange,
-}: {
-  title: string;
-  desc: string;
-  checked: boolean;
-  disabled?: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div className="flex items-start justify-between gap-3 p-3 rounded-xl border bg-card">
-      <div className="flex-1">
-        <div className="font-semibold">{title}</div>
-        <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
-      </div>
-      <Switch checked={checked} disabled={disabled} onCheckedChange={onChange} />
-    </div>
   );
 }
