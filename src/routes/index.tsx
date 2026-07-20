@@ -71,7 +71,9 @@ function Index() {
               <ul className="space-y-3 text-lg sm:text-xl text-muted-foreground leading-relaxed">
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-bold shrink-0">✓</span>
-                  <span>מאגר ענק של הגדרות היגיון איכותיות במגוון רחב של נושאים וברמות קושי שונות.</span>
+                  <span>
+                    מאגר ענק של הגדרות היגיון איכותיות, מקוריות ומאתגרות, במגוון רחב של נושאים וברמות קושי שונות.
+                  </span>
                 </li>
 
                 <li className="flex items-start gap-2">
