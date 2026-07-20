@@ -50,7 +50,6 @@ const TYPE_CLASS: Record<string, string> = {
 
 const COLS = [
   { key: "name", label: "שם" },
-  { key: "email", label: "אימייל" },
   { key: "type", label: "סוג" },
   { key: "subject", label: "נושא" },
   { key: "message", label: "הודעה" },
@@ -172,7 +171,6 @@ function MessagesPage() {
         headers={
           <>
             {t.isVisible("name") && <TableHead>שם</TableHead>}
-            {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
             {t.isVisible("type") && <TableHead>סוג</TableHead>}
             {t.isVisible("subject") && <TableHead>נושא</TableHead>}
             {t.isVisible("message") && <TableHead className="hidden lg:table-cell">הודעה</TableHead>}
@@ -206,9 +204,6 @@ function MessagesPage() {
             rows.map((r) => (
               <TableRow key={r.id}>
                 {t.isVisible("name") && <TableCell className="font-medium">{r.name ?? "—"}</TableCell>}
-                {t.isVisible("email") && (
-                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
-                )}
                 {t.isVisible("type") && (
                   <TableCell>
                     <span
@@ -305,7 +300,7 @@ function MessagesPage() {
           </DialogHeader>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="text-muted-foreground">מאת:</span> {viewing?.name} ({viewing?.email})
+              <span className="text-muted-foreground">מאת:</span> {viewing?.name}
             </div>
             <div className="whitespace-pre-wrap p-3 rounded-lg bg-muted">{viewing?.message}</div>
             {viewing?.reply_text && (
