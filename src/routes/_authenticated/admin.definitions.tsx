@@ -225,7 +225,7 @@ function DefinitionsPage() {
       <TableToolbar
         search={t.search}
         onSearchChange={t.setSearch}
-        searchPlaceholder="חיפוש"
+        searchPlaceholder="חיפוש לפי הגדרה / פתרון / קטגוריה..."
         filters={[
           {
             key: "status",
