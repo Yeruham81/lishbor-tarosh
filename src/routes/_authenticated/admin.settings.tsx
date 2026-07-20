@@ -189,6 +189,27 @@ const ADS_FIELDS: Field[] = [
     type: "boolean",
     default: false,
   },
+  {
+    key: "adsense_publisher_id",
+    label: "מזהה מפרסם AdSense",
+    hint: "השדה אינו מפעיל פרסומות בשלב זה — נשמר לשימוש עתידי",
+    type: "text",
+    default: "",
+  },
+  {
+    key: "adsense_post_solve_slot_id",
+    label: "מזהה מודעה לאחר פתרון",
+    hint: "השדה אינו מפעיל פרסומות בשלב זה — נשמר לשימוש עתידי",
+    type: "text",
+    default: "",
+  },
+  {
+    key: "adsense_game_slot_id",
+    label: "מזהה מודעה במסך המשחק",
+    hint: "השדה אינו מפעיל פרסומות בשלב זה — נשמר לשימוש עתידי",
+    type: "text",
+    default: "",
+  },
 ];
 
 // ------------------------------------------------------------------
@@ -391,6 +412,7 @@ function Section({
         const f = fields.find((x) => x.key === k)!;
         let v: any = draft[k];
         if (f.type === "number") v = Number(v);
+        else if (f.type === "text" || f.type === "textarea") v = typeof v === "string" ? v.trim() : v;
         return { key: k, value: v };
       });
       await onSave(entries);
