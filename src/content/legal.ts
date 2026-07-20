@@ -39,7 +39,7 @@ export const privacyPolicy: LegalDocument = {
         },
         {
           heading: "2.2 מידע פרופיל",
-          bullets: ["כינוי משתמש (username)", "גיל כפי שהוזן על ידי המשתמש", "תמונת פרופיל (אופציונלית)"],
+          bullets: ["כינוי משתמש (username)", תמונת פרופיל (אופציונלית)"],
         },
         {
           heading: "2.3 מידע שימוש ופעילות",
