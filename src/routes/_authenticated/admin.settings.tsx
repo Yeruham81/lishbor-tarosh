@@ -7,12 +7,16 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { adminGetSettings, adminSetSetting, adminExport } from "@/lib/admin.functions";
 import { downloadXLSX } from "@/lib/admin-export";
-import { Download, Save, RotateCcw } from "lucide-react";
+import { Download, Save, RotateCcw, ChevronDown, AlertTriangle } from "lucide-react";
+import { ALL_SCREENS, SCREEN_LABEL_HE, screenSettingKey } from "@/lib/ads/screens";
+import type { AdScreen, DesktopAdLayoutMode } from "@/lib/ads/types";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
   component: SettingsPage,
@@ -156,57 +160,43 @@ const MAINTENANCE_FIELDS: Field[] = [
 const ADS_FIELDS: Field[] = [
   {
     key: "ads_enabled",
-    label: "הפעלת פרסומות",
-    hint: "מתג ראשי — כשכבוי לא מוצגים כלל מיקומי פרסומת",
+    label: "פרסומות (מתג ראשי)",
+    hint: "מתג חירום כללי. כשכבוי, לא מוצגות פרסומות באף מסך",
+    type: "boolean",
+    default: false,
+  },
+  {
+    key: "ads_static_enabled",
+    label: "פרסומות סטטיות מוגדרות ידנית",
+    hint: "מפעיל את כל המיקומים הידניים שהוגדרו במסכי המשחק",
     type: "boolean",
     default: false,
   },
   {
     key: "ads_test_mode",
-    label: "מצב בדיקת פרסומות",
-    hint: "בשלב זה כל המתגים למטה שולטים במקומות שמורים לפיתוח בלבד ואינם מפעילים פרסומות אמיתיות של Google",
-    type: "boolean",
-    default: true,
-  },
-  {
-    key: "ads_post_solve_enabled",
-    label: "מודעה לאחר פתרון הגדרה",
-    hint: "מציג מיקום בדיקה במסך המשחק לאחר פתרון",
-    type: "boolean",
-    default: true,
-  },
-  {
-    key: "ads_game_enabled",
-    label: "מודעה במסך המשחק",
-    hint: "שמור לשלב עתידי — לא פעיל כרגע",
+    label: "מצב בדיקה",
+    hint: "כאשר פעיל מוצגים מיקומי בדיקה פנימיים בלבד. אף פנייה ל‑Google לא מתבצעת",
     type: "boolean",
     default: false,
   },
   {
     key: "h5_ads_enabled",
-    label: "פרסומות מעבר במשחק",
-    hint: "פרסומות H5 Games Ads — שמור לשלב עתידי, לא פעיל כרגע",
+    label: "פרסומות מעבר עתידיות (H5)",
+    hint: "שמור לשלב עתידי בלבד — אינו פעיל כרגע",
+    type: "boolean",
+    default: false,
+  },
+  {
+    key: "adsense_live_enabled",
+    label: "AdSense אמיתי (טעינת סקריפט Google)",
+    hint: "יש להשאיר כבוי עד לאישור Google וסיום שלב הסכמות והתאמה לרגולציה",
     type: "boolean",
     default: false,
   },
   {
     key: "adsense_publisher_id",
     label: "מזהה מפרסם AdSense",
-    hint: "השדה אינו מפעיל פרסומות בשלב זה — נשמר לשימוש עתידי",
-    type: "text",
-    default: "",
-  },
-  {
-    key: "adsense_post_solve_slot_id",
-    label: "מזהה מודעה לאחר פתרון",
-    hint: "השדה אינו מפעיל פרסומות בשלב זה — נשמר לשימוש עתידי",
-    type: "text",
-    default: "",
-  },
-  {
-    key: "adsense_game_slot_id",
-    label: "מזהה מודעה במסך המשחק",
-    hint: "השדה אינו מפעיל פרסומות בשלב זה — נשמר לשימוש עתידי",
+    hint: "פורמט חובה: ca-pub-XXXXXXXXXXXXXX. מזהה ריק או שגוי לא יטען כל סקריפט",
     type: "text",
     default: "",
   },
@@ -328,12 +318,21 @@ function SettingsPage() {
 
         <Section
           title="פרסומות"
-          description="מתגים אלה שולטים כרגע במיקומי בדיקה לפיתוח בלבד ואינם מפעילים פרסומות אמיתיות של Google"
+          description="בקרות ראשיות למערך הפרסום. בשלב זה AdSense אמיתי חייב להישאר כבוי — עד לאישור Google וסיום שלב ההסכמות והרגולציה."
           fields={ADS_FIELDS}
           values={data}
           loading={settings.isLoading}
           onSave={saveMany}
         />
+
+        <div className="lg:col-span-2">
+          <PlacementsSection
+            values={data}
+            loading={settings.isLoading}
+            onSave={saveMany}
+          />
+        </div>
+
 
 
         <Card>
@@ -525,5 +524,191 @@ function BackupRow({ label, onClick }: { label: string; onClick: () => void }) {
         <Download className="size-4 ml-1" /> הורדה
       </Button>
     </div>
+  );
+}
+
+// ------------------------------------------------------------------
+// Advanced: per-screen ad placement settings (collapsed by default)
+// ------------------------------------------------------------------
+const LAYOUT_OPTIONS: { v: DesktopAdLayoutMode; label: string }[] = [
+  { v: "off", label: "כבוי" },
+  { v: "bottom-only", label: "תחתון בלבד" },
+  { v: "left-and-bottom", label: "שמאל + תחתון" },
+  { v: "right-and-bottom", label: "ימין + תחתון" },
+  { v: "both-sides", label: "שני הצדדים" },
+];
+
+function PlacementsSection({
+  values,
+  loading,
+  onSave,
+}: {
+  values: Record<string, any>;
+  loading: boolean;
+  onSave: (entries: { key: string; value: any }[]) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Card>
+      <Collapsible open={open} onOpenChange={setOpen}>
+        <CollapsibleTrigger className="w-full text-right">
+          <CardHeader>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <CardTitle className="text-base">הגדרות מיקומי פרסומות</CardTitle>
+                <CardDescription>
+                  מיקומים ידניים לכל מסך — פריסת דסקטופ, מתגים ומזהי מודעה
+                </CardDescription>
+              </div>
+              <ChevronDown
+                className={`size-5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+              />
+            </div>
+          </CardHeader>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent className="space-y-3">
+            <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-300">
+              <AlertTriangle className="size-4 shrink-0 mt-0.5" />
+              <span>
+                AdSense אמיתי חייב להישאר כבוי עד לאישור Google וסיום שלב ההסכמות
+                (Consent) והרגולציה. מיקומים ומזהים שנשמרים כאן לא יטענו פרסומות
+                בזמן שהמתג הראשי או "AdSense אמיתי" כבויים.
+              </span>
+            </div>
+            {ALL_SCREENS.map((screen) => (
+              <ScreenPlacementBlock
+                key={screen}
+                screen={screen}
+                values={values}
+                loading={loading}
+                onSave={onSave}
+              />
+            ))}
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  );
+}
+
+function ScreenPlacementBlock({
+  screen,
+  values,
+  loading,
+  onSave,
+}: {
+  screen: AdScreen;
+  values: Record<string, any>;
+  loading: boolean;
+  onSave: (entries: { key: string; value: any }[]) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const layoutKey = screenSettingKey("ads", screen, "desktop_layout");
+  const initial = useMemo(() => {
+    const raw = values[layoutKey];
+    const layout: DesktopAdLayoutMode = (LAYOUT_OPTIONS.find((o) => o.v === raw)?.v ?? "off");
+    return {
+      layout,
+      leftEnabled: values[screenSettingKey("ads", screen, "left_enabled")] === true,
+      rightEnabled: values[screenSettingKey("ads", screen, "right_enabled")] === true,
+      bottomEnabled: values[screenSettingKey("ads", screen, "bottom_enabled")] === true,
+      leftSlot: String(values[screenSettingKey("adsense", screen, "left_slot_id")] ?? ""),
+      rightSlot: String(values[screenSettingKey("adsense", screen, "right_slot_id")] ?? ""),
+      bottomSlot: String(values[screenSettingKey("adsense", screen, "bottom_slot_id")] ?? ""),
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(values), screen]);
+
+  const [draft, setDraft] = useState(initial);
+  useEffect(() => setDraft(initial), [initial]);
+  const [busy, setBusy] = useState(false);
+  const dirty = JSON.stringify(draft) !== JSON.stringify(initial);
+
+  const onSaveClick = async () => {
+    setBusy(true);
+    try {
+      await onSave([
+        { key: layoutKey, value: draft.layout },
+        { key: screenSettingKey("ads", screen, "left_enabled"), value: !!draft.leftEnabled },
+        { key: screenSettingKey("ads", screen, "right_enabled"), value: !!draft.rightEnabled },
+        { key: screenSettingKey("ads", screen, "bottom_enabled"), value: !!draft.bottomEnabled },
+        { key: screenSettingKey("adsense", screen, "left_slot_id"), value: draft.leftSlot.trim() },
+        { key: screenSettingKey("adsense", screen, "right_slot_id"), value: draft.rightSlot.trim() },
+        { key: screenSettingKey("adsense", screen, "bottom_slot_id"), value: draft.bottomSlot.trim() },
+      ]);
+      toast.success("נשמר");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className="rounded-lg border">
+      <CollapsibleTrigger className="w-full text-right">
+        <div className="flex items-center justify-between gap-3 p-3">
+          <div className="min-w-0">
+            <div className="text-sm font-semibold">{SCREEN_LABEL_HE[screen]}</div>
+            <div className="text-xs text-muted-foreground">
+              פריסה: {LAYOUT_OPTIONS.find((o) => o.v === draft.layout)?.label ?? "כבוי"}
+            </div>
+          </div>
+          <ChevronDown className={`size-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="space-y-4 p-3 border-t">
+          <div className="space-y-1.5">
+            <Label className="text-sm">פריסת דסקטופ</Label>
+            <Select
+              value={draft.layout}
+              onValueChange={(v) => setDraft((d) => ({ ...d, layout: v as DesktopAdLayoutMode }))}
+              disabled={loading || busy}
+              dir="rtl"
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {LAYOUT_OPTIONS.map((o) => (
+                  <SelectItem key={o.v} value={o.v}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {(["left", "right", "bottom"] as const).map((pos) => {
+            const enabledKey = `${pos}Enabled` as const;
+            const slotKey = `${pos}Slot` as const;
+            const label = pos === "left" ? "שמאל" : pos === "right" ? "ימין" : "תחתון";
+            return (
+              <div key={pos} className="rounded-md border p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm font-medium">{label}</div>
+                  <Switch
+                    checked={!!(draft as any)[enabledKey]}
+                    onCheckedChange={(v) => setDraft((d) => ({ ...d, [enabledKey]: v } as any))}
+                    disabled={loading || busy}
+                  />
+                </div>
+                <Input
+                  placeholder="Slot ID (ספרות בלבד)"
+                  value={(draft as any)[slotKey]}
+                  onChange={(e) => setDraft((d) => ({ ...d, [slotKey]: e.target.value } as any))}
+                  disabled={loading || busy}
+                  dir="ltr"
+                />
+              </div>
+            );
+          })}
+
+          <div className="flex justify-end">
+            <Button size="sm" onClick={onSaveClick} disabled={!dirty || busy}>
+              <Save className="size-3.5 ml-1" /> {busy ? "שומר..." : "שמירה"}
+            </Button>
+          </div>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

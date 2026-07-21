@@ -1,47 +1,85 @@
 // Centralized advertising types.
-// Add new placements here — do not use arbitrary strings at call sites.
-export type AdPlacement = "post-solve-bottom" | "game-bottom";
+// The set of approved ad screens (routes) and positions is fixed.
+// Never use arbitrary strings at call sites.
 
-export type AdEligibilityInput = {
-  placement: AdPlacement;
-  pathname: string;
-  isAdmin: boolean;
-  adminLoading: boolean;
-  flags: {
-    adsEnabled: boolean;
-    adsTestMode: boolean;
-    postSolveEnabled: boolean;
-    gameEnabled: boolean;
-  };
-  /**
-   * Reserved for a future ad-removal entitlement (e.g. Premium).
-   * Not implemented in this phase — always leave undefined for now.
-   */
-  hasRemoveAdsEntitlement?: boolean;
-};
+export type AdScreen =
+  | "play"
+  | "home"
+  | "levels"
+  | "profile"
+  | "leaderboard"
+  | "submit-puzzle"
+  | "contact";
+
+export type AdPosition = "left" | "right" | "bottom";
+
+/** `${screen}-${position}`. */
+export type AdPlacement = `${AdScreen}-${AdPosition}`;
 
 /**
- * Reserved for a future phase — describes how an eligible ad should be served.
- * Not consumed by any code path yet. Ad ELIGIBILITY is independent of the
- * personalization preference; declining personalization must not remove ads,
- * it only shifts the future mode toward "non-personalized" or "limited".
+ * Desktop layout mode chosen per-screen. Determines which combination of
+ * left/right/bottom placements may render on sufficiently wide desktops.
+ *
+ *   off              → no ads on desktop
+ *   bottom-only      → bottom
+ *   left-and-bottom  → left  + bottom
+ *   right-and-bottom → right + bottom
+ *   both-sides       → left  + right (no bottom)
+ *
+ * The maximum is two visible ads on desktop; left+right+bottom is never allowed.
+ * On mobile/narrow desktop, only the bottom unit may show, and only when the
+ * per-position bottom toggle is enabled and the layout is not "off".
+ */
+export type DesktopAdLayoutMode =
+  | "off"
+  | "bottom-only"
+  | "left-and-bottom"
+  | "right-and-bottom"
+  | "both-sides";
+
+/**
+ * Future serving mode — describes HOW an eligible ad should be served
+ * (personalized / non-personalized / limited / none). Independent of
+ * eligibility; declining personalization must not remove ads. In this phase
+ * the hook always returns "none" and no live ad may load.
  */
 export type AdServingMode = "personalized" | "non-personalized" | "limited" | "none";
 
-/** Typed shape returned by useAdConfig(). */
+export type AdPositionConfig = {
+  enabled: boolean;
+  slotId: string;
+};
+
+export type ScreenAdConfig = {
+  desktopLayout: DesktopAdLayoutMode;
+  left: AdPositionConfig;
+  right: AdPositionConfig;
+  bottom: AdPositionConfig;
+};
+
 export type AdConfig = {
   enabled: boolean;
+  staticEnabled: boolean;
   testMode: boolean;
-  h5Enabled: boolean;
+  liveEnabled: boolean;
+  transitionAdsEnabled: boolean;
   publisherId: string;
-  placements: {
-    postSolveBottom: {
-      enabled: boolean;
-      slotId: string;
-    };
-    gameBottom: {
-      enabled: boolean;
-      slotId: string;
-    };
-  };
+  screens: Record<AdScreen, ScreenAdConfig>;
+};
+
+export type AdEligibilityInput = {
+  screen: AdScreen;
+  position: AdPosition;
+  pathname: string;
+  isAdmin: boolean;
+  adminLoading: boolean;
+  /** True on sufficiently wide desktop viewports (>= 1280px). */
+  isWide: boolean;
+  config: AdConfig;
+  /**
+   * Reserved for a future ad-removal entitlement (e.g. Premium). Not wired to
+   * profiles.is_paid, payments, or any storage during this phase. Always
+   * pass the current default (typically `undefined` / `false`).
+   */
+  hasRemoveAdsEntitlement?: boolean;
 };

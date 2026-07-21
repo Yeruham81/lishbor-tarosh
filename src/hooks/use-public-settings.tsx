@@ -38,10 +38,11 @@ export function useFeatureFlags() {
     maintenanceMode: asBool(s.maintenance_mode, false),
     maintenanceMessage:
       typeof s.maintenance_message === "string" ? s.maintenance_message : "המשחק בתחזוקה, נחזור בקרוב.",
+    // Global ad switches
     adsEnabled: asBool(s.ads_enabled, false),
-    adsTestMode: asBool(s.ads_test_mode, true),
-    adsPostSolveEnabled: asBool(s.ads_post_solve_enabled, true),
-    adsGameEnabled: asBool(s.ads_game_enabled, false),
+    adsStaticEnabled: asBool(s.ads_static_enabled, false),
+    adsTestMode: asBool(s.ads_test_mode, false),
+    adsLiveEnabled: asBool(s.adsense_live_enabled, false),
     h5AdsEnabled: asBool(s.h5_ads_enabled, false),
   };
 }

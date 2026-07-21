@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
+import { PageAdLayout } from "@/components/ads/PageAdLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -239,6 +240,7 @@ function Profile() {
 
   return (
     <AppShell>
+      <PageAdLayout screen="profile">
       <div className="container mx-auto px-4 py-8 max-w-3xl space-y-6">
         {/* Header card */}
         <div className="bg-gradient-sunset rounded-3xl p-6 text-white shadow-glow">
@@ -567,6 +569,7 @@ function Profile() {
           </button>
         </div>
       </div>
+      </PageAdLayout>
     </AppShell>
   );
 }

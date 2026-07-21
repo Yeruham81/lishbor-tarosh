@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
+import { PageAdLayout } from "@/components/ads/PageAdLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { getLeaderboardByPeriod } from "@/lib/game.functions";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -42,6 +43,7 @@ function LB() {
 
   return (
     <AppShell>
+      <PageAdLayout screen="leaderboard">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="text-center mb-6">
           <Trophy className="size-12 mx-auto text-primary mb-2" />
@@ -63,6 +65,7 @@ function LB() {
           ))}
         </Tabs>
       </div>
+      </PageAdLayout>
     </AppShell>
   );
 }

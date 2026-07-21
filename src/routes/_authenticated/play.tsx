@@ -15,7 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { GameTopBar } from "@/components/GameTopBar";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { useSolveNotifications } from "@/components/SolveNotifications";
-import { AdSlot } from "@/components/ads/AdSlot";
+import { PageAdLayout } from "@/components/ads/PageAdLayout";
 
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
@@ -227,9 +227,15 @@ function Play() {
 
   const profile = profileQ.data;
 
+  // Ad cycle: shared across all /play placements. Changes ONLY when a new
+  // clue.id is active. Solved-state UI, score, hints, likes, shares and
+  // rerenders leave it unchanged, so ads are not replaced mid-clue.
+  const adCycleKey = clue?.id ?? "no-clue";
+
   return (
     <AppShell>
       {notif.progressModal}
+      <PageAdLayout screen="play" cycleKey={adCycleKey}>
       <div className="container mx-auto px-4 py-3 max-w-3xl">
         <GameTopBar profile={profile} helpVariant="help" />
 
@@ -396,8 +402,8 @@ function Play() {
             )}
           </div>
         )}
-        {clue?.isSolved && <AdSlot placement="post-solve-bottom" />}
       </div>
+      </PageAdLayout>
     </AppShell>
   );
 }
