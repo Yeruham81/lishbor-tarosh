@@ -494,6 +494,13 @@ export const getSubmissionsEnabled = createServerFn({ method: "GET" })
 
 // Public read for safe, non-sensitive settings the client/game UI needs to render correctly.
 // No auth required — only whitelisted keys are returned.
+const AD_SCREENS = ["play", "home", "levels", "profile", "leaderboard", "submit_puzzle", "contact"] as const;
+const AD_POSITIONS = ["left", "right", "bottom"] as const;
+const PER_SCREEN_AD_KEYS = AD_SCREENS.flatMap((s) => [
+  `ads_${s}_desktop_layout`,
+  ...AD_POSITIONS.map((p) => `ads_${s}_${p}_enabled`),
+  ...AD_POSITIONS.map((p) => `adsense_${s}_${p}_slot_id`),
+]);
 const PUBLIC_SETTING_KEYS = [
   "allow_skip",
   "allow_hints",
@@ -510,14 +517,15 @@ const PUBLIC_SETTING_KEYS = [
   "disable_ads_button_visible",
   "maintenance_mode",
   "maintenance_message",
+  // Global advertising controls
   "ads_enabled",
+  "ads_static_enabled",
   "ads_test_mode",
-  "ads_post_solve_enabled",
-  "ads_game_enabled",
+  "adsense_live_enabled",
   "h5_ads_enabled",
   "adsense_publisher_id",
-  "adsense_post_solve_slot_id",
-  "adsense_game_slot_id",
+  // Per-screen advertising (auto-generated)
+  ...PER_SCREEN_AD_KEYS,
 ] as const;
 
 export const getPublicSettings = createServerFn({ method: "GET" })
