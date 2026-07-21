@@ -61,7 +61,7 @@ import { toast } from "sonner";
           {" "}
           <Button
             onClick={savePrefs}
-            className="w-full bg-gradient-sunset text-white shadow-glow hover:opacity-90 font-semibold"
+            className="bg-gradient-sunset text-white shadow-glow hover:opacity-90 font-semibold"
           >
             {" "}
             שמירה ואישור{" "}
