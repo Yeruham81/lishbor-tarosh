@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { PageAdLayout } from "@/components/ads/PageAdLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { Sparkles, Trophy, Zap, Brain } from "lucide-react";
 
@@ -10,6 +11,7 @@ function Index() {
 
   return (
     <AppShell>
+      <PageAdLayout screen="home">
       <section className="container mx-auto px-4 py-12 sm:py-20">
         {/* Hero */}
         <div className="text-center">
@@ -162,6 +164,7 @@ function Index() {
           )}
         </div>
       </section>
+      </PageAdLayout>
     </AppShell>
   );
 }

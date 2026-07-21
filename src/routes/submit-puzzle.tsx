@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
+import { PageAdLayout } from "@/components/ads/PageAdLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { submitPuzzle } from "@/lib/social.functions";
 import { toast } from "sonner";
@@ -35,6 +36,7 @@ function SubmitPuzzlePage() {
 
   return (
     <AppShell>
+      <PageAdLayout screen="submit-puzzle">
       <div className="container mx-auto px-4 py-8 max-w-2xl" dir="rtl">
         <div className="text-center mb-6">
           <PlusCircle className="size-12 mx-auto text-primary mb-2" />
@@ -71,6 +73,7 @@ function SubmitPuzzlePage() {
           </button>
         </form>
       </div>
+      </PageAdLayout>
     </AppShell>
   );
 }
