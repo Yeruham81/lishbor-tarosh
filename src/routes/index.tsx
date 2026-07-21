@@ -123,42 +123,43 @@ function Index() {
           </div>
 
           {/* Final CTA */}
-          <div className="mt-8 rounded-3xl border bg-gradient-to-br from-primary/10 via-card to-secondary/10 shadow-card p-7 sm:p-10 text-center">
-            <div className="inline-flex p-3 rounded-2xl bg-gradient-sunset text-white mb-5">
-              <Zap className="size-7" />
-            </div>
+          {/* Final CTA — מוצג רק למשתמשים לא מחוברים */}
+          {!loading && !user && (
+            <div className="mt-8 rounded-3xl border bg-gradient-to-br from-primary/10 via-card to-secondary/10 shadow-card p-7 sm:p-10 text-center">
+              <div className="inline-flex p-3 rounded-2xl bg-gradient-sunset text-white mb-5">
+                <Zap className="size-7" />
+              </div>
 
-            <h2 className="font-display text-2xl sm:text-4xl font-extrabold mb-4 whitespace-nowrap tracking-tight">
-              מוכנים לאתגר את עצמכם?
-            </h2>
+              <h2 className="font-display text-2xl sm:text-4xl font-extrabold mb-4 whitespace-nowrap tracking-tight">
+                מוכנים לאתגר את עצמכם?
+              </h2>
 
-            <p className="max-w-3xl mx-auto text-lg sm:text-xl text-muted-foreground leading-relaxed text-right sm:text-center">
-              המשחק זמין בחינם לכולם וללא הגבלה. נרשמים עם כתובת אימייל וסיסמה, או באמצעות חשבון גוגל או אפל — ופשוט
-              מתחילים לשחק.
-            </p>
+              <p className="max-w-3xl mx-auto text-lg sm:text-xl text-muted-foreground leading-relaxed text-right sm:text-center">
+                המשחק זמין בחינם לכולם וללא הגבלה. נרשמים עם כתובת אימייל וסיסמה, או באמצעות חשבון גוגל או אפל — ופשוט
+                מתחילים לשחק.
+              </p>
 
-            <p className="max-w-3xl mx-auto mt-5 text-lg sm:text-xl font-display font-bold leading-relaxed">
-              מכורים להגדרות של תשבצי היגיון? אוהבים חידות לחידוד החשיבה? בואו לשבור ת'ראש!
-            </p>
+              <p className="max-w-3xl mx-auto mt-5 text-lg sm:text-xl font-display font-bold leading-relaxed">
+                מכורים להגדרות של תשבצי היגיון? אוהבים חידות לחידוד החשיבה? בואו לשבור ת'ראש!
+              </p>
 
-            <div className="flex flex-col items-center gap-3 mt-8">
-              <Link
-                to={user ? "/play" : "/auth"}
-                className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-xl shadow-glow hover:scale-105 active:scale-95 transition"
-              >
-                {user ? "חזרה למשחק" : "התחילו לשחק"}
-              </Link>
+              <div className="flex flex-col items-center gap-3 mt-8">
+                <Link
+                  to="/auth"
+                  className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-xl shadow-glow hover:scale-105 active:scale-95 transition"
+                >
+                  התחילו לשחק
+                </Link>
 
-              {!loading && !user && (
                 <Link
                   to="/demo"
                   className="px-7 py-3 rounded-2xl border-2 border-primary text-primary font-display font-bold text-base bg-card hover:bg-muted hover:scale-105 active:scale-95 transition"
                 >
                   נסו משחק לדוגמה
                 </Link>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
     </AppShell>
