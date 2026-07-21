@@ -7,12 +7,16 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { adminGetSettings, adminSetSetting, adminExport } from "@/lib/admin.functions";
 import { downloadXLSX } from "@/lib/admin-export";
-import { Download, Save, RotateCcw } from "lucide-react";
+import { Download, Save, RotateCcw, ChevronDown, AlertTriangle } from "lucide-react";
+import { ALL_SCREENS, SCREEN_LABEL_HE, screenSettingKey } from "@/lib/ads/screens";
+import type { AdScreen, DesktopAdLayoutMode } from "@/lib/ads/types";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
   component: SettingsPage,
