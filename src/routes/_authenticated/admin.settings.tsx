@@ -318,12 +318,21 @@ function SettingsPage() {
 
         <Section
           title="פרסומות"
-          description="מתגים אלה שולטים כרגע במיקומי בדיקה לפיתוח בלבד ואינם מפעילים פרסומות אמיתיות של Google"
+          description="בקרות ראשיות למערך הפרסום. בשלב זה AdSense אמיתי חייב להישאר כבוי — עד לאישור Google וסיום שלב ההסכמות והרגולציה."
           fields={ADS_FIELDS}
           values={data}
           loading={settings.isLoading}
           onSave={saveMany}
         />
+
+        <div className="lg:col-span-2">
+          <PlacementsSection
+            values={data}
+            loading={settings.isLoading}
+            onSave={saveMany}
+          />
+        </div>
+
 
 
         <Card>
