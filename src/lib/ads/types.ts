@@ -10,7 +10,7 @@ export type AdPosition = "left" | "right" | "bottom";
 export type AdPlacement = `${AdScreen}-${AdPosition}`;
 
 /** * Randomly selected once per page/ad cycle on sufficiently wide desktops. * * both-sides → left + right * left-and-bottom → left + bottom * right-and-bottom → right + bottom * * Every desktop layout contains at least one side advertisement and never * displays more than two advertisements. * * Mobile and narrow screens ignore this layout and show only the bottom unit. */
-export type RandomDesktopAdLayout = "both-sides" | "left-and-bottom" | "right-and-bottom";
+export type RandomDesktopAdLayout = "left-and-bottom" | "right-and-bottom" | "both-sides";
 
 /**
  * Future serving mode — describes HOW an eligible ad should be served
