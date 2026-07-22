@@ -23,19 +23,12 @@ export function AdSenseUnit({
   position: AdPosition;
   publisherId: string;
   slotId: string;
-  /**
-   * Included in the prop list purely for documentation — the actual replay
-   * mechanism is `key` on the parent side. Present so callers cannot forget.
-   */
-  cycleKey?: string;
 }) {
   const initedRef = useRef(false);
 
   // Reserve stable space to reduce layout shift.
   const containerStyle: React.CSSProperties =
-    position === "bottom"
-      ? { display: "block", minHeight: 90 }
-      : { display: "block", width: "100%", minHeight: 600 };
+    position === "bottom" ? { display: "block", minHeight: 90 } : { display: "block", width: "100%", minHeight: 600 };
 
   const format = position === "bottom" ? "auto" : "vertical";
 
