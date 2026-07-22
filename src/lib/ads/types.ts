@@ -55,6 +55,7 @@ export type AdConfig = {
 
 export type AdEligibilityInput = {
   screen: AdScreen;
+  position: AdPosition;
   pathname: string;
   isAdmin: boolean;
   adminLoading: boolean;
