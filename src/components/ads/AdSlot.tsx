@@ -24,7 +24,7 @@ export function AdSlot({
   position: AdPosition;
   cycleKey?: string;
 }) {
-  const eligible = useAdEligibility(screen, position);
+  const eligible = useAdEligibility(screen);
   const config = useAdConfig();
   const serving = useAdServingMode();
 
