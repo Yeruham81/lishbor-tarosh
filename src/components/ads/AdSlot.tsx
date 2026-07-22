@@ -72,7 +72,6 @@ export function AdSlot({
       position={position}
       publisherId={config.publisherId}
       slotId={slotId}
-      cycleKey={cycleKey}
     />
   );
 }
