@@ -51,8 +51,7 @@ export function isAdEligible(input: AdEligibilityInput): boolean {
  * Assembles eligibility inputs from the current route, settings,
  * authentication state, and Admin-role query.
  *
- * The position remains part of the public hook API because AdSlot calls this
- * hook per placement, but PageAdLayout controls which positions are mounted.
+ * PageAdLayout controls which positions are mounted.
  */
 export function useAdEligibility(screen: AdScreen): boolean {
   const pathname = useRouterState({
@@ -78,7 +77,6 @@ export function useAdEligibility(screen: AdScreen): boolean {
 
   return isAdEligible({
     screen,
-    position,
     pathname,
     isAdmin,
     adminLoading,
