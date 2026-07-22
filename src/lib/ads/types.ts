@@ -9,20 +9,7 @@ export type AdPosition = "left" | "right" | "bottom";
 /** `${screen}-${position}`. */
 export type AdPlacement = `${AdScreen}-${AdPosition}`;
 
-/**
- * Desktop layout mode chosen per-screen. Determines which combination of
- * left/right/bottom placements may render on sufficiently wide desktops.
- *
- *   off              → no ads on desktop
- *   bottom-only      → bottom
- *   left-and-bottom  → left  + bottom
- *   right-and-bottom → right + bottom
- *   both-sides       → left  + right (no bottom)
- *
- * The maximum is two visible ads on desktop; left+right+bottom is never allowed.
- * On mobile/narrow desktop, only the bottom unit may show, and only when the
- * per-position bottom toggle is enabled and the layout is not "off".
- */
+/** * Randomly selected once per page/ad cycle on sufficiently wide desktops. * * both-sides → left + right * left-and-bottom → left + bottom * right-and-bottom → right + bottom * * Every desktop layout contains at least one side advertisement and never * displays more than two advertisements. * * Mobile and narrow screens ignore this layout and show only the bottom unit. */
 export type DesktopAdLayoutMode = "off" | "bottom-only" | "left-and-bottom" | "right-and-bottom" | "both-sides";
 
 /**
