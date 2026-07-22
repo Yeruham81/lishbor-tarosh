@@ -54,7 +54,7 @@ export function isAdEligible(input: AdEligibilityInput): boolean {
  * The position remains part of the public hook API because AdSlot calls this
  * hook per placement, but PageAdLayout controls which positions are mounted.
  */
-export function useAdEligibility(screen: AdScreen, position: AdPosition): boolean {
+export function useAdEligibility(screen: AdScreen): boolean {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
