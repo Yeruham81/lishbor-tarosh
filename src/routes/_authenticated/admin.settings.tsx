@@ -262,7 +262,7 @@ function SettingsPage() {
     for (const e of entries) {
       await setFn({ data: e });
     }
-    await qc.invalidateQueries({ queryKey: ["admin", "settings"] });
+    await qc.invalidateQueries({ queryKey: ["public", "settings"] });
   };
 
   return (
