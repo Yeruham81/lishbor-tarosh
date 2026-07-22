@@ -6,7 +6,7 @@ import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { getMyRole } from "@/lib/account.functions";
 import { useAdConfig } from "./config";
 import { SCREEN_ROUTES } from "./screens";
-import type { AdConfig, AdEligibilityInput, AdPosition, AdScreen } from "./types";
+import type { AdConfig, AdEligibilityInput, AdScreen } from "./types";
 
 const EXCLUDED_PREFIXES = ["/admin", "/challenge"];
 const EXCLUDED_EXACT = ["/demo", "/auth", "/reset-password"];
