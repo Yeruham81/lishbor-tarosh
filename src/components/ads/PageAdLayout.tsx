@@ -12,7 +12,7 @@ type DesktopLayoutSelection = {
 
 function chooseRandomDesktopLayout(): RandomDesktopAdLayout {
   const index = Math.floor(Math.random() * DESKTOP_LAYOUTS.length);
-  return DESKTOP_LAYOUTS[index];
+  return DESKTOP_LAYOUTS[index] ?? "both-sides";
 }
 
 /**
@@ -27,6 +27,7 @@ function useIsWideViewport(): boolean | null {
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) {
+      setIsWide(false);
       return;
     }
 
@@ -38,10 +39,18 @@ function useIsWideViewport(): boolean | null {
 
     updateViewport();
 
-    mediaQuery.addEventListener?.("change", updateViewport);
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", updateViewport);
+    } else {
+      mediaQuery.addListener(updateViewport);
+    }
 
     return () => {
-      mediaQuery.removeEventListener?.("change", updateViewport);
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener("change", updateViewport);
+      } else {
+        mediaQuery.removeListener(updateViewport);
+      }
     };
   }, []);
 
