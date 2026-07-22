@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -7,118 +6,75 @@ import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { getMyRole } from "@/lib/account.functions";
 import { useAdConfig } from "./config";
 import { SCREEN_ROUTES } from "./screens";
-import type {
-  AdConfig,
-  AdEligibilityInput,
-  AdPosition,
-  AdScreen,
-  DesktopAdLayoutMode,
-} from "./types";
+import type { AdConfig, AdEligibilityInput, AdPosition, AdScreen } from "./types";
 
 const EXCLUDED_PREFIXES = ["/admin", "/challenge"];
 const EXCLUDED_EXACT = ["/demo", "/auth", "/reset-password"];
 
 function isExcludedRoute(pathname: string): boolean {
   if (EXCLUDED_EXACT.includes(pathname)) return true;
-  return EXCLUDED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+
+  return EXCLUDED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
-/** Which positions are permitted by a desktop layout mode on a wide viewport. */
-function desktopAllows(layout: DesktopAdLayoutMode, pos: AdPosition): boolean {
-  switch (layout) {
-    case "off":
-      return false;
-    case "bottom-only":
-      return pos === "bottom";
-    case "left-and-bottom":
-      return pos === "left" || pos === "bottom";
-    case "right-and-bottom":
-      return pos === "right" || pos === "bottom";
-    case "both-sides":
-      return pos === "left" || pos === "right";
-  }
-}
-
-/** Pure predicate — safe to unit-test. */
+/**
+ * Determines whether advertising is generally eligible on the requested
+ * screen. Responsive position selection is handled by PageAdLayout.
+ */
 export function isAdEligible(input: AdEligibilityInput): boolean {
-  const {
-    screen,
-    position,
-    pathname,
-    isAdmin,
-    adminLoading,
-    isWide,
-    config,
-    hasRemoveAdsEntitlement,
-  } = input;
+  const { screen, pathname, isAdmin, adminLoading, config, hasRemoveAdsEntitlement } = input;
 
-  // Loading / admin / entitlement guards.
+  // Fail closed while role or settings state is unavailable.
   if (adminLoading) return false;
+
+  // User exclusions.
   if (isAdmin) return false;
   if (hasRemoveAdsEntitlement) return false;
 
-  // Global kill switches.
+  // Global advertising switches.
   if (!config.enabled) return false;
   if (!config.staticEnabled) return false;
 
-  // Route guards.
+  // Route exclusions and explicit screen allowlist.
   if (isExcludedRoute(pathname)) return false;
   if (pathname !== SCREEN_ROUTES[screen]) return false;
 
-  const sc = config.screens[screen];
-  if (!sc) return false;
-  if (sc.desktopLayout === "off") return false;
+  // One switch controls all placements on the current screen.
+  const screenConfig = config.screens[screen];
 
-  // Per-position enable toggle.
-  const posCfg = sc[position];
-  if (!posCfg?.enabled) return false;
+  if (!screenConfig?.enabled) return false;
 
-  // Mobile / narrow: only bottom, for every layout except "off"
-  // (and bottom individually enabled — already checked above).
-  if (!isWide) {
-    return position === "bottom";
-  }
-
-  // Wide desktop: respect the layout matrix.
-  return desktopAllows(sc.desktopLayout, position);
+  return true;
 }
 
-/** SSR-safe wide-viewport detector (>= 1280px). */
-export function useIsWide(): boolean {
-  const [wide, setWide] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia("(min-width: 1280px)");
-    const on = () => setWide(mq.matches);
-    on();
-    if (mq.addEventListener) mq.addEventListener("change", on);
-    else mq.addListener(on);
-    return () => {
-      if (mq.removeEventListener) mq.removeEventListener("change", on);
-      else mq.removeListener(on);
-    };
-  }, []);
-  return wide;
-}
-
-/** React hook that assembles eligibility inputs from live app state. */
+/**
+ * Assembles eligibility inputs from the current route, settings,
+ * authentication state, and Admin-role query.
+ *
+ * The position remains part of the public hook API because AdSlot calls this
+ * hook per placement, but PageAdLayout controls which positions are mounted.
+ */
 export function useAdEligibility(screen: AdScreen, position: AdPosition): boolean {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
+
   const flags = useFeatureFlags();
   const config: AdConfig = useAdConfig();
-  const isWide = useIsWide();
   const { user } = useAuth();
 
   const fetchRole = useServerFn(getMyRole);
-  const roleQ = useQuery({
+
+  const roleQuery = useQuery({
     queryKey: ["my-role"],
     queryFn: () => fetchRole(),
     enabled: !!user,
     staleTime: 5 * 60_000,
   });
 
-  const adminLoading = flags.loading || (!!user && roleQ.isLoading);
-  const isAdmin = !!roleQ.data?.isAdmin;
+  const adminLoading = flags.loading || (!!user && (roleQuery.isLoading || roleQuery.isError));
+
+  const isAdmin = !!roleQuery.data?.isAdmin;
 
   return isAdEligible({
     screen,
@@ -126,7 +82,6 @@ export function useAdEligibility(screen: AdScreen, position: AdPosition): boolea
     pathname,
     isAdmin,
     adminLoading,
-    isWide,
     config,
     hasRemoveAdsEntitlement: false,
   });
