@@ -8,14 +8,12 @@ import type { AdPosition, AdScreen } from "@/lib/ads/types";
 /**
  * AdSlot — reusable, centrally-gated ad placement.
  *
- * Test mode (Phase 3 default) renders an internal placeholder. A real
- * AdSenseUnit is rendered only when every live-serving condition is true.
- * Since useAdServingMode() returns "none" in this phase, the live branch is
- * unreachable and no Google script may load.
+ * PageAdLayout decides which positions are mounted according to the randomly
+ * selected responsive layout. AdSlot handles screen eligibility, test-mode
+ * placeholders, configuration validation, and the future live AdSense branch.
  *
- * The `cycleKey` prop replays the placement — when it changes, the child is
- * remounted (via React `key`), unmounting the previous placeholder / ad unit
- * and mounting exactly one fresh one.
+ * When cycleKey changes, the placeholder or AdSense unit is replaced exactly
+ * once for the new advertising cycle.
  */
 export function AdSlot({
   screen,
@@ -63,10 +61,7 @@ export function AdSlot({
   // FUTURE LIVE MODE — every condition must be true. During Phase 3 the
   // serving mode is always "none", so this branch cannot be reached.
   const canLive =
-    config.liveEnabled &&
-    isValidPublisherId(config.publisherId) &&
-    isValidSlotId(slotId) &&
-    serving !== "none";
+    config.liveEnabled && isValidPublisherId(config.publisherId) && isValidSlotId(slotId) && serving !== "none";
 
   if (!canLive) return null;
 
