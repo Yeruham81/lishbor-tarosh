@@ -52,8 +52,7 @@ export function AdSenseUnit({
     return () => {
       cancelled = true;
     };
-    // Intentionally no dependency on cycleKey — remount (via key) triggers a
-    // fresh mount which resets initedRef.
+    // A changed key in AdSlot remounts this component and resets initedRef.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publisherId, slotId]);
 
