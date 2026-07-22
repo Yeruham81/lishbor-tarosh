@@ -6,6 +6,9 @@ export type AdScreen = "play" | "home" | "levels" | "profile" | "leaderboard" | 
 
 export type AdPosition = "left" | "right" | "bottom";
 
+/** `${screen}-${position}`. */
+export type AdPlacement = `${AdScreen}-${AdPosition}`;
+
 /**
  * Randomly selected once per page/ad cycle on sufficiently wide desktops.
  *
@@ -55,6 +58,7 @@ export type AdConfig = {
 
 export type AdEligibilityInput = {
   screen: AdScreen;
+  position: AdPosition;
   pathname: string;
   isAdmin: boolean;
   adminLoading: boolean;
