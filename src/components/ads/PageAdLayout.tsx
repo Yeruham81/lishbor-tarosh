@@ -1,24 +1,66 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AdSlot } from "./AdSlot";
-import type { AdScreen } from "@/lib/ads/types";
+import type { AdScreen, RandomDesktopAdLayout } from "@/lib/ads/types";
+
+const DESKTOP_LAYOUTS: readonly RandomDesktopAdLayout[] = ["both-sides", "left-and-bottom", "right-and-bottom"];
+
+type DesktopLayoutSelection = {
+  screen: AdScreen;
+  cycleKey: string;
+  layout: RandomDesktopAdLayout;
+};
+
+function chooseRandomDesktopLayout(): RandomDesktopAdLayout {
+  const index = Math.floor(Math.random() * DESKTOP_LAYOUTS.length);
+  return DESKTOP_LAYOUTS[index];
+}
 
 /**
- * PageAdLayout — the single reusable page-level ad frame.
+ * SSR-safe detector for sufficiently wide desktop screens.
  *
- * Wraps the entire route content and exposes three manual placement holes:
- *   left  – vertical unit, wide desktop only
- *   right – vertical unit, wide desktop only
- *   bottom – horizontal unit, below the page content
+ * null  → viewport width is not known yet
+ * true  → wide desktop
+ * false → mobile, tablet, or narrow desktop
+ */
+function useIsWideViewport(): boolean | null {
+  const [isWide, setIsWide] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(min-width: 1280px)");
+
+    const updateViewport = () => {
+      setIsWide(mediaQuery.matches);
+    };
+
+    updateViewport();
+
+    mediaQuery.addEventListener?.("change", updateViewport);
+
+    return () => {
+      mediaQuery.removeEventListener?.("change", updateViewport);
+    };
+  }, []);
+
+  return isWide;
+}
+
+/**
+ * Page-level advertising layout.
  *
- * Side units are absolutely positioned in the outer gutters so they never
- * overlap or shrink the central content column. They are hidden on mobile,
- * tablets, and narrow desktop windows (< 1280px). The AdSlot component owns
- * eligibility and layout-mode gating, so PageAdLayout always renders all
- * three slots; each slot decides individually whether to draw anything.
+ * Wide desktop:
+ * - left + right
+ * - left + bottom
+ * - right + bottom
  *
- * The `cycleKey` prop is forwarded to every slot so that a single external
- * event (e.g. a new /play clue loaded) replaces all active placements
- * together, without touching component identity for the rest of the page.
+ * Mobile, tablet, and narrow desktop:
+ * - bottom only
+ *
+ * A new desktop layout is selected once per screen/ad cycle. Ordinary
+ * rerenders do not change the selected layout.
  */
 export function PageAdLayout({
   screen,
@@ -29,32 +71,63 @@ export function PageAdLayout({
   cycleKey?: string;
   children: ReactNode;
 }) {
+  const isWide = useIsWideViewport();
+
+  const [selection, setSelection] = useState<DesktopLayoutSelection | null>(null);
+
+  useEffect(() => {
+    setSelection({
+      screen,
+      cycleKey,
+      layout: chooseRandomDesktopLayout(),
+    });
+  }, [screen, cycleKey]);
+
+  /*
+   * Do not reuse the previous cycle's layout while the effect is selecting
+   * the layout for the new cycle. This prevents an extra ad-unit lifecycle.
+   */
+  const desktopLayout = selection?.screen === screen && selection.cycleKey === cycleKey ? selection.layout : null;
+
+  const showLeft =
+    isWide === true &&
+    desktopLayout !== null &&
+    (desktopLayout === "both-sides" || desktopLayout === "left-and-bottom");
+
+  const showRight =
+    isWide === true &&
+    desktopLayout !== null &&
+    (desktopLayout === "both-sides" || desktopLayout === "right-and-bottom");
+
+  const showBottom =
+    isWide === false ||
+    (isWide === true &&
+      desktopLayout !== null &&
+      (desktopLayout === "left-and-bottom" || desktopLayout === "right-and-bottom"));
+
   return (
     <div className="w-full">
-      {/* Outer bounding box provides the gutters where side ads live. */}
       <div className="relative mx-auto w-full max-w-[1600px] px-0 xl:px-4">
-        {/* Side units — absolutely positioned in the gutter; wide screens only. */}
-        <aside
-          className="hidden xl:block absolute top-6 start-4 w-[180px]"
-          aria-hidden="true"
-        >
-          <AdSlot screen={screen} position="left" cycleKey={cycleKey} />
-        </aside>
-        <aside
-          className="hidden xl:block absolute top-6 end-4 w-[180px]"
-          aria-hidden="true"
-        >
-          <AdSlot screen={screen} position="right" cycleKey={cycleKey} />
-        </aside>
+        {showLeft && (
+          <aside className="absolute top-6 start-4 w-[180px]">
+            <AdSlot screen={screen} position="left" cycleKey={cycleKey} />
+          </aside>
+        )}
 
-        {/* Central content — untouched, keeps its own container/max-width. */}
+        {showRight && (
+          <aside className="absolute top-6 end-4 w-[180px]">
+            <AdSlot screen={screen} position="right" cycleKey={cycleKey} />
+          </aside>
+        )}
+
         <div className="min-w-0">{children}</div>
       </div>
 
-      {/* Bottom unit — below the full content, never inside forms/cards. */}
-      <div className="w-full px-4 my-6">
-        <AdSlot screen={screen} position="bottom" cycleKey={cycleKey} />
-      </div>
+      {showBottom && (
+        <div className="my-6 w-full px-4">
+          <AdSlot screen={screen} position="bottom" cycleKey={cycleKey} />
+        </div>
+      )}
     </div>
   );
 }
