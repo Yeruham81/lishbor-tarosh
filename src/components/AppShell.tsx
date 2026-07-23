@@ -35,7 +35,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const onPlay = pathname === "/play";
   const onInstructions = pathname === "/instructions";
-  
+
   const showMobileHelp = !!user && (onPlay || onInstructions);
   const flags = useFeatureFlags();
   const [privacyOpen, setPrivacyOpen] = useState(false);
@@ -282,6 +282,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {/* COPYRIGHT — ALL SCREEN SIZES */}
           <div className="text-center text-xs text-muted-foreground pt-1">
             © {new Date().getFullYear()} לשבור ת'ראש. כל הזכויות שמורות.
+          </div>
         </div>
       </footer>{" "}
       {/* Mobile bottom nav */}
