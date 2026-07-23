@@ -21,12 +21,21 @@ export type SolveEvent =
   | { kind: "score"; points: number }
   | { kind: "perfect_bonus"; points: number; streak: number }
   | { kind: "stage_up"; stage: number }
-  | { kind: "achievement"; title: string; category: "solved" | "perfect" | "perfect_streak" | "play_days"; threshold: number };
-
+  | {
+      kind: "achievement";
+      title: string;
+      category: "solved" | "perfect" | "perfect_streak" | "play_days";
+      threshold: number;
+    };
 
 type ClueRow = {
-  id: string; clue: string; answer: string; category: string | null;
-  difficulty: number; base_points: number; explanation?: string | null;
+  id: string;
+  clue: string;
+  answer: string;
+  category: string | null;
+  difficulty: number;
+  base_points: number;
+  explanation?: string | null;
   credit?: string | null;
 };
 
@@ -54,8 +63,12 @@ function publicClue(clue: ClueRow, revealed: string[], wrong: string[], hintsUse
 }
 
 async function loadProgress(_supabase: any, userId: string, clue: ClueRow) {
-  const { data: prog } = await supabaseAdmin.from("game_progress").select("*")
-    .eq("user_id", userId).eq("clue_id", clue.id).maybeSingle();
+  const { data: prog } = await supabaseAdmin
+    .from("game_progress")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("clue_id", clue.id)
+    .maybeSingle();
   const revealed: string[] = prog?.revealed_letters ?? [];
   const wrong: string[] = (prog?.wrong_guesses ?? []).filter((w: string) => !w.startsWith("__"));
   return publicClue(clue, revealed, wrong, prog?.hints_used ?? 0, prog?.is_solved ?? false);
@@ -78,12 +91,11 @@ export const getNextClue = createServerFn({ method: "GET" })
 
     const nowIso = new Date().toISOString();
     const applyScheduleFilter = (q: any) =>
-      q.or(`publish_at.is.null,publish_at.lte.${nowIso}`)
-       .or(`expire_at.is.null,expire_at.gt.${nowIso}`);
+      q.or(`publish_at.is.null,publish_at.lte.${nowIso}`).or(`expire_at.is.null,expire_at.gt.${nowIso}`);
 
     if (inProgress?.clue_id) {
       const { data: clue } = await applyScheduleFilter(
-        supabaseAdmin.from("clues").select("*").eq("id", inProgress.clue_id).eq("is_active", true)
+        supabaseAdmin.from("clues").select("*").eq("id", inProgress.clue_id).eq("is_active", true),
       ).maybeSingle();
       if (clue) return await loadProgress(supabase, userId, clue);
     }
@@ -93,18 +105,21 @@ export const getNextClue = createServerFn({ method: "GET" })
     const maxDiff = Math.min(5, Math.ceil(((profile?.level ?? 1) + 1) / 2));
 
     const { data: solvedRows } = await supabaseAdmin
-      .from("game_progress").select("clue_id").eq("user_id", userId).eq("is_solved", true);
+      .from("game_progress")
+      .select("clue_id")
+      .eq("user_id", userId)
+      .eq("is_solved", true);
     const solvedIds = (solvedRows ?? []).map((r: any) => r.clue_id);
 
     let query = applyScheduleFilter(
-      supabaseAdmin.from("clues").select("*").eq("is_active", true).lte("difficulty", maxDiff).limit(100)
+      supabaseAdmin.from("clues").select("*").eq("is_active", true).lte("difficulty", maxDiff).limit(100),
     );
     if (solvedIds.length) query = query.not("id", "in", `(${solvedIds.join(",")})`);
 
     let { data: clues } = await query;
     if (!clues || clues.length === 0) {
       const { data: any } = await applyScheduleFilter(
-        supabaseAdmin.from("clues").select("*").eq("is_active", true).limit(100)
+        supabaseAdmin.from("clues").select("*").eq("is_active", true).limit(100),
       );
       clues = (any ?? []).filter((c: any) => !solvedIds.includes(c.id));
     }
@@ -135,13 +150,13 @@ export const getNextClue = createServerFn({ method: "GET" })
     });
 
     // Track that this clue was displayed (content-health metric).
-    await supabaseAdmin.from("clues")
+    await supabaseAdmin
+      .from("clues")
       .update({ times_displayed: (pick.times_displayed ?? 0) + 1 })
       .eq("id", pick.id);
 
     // Count this as a definition played (first time we serve it)
     await bumpPlayCounters(supabase, userId);
-
 
     return await loadProgress(supabase, userId, pick);
   });
@@ -152,10 +167,18 @@ export const getClueState = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: clue } = await supabaseAdmin
-      .from("clues").select("*").eq("id", data.clueId).eq("is_active", true).maybeSingle();
+      .from("clues")
+      .select("*")
+      .eq("id", data.clueId)
+      .eq("is_active", true)
+      .maybeSingle();
     if (!clue) return null;
-    const { data: prog } = await supabaseAdmin.from("game_progress").select("*")
-      .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
+    const { data: prog } = await supabaseAdmin
+      .from("game_progress")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("clue_id", data.clueId)
+      .maybeSingle();
     if (!prog) return null;
     return publicClue(
       clue,
@@ -182,8 +205,12 @@ export const guessLetter = createServerFn({ method: "POST" })
     const letter = normalizeLetter(data.letter);
     const answer = normalizeWord(clue.answer);
 
-    const { data: existing } = await supabaseAdmin.from("game_progress").select("*")
-      .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
+    const { data: existing } = await supabaseAdmin
+      .from("game_progress")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("clue_id", data.clueId)
+      .maybeSingle();
 
     if (existing?.is_solved) {
       return publicClue(clue, existing.revealed_letters, existing.wrong_guesses, existing.hints_used, true);
@@ -201,8 +228,11 @@ export const guessLetter = createServerFn({ method: "POST" })
     const hintsUsed = existing?.hints_used ?? 0;
     const perfect = isPerfectSolve(wrong.length, hintsUsed);
     const payload: any = {
-      user_id: userId, clue_id: data.clueId,
-      revealed_letters: revealed, wrong_guesses: wrong, hints_used: hintsUsed,
+      user_id: userId,
+      clue_id: data.clueId,
+      revealed_letters: revealed,
+      wrong_guesses: wrong,
+      hints_used: hintsUsed,
     };
 
     let events: SolveEvent[] = [];
@@ -226,7 +256,6 @@ export const guessLetter = createServerFn({ method: "POST" })
     return { ...result, events };
   });
 
-
 const hintSchema = z.object({ clueId: z.string().uuid() });
 
 export const useHint = createServerFn({ method: "POST" })
@@ -237,13 +266,19 @@ export const useHint = createServerFn({ method: "POST" })
     const { data: clue } = await supabaseAdmin.from("clues").select("*").eq("id", data.clueId).single();
     if (!clue) throw new Error("הגדרה לא נמצאה");
     const answer = normalizeWord(clue.answer);
-    const { data: existing } = await supabaseAdmin.from("game_progress").select("*")
-      .eq("user_id", userId).eq("clue_id", data.clueId).maybeSingle();
-    if (existing?.is_solved) return publicClue(clue, existing.revealed_letters, existing.wrong_guesses, existing.hints_used, true);
+    const { data: existing } = await supabaseAdmin
+      .from("game_progress")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("clue_id", data.clueId)
+      .maybeSingle();
+    if (existing?.is_solved)
+      return publicClue(clue, existing.revealed_letters, existing.wrong_guesses, existing.hints_used, true);
 
     const revealed: string[] = existing?.revealed_letters ?? [];
     const candidates = Array.from(new Set(answer.split("").filter((c) => c !== " " && !revealed.includes(c))));
-    if (candidates.length === 0) return publicClue(clue, revealed, existing?.wrong_guesses ?? [], existing?.hints_used ?? 0, false);
+    if (candidates.length === 0)
+      return publicClue(clue, revealed, existing?.wrong_guesses ?? [], existing?.hints_used ?? 0, false);
 
     const letter = candidates[Math.floor(Math.random() * candidates.length)];
     revealed.push(letter);
@@ -251,7 +286,11 @@ export const useHint = createServerFn({ method: "POST" })
     const wrong = (existing?.wrong_guesses ?? []).filter((w: string) => !w.startsWith("__"));
 
     await supabaseAdmin.from("hint_usage").insert({
-      user_id: userId, clue_id: data.clueId, letter, position: answer.indexOf(letter), cost: SCORING.HINT_PENALTY,
+      user_id: userId,
+      clue_id: data.clueId,
+      letter,
+      position: answer.indexOf(letter),
+      cost: SCORING.HINT_PENALTY,
     });
 
     // Any hint use breaks the perfect streak.
@@ -259,8 +298,11 @@ export const useHint = createServerFn({ method: "POST" })
 
     const solved = answer.split("").every((c) => c === " " || revealed.includes(c));
     const payload: any = {
-      user_id: userId, clue_id: data.clueId,
-      revealed_letters: revealed, wrong_guesses: wrong, hints_used: hintsUsed,
+      user_id: userId,
+      clue_id: data.clueId,
+      revealed_letters: revealed,
+      wrong_guesses: wrong,
+      hints_used: hintsUsed,
     };
     let events: SolveEvent[] = [];
     if (solved) {
@@ -280,7 +322,6 @@ export const useHint = createServerFn({ method: "POST" })
     return { ...result, events };
   });
 
-
 const skipSchema = z.object({ clueId: z.string().uuid() });
 
 export const skipClue = createServerFn({ method: "POST" })
@@ -288,20 +329,33 @@ export const skipClue = createServerFn({ method: "POST" })
   .inputValidator((d) => skipSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await supabaseAdmin.from("game_progress").delete()
-      .eq("user_id", userId).eq("clue_id", data.clueId).eq("is_solved", false);
+    await supabaseAdmin
+      .from("game_progress")
+      .delete()
+      .eq("user_id", userId)
+      .eq("clue_id", data.clueId)
+      .eq("is_solved", false);
     // Skip breaks the perfect streak and counts the definition as skipped. No score change.
-    const { data: p } = await supabaseAdmin.from("profiles")
+    const { data: p } = await supabaseAdmin
+      .from("profiles")
       .select("definitions_skipped, current_streak")
-      .eq("id", userId).single();
+      .eq("id", userId)
+      .single();
     if (p) {
-      await supabaseAdmin.from("profiles").update({
-        current_streak: 0,
-        definitions_skipped: (p.definitions_skipped ?? 0) + 1,
-      }).eq("id", userId);
+      await supabaseAdmin
+        .from("profiles")
+        .update({
+          current_streak: 0,
+          definitions_skipped: (p.definitions_skipped ?? 0) + 1,
+        })
+        .eq("id", userId);
     }
     const { data: c } = await supabaseAdmin.from("clues").select("skip_count").eq("id", data.clueId).maybeSingle();
-    if (c) await supabaseAdmin.from("clues").update({ skip_count: (c.skip_count ?? 0) + 1 }).eq("id", data.clueId);
+    if (c)
+      await supabaseAdmin
+        .from("clues")
+        .update({ skip_count: (c.skip_count ?? 0) + 1 })
+        .eq("id", data.clueId);
     return { ok: true };
   });
 
@@ -309,20 +363,21 @@ export const skipClue = createServerFn({ method: "POST" })
 
 // Minimum solves on a single day to count it as an "active" play day for the
 // consecutive-days challenge.
-const ACTIVE_DAY_SOLVE_THRESHOLD = 5;
+const ACTIVE_DAY_SOLVE_THRESHOLD = 1;
 
 // Per-served-clue bookkeeping. NOTE: the consecutive-days streak is no longer
 // touched here — it only advances after the player has solved
 // ACTIVE_DAY_SOLVE_THRESHOLD clues today (see maybeBumpActiveDayStreak).
 async function bumpPlayCounters(_supabase: any, userId: string) {
-  const { data: p } = await supabaseAdmin.from("profiles")
-    .select("definitions_played")
-    .eq("id", userId).single();
+  const { data: p } = await supabaseAdmin.from("profiles").select("definitions_played").eq("id", userId).single();
   if (!p) return;
-  await supabaseAdmin.from("profiles").update({
-    definitions_played: (p.definitions_played ?? 0) + 1,
-    last_seen_at: new Date().toISOString(),
-  }).eq("id", userId);
+  await supabaseAdmin
+    .from("profiles")
+    .update({
+      definitions_played: (p.definitions_played ?? 0) + 1,
+      last_seen_at: new Date().toISOString(),
+    })
+    .eq("id", userId);
 }
 
 // Track today's solve count and, only when it crosses the daily threshold,
@@ -330,9 +385,11 @@ async function bumpPlayCounters(_supabase: any, userId: string) {
 // so the caller can emit tier-crossed achievements.
 async function maybeBumpActiveDayStreak(userId: string): Promise<{ oldStreak: number; newStreak: number }> {
   const today = todayIsoDate();
-  const { data: p } = await supabaseAdmin.from("profiles")
+  const { data: p } = await supabaseAdmin
+    .from("profiles")
     .select("active_day_date, active_day_solves, current_play_days_streak, best_play_days_streak, last_play_date")
-    .eq("id", userId).single();
+    .eq("id", userId)
+    .single();
   if (!p) return { oldStreak: 0, newStreak: 0 };
 
   let solves = (p as any).active_day_solves ?? 0;
@@ -353,29 +410,37 @@ async function maybeBumpActiveDayStreak(userId: string): Promise<{ oldStreak: nu
   }
   const bestStreak = Math.max(p.best_play_days_streak ?? 0, newStreak);
 
-  await supabaseAdmin.from("profiles").update({
-    active_day_date: dayDate,
-    active_day_solves: solves,
-    last_play_date: lastPlayDate,
-    current_play_days_streak: newStreak,
-    best_play_days_streak: bestStreak,
-  } as any).eq("id", userId);
+  await supabaseAdmin
+    .from("profiles")
+    .update({
+      active_day_date: dayDate,
+      active_day_solves: solves,
+      last_play_date: lastPlayDate,
+      current_play_days_streak: newStreak,
+      best_play_days_streak: bestStreak,
+    } as any)
+    .eq("id", userId);
 
   return { oldStreak, newStreak };
 }
 
-
 // Apply solve outcome: score, perfect streak, stage progression, counters.
 // Returns notification events that should be surfaced to the player.
 async function applySolveResult(
-  _supabase: any, userId: string, points: number, perfect: boolean, newWrongLetters: number,
+  _supabase: any,
+  userId: string,
+  points: number,
+  perfect: boolean,
+  newWrongLetters: number,
 ): Promise<SolveEvent[]> {
   // First, advance the daily-solve counter / consecutive-days streak.
   const dayStreak = await maybeBumpActiveDayStreak(userId);
 
-  const { data: p } = await supabaseAdmin.from("profiles")
+  const { data: p } = await supabaseAdmin
+    .from("profiles")
     .select("total_score, current_streak, best_streak, solved_count, perfect_solves, wrong_letters_total")
-    .eq("id", userId).single();
+    .eq("id", userId)
+    .single();
   if (!p) return [];
   const newPerfectStreak = perfect ? (p.current_streak ?? 0) + 1 : 0;
   const bonus = perfect ? perfectStreakBonus(newPerfectStreak) : 0;
@@ -388,17 +453,19 @@ async function applySolveResult(
   const oldPerfect = p.perfect_solves ?? 0;
   const newPerfectTotal = oldPerfect + (perfect ? 1 : 0);
 
-  await supabaseAdmin.from("profiles").update({
-    total_score: newScore,
-    current_streak: newPerfectStreak,
-    best_streak: Math.max(p.best_streak ?? 0, newPerfectStreak),
-    solved_count: newSolved,
-    perfect_solves: newPerfectTotal,
-    wrong_letters_total: (p.wrong_letters_total ?? 0) + newWrongLetters,
-    level: newStage,
-    last_seen_at: new Date().toISOString(),
-  }).eq("id", userId);
-
+  await supabaseAdmin
+    .from("profiles")
+    .update({
+      total_score: newScore,
+      current_streak: newPerfectStreak,
+      best_streak: Math.max(p.best_streak ?? 0, newPerfectStreak),
+      solved_count: newSolved,
+      perfect_solves: newPerfectTotal,
+      wrong_letters_total: (p.wrong_letters_total ?? 0) + newWrongLetters,
+      level: newStage,
+      last_seen_at: new Date().toISOString(),
+    })
+    .eq("id", userId);
 
   const events: SolveEvent[] = [{ kind: "score", points: points + bonus }];
   if (bonus > 0) events.push({ kind: "perfect_bonus", points: bonus, streak: newPerfectStreak });
@@ -408,25 +475,41 @@ async function applySolveResult(
   }
   if (perfect) {
     for (const t of tiersCrossed(ACHIEVEMENT_TIERS.perfect, oldPerfect, newPerfectTotal)) {
-      events.push({ kind: "achievement", category: "perfect", threshold: t, title: findAchievementTitle("perfect", t) });
+      events.push({
+        kind: "achievement",
+        category: "perfect",
+        threshold: t,
+        title: findAchievementTitle("perfect", t),
+      });
     }
     const oldPerfectStreak = p.current_streak ?? 0;
     for (const t of tiersCrossed(ACHIEVEMENT_TIERS.perfect_streak, oldPerfectStreak, newPerfectStreak)) {
-      events.push({ kind: "achievement", category: "perfect_streak", threshold: t, title: findAchievementTitle("perfect_streak", t) });
+      events.push({
+        kind: "achievement",
+        category: "perfect_streak",
+        threshold: t,
+        title: findAchievementTitle("perfect_streak", t),
+      });
     }
   }
   // Play-days tier crossings (now driven by the daily-solve threshold).
   for (const t of tiersCrossed(ACHIEVEMENT_TIERS.play_days, dayStreak.oldStreak, dayStreak.newStreak)) {
-    events.push({ kind: "achievement", category: "play_days", threshold: t, title: findAchievementTitle("play_days", t) });
+    events.push({
+      kind: "achievement",
+      category: "play_days",
+      threshold: t,
+      title: findAchievementTitle("play_days", t),
+    });
   }
   return events;
 }
 
-
 async function applyWrongLetter(_supabase: any, userId: string, totalWrongInClue: number) {
-  const { data: p } = await supabaseAdmin.from("profiles")
+  const { data: p } = await supabaseAdmin
+    .from("profiles")
     .select("current_streak, wrong_letters_total")
-    .eq("id", userId).single();
+    .eq("id", userId)
+    .single();
   if (!p) return;
   const patch: any = { wrong_letters_total: (p.wrong_letters_total ?? 0) + 1 };
   // If this single clue exceeded the free-wrongs threshold, perfect streak is lost immediately.
@@ -437,19 +520,28 @@ async function applyWrongLetter(_supabase: any, userId: string, totalWrongInClue
 }
 
 async function applyHintUsed(_supabase: any, userId: string) {
-  const { data: p } = await supabaseAdmin.from("profiles")
+  const { data: p } = await supabaseAdmin
+    .from("profiles")
     .select("current_streak, hints_used_total")
-    .eq("id", userId).single();
+    .eq("id", userId)
+    .single();
   if (!p) return;
-  await supabaseAdmin.from("profiles").update({
-    current_streak: 0,
-    hints_used_total: (p.hints_used_total ?? 0) + 1,
-  }).eq("id", userId);
+  await supabaseAdmin
+    .from("profiles")
+    .update({
+      current_streak: 0,
+      hints_used_total: (p.hints_used_total ?? 0) + 1,
+    })
+    .eq("id", userId);
 }
 
 async function bumpSolvedCount(supabase: any, clueId: string) {
   const { data: c } = await supabaseAdmin.from("clues").select("solved_count").eq("id", clueId).maybeSingle();
-  if (c) await supabaseAdmin.from("clues").update({ solved_count: (c.solved_count ?? 0) + 1 }).eq("id", clueId);
+  if (c)
+    await supabaseAdmin
+      .from("clues")
+      .update({ solved_count: (c.solved_count ?? 0) + 1 })
+      .eq("id", clueId);
 }
 
 export const getProfile = createServerFn({ method: "GET" })
@@ -458,19 +550,23 @@ export const getProfile = createServerFn({ method: "GET" })
     // Sensitive columns are column-revoked from `authenticated`; read via admin scoped to owner.
     const { data } = await supabaseAdmin
       .from("profiles")
-      .select("id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, highest_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, last_seen_at, age, is_blocked, created_at, updated_at")
-      .eq("id", context.userId).single();
+      .select(
+        "id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, highest_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, last_seen_at, age, is_blocked, created_at, updated_at",
+      )
+      .eq("id", context.userId)
+      .single();
     return data;
-
   });
 
 export const getLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase.from("profiles")
+    const { data } = await context.supabase
+      .from("profiles")
       .select("id, username, display_name, avatar_url, total_score, level, solved_count, best_streak")
       .eq("is_private", false)
-      .order("total_score", { ascending: false }).limit(50);
+      .order("total_score", { ascending: false })
+      .limit(50);
     return data ?? [];
   });
 
@@ -485,10 +581,12 @@ export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
     const { supabase } = context;
 
     if (data.period === "all") {
-      const { data: rows } = await supabase.from("profiles")
+      const { data: rows } = await supabase
+        .from("profiles")
         .select("id, username, display_name, avatar_url, total_score, level, solved_count, best_streak")
         .eq("is_private", false)
-        .order("total_score", { ascending: false }).limit(20);
+        .order("total_score", { ascending: false })
+        .limit(20);
       return (rows ?? []).map((r: any) => ({
         id: r.id,
         username: r.username,
@@ -526,16 +624,17 @@ export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
       totals.set(row.user_id, t);
     }
 
-    const topIds = [...totals.entries()]
-      .sort((a, b) => b[1].score - a[1].score)
-      .slice(0, 20);
+    const topIds = [...totals.entries()].sort((a, b) => b[1].score - a[1].score).slice(0, 20);
 
     if (topIds.length === 0) return [];
 
     const { data: profiles } = await supabase
       .from("profiles")
       .select("id, username, display_name, avatar_url, level, best_streak, is_private")
-      .in("id", topIds.map(([id]) => id));
+      .in(
+        "id",
+        topIds.map(([id]) => id),
+      );
 
     const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
     return topIds
