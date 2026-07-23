@@ -168,117 +168,152 @@ export function AppShell({ children }: { children: ReactNode }) {
       <footer className="border-t bg-muted/20 mt-2">
         <div className="container mx-auto px-4 py-5 space-y-3">
           {/* ================= DESKTOP ================= */}
-          <div className="hidden md:grid grid-cols-5 items-center gap-2">
-            {/* LEFT — הוספת הגדרה (עבר מהימין לשמאל) */}
-            <div className="flex justify-start">
-              {user && flags.allowPlayerSubmissions ? (
-                <Link
-                  to="/submit-puzzle"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
-                >
-                  הוספת הגדרה
-                </Link>
-              ) : (
-                <span />
-              )}
-            </div>
+          {user ? (
+            <div className="hidden md:grid grid-cols-5 items-center gap-2">
+              {/* LEFT — הוספת הגדרה */}
+              <div className="flex justify-start">
+                {flags.allowPlayerSubmissions ? (
+                  <Link
+                    to="/submit-puzzle"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-sunset text-white text-sm font-semibold shadow-glow hover:opacity-90 transition"
+                  >
+                    הוספת הגדרה
+                  </Link>
+                ) : (
+                  <span />
+                )}
+              </div>
 
-            {/* יצירת קשר */}
-            <Link
-              to="/contact"
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
-            >
-              <Mail className="size-4" /> יצירת קשר
-            </Link>
+              {/* יצירת קשר — משתמשים מחוברים בלבד */}
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <Mail className="size-4" /> יצירת קשר
+              </Link>
 
-            {/* תנאי שימוש */}
-            <button
-              type="button"
-              onClick={() => setTermsOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
-            >
-              <FileText className="size-4" /> תנאי שימוש
-            </button>
+              {/* תנאי שימוש */}
+              <button
+                type="button"
+                onClick={() => setTermsOpen(true)}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <FileText className="size-4" /> תנאי שימוש
+              </button>
 
-            {/* מדיניות פרטיות */}
-            <button
-              type="button"
-              onClick={() => setPrivacyOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
-            >
-              <ShieldCheck className="size-4" /> מדיניות פרטיות
-            </button>
+              {/* מדיניות פרטיות */}
+              <button
+                type="button"
+                onClick={() => setPrivacyOpen(true)}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <ShieldCheck className="size-4" /> מדיניות פרטיות
+              </button>
 
-            {/* RIGHT — יציאה */}
-            <div className="flex justify-end">
-              {user ? (
+              {/* RIGHT — יציאה */}
+              <div className="flex justify-end">
                 <button
+                  type="button"
                   onClick={signOut}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
                 >
                   <LogOut className="size-4" /> יציאה
                 </button>
-              ) : (
-                <span />
-              )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="hidden md:grid grid-cols-2 items-center gap-2 max-w-md mx-auto">
+              <button
+                type="button"
+                onClick={() => setTermsOpen(true)}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <FileText className="size-4" /> תנאי שימוש
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPrivacyOpen(true)}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                <ShieldCheck className="size-4" /> מדיניות פרטיות
+              </button>
+            </div>
+          )}
 
           {/* ================= MOBILE ================= */}
-          <div className="md:hidden space-y-2">
-            {/* ROW 1 - 3 buttons (NEVER wraps) */}
-            <div className="grid grid-cols-3 gap-2">
-              {/* LEFT — הוספת הגדרה */}
-              {user && flags.allowPlayerSubmissions ? (
+          {user ? (
+            <div className="md:hidden space-y-2">
+              {/* ROW 1 — logged-in actions */}
+              <div className="grid grid-cols-3 gap-2">
+                {/* LEFT — הוספת הגדרה */}
+                {flags.allowPlayerSubmissions ? (
+                  <Link
+                    to="/submit-puzzle"
+                    className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-gradient-sunset text-white text-xs font-semibold"
+                  >
+                    הוספת הגדרה
+                  </Link>
+                ) : (
+                  <div />
+                )}
+
+                {/* CENTER — יצירת קשר */}
                 <Link
-                  to="/submit-puzzle"
-                  className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-gradient-sunset text-white text-xs font-semibold"
+                  to="/contact"
+                  className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
                 >
-                  הוספת הגדרה
+                  <Mail className="size-4" /> יצירת קשר
                 </Link>
-              ) : (
-                <div />
-              )}
 
-              {/* CENTER — יצירת קשר */}
-              <Link
-                to="/contact"
-                className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
-              >
-                <Mail className="size-4" /> יצירת קשר
-              </Link>
-
-              {/* RIGHT — יציאה */}
-              {user ? (
+                {/* RIGHT — יציאה */}
                 <button
+                  type="button"
                   onClick={signOut}
                   className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border bg-card text-xs font-medium"
                 >
                   <LogOut className="size-4" /> יציאה
                 </button>
-              ) : (
-                <div />
-              )}
+              </div>
+
+              {/* ROW 2 — legal */}
+              <div className="grid grid-cols-2 gap-2 items-center text-xs text-muted-foreground">
+                <button
+                  type="button"
+                  onClick={() => setTermsOpen(true)}
+                  className="inline-flex items-center justify-center px-2 py-1 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+                >
+                  תנאי שימוש
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPrivacyOpen(true)}
+                  className="inline-flex items-center justify-center px-2 py-1 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+                >
+                  מדיניות פרטיות
+                </button>
+              </div>
             </div>
-            {/* ROW 2 - legal */}
-            <div className="grid grid-cols-2 gap-2 items-center text-xs text-muted-foreground">
-              {/* left */}
+          ) : (
+            <div className="md:hidden grid grid-cols-2 gap-2 items-center text-xs text-muted-foreground">
               <button
+                type="button"
                 onClick={() => setTermsOpen(true)}
-                className="inline-flex items-center justify-center px-2 py-1 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+                className="inline-flex items-center justify-center px-2 py-2 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
               >
                 תנאי שימוש
               </button>
 
-              {/* right */}
               <button
+                type="button"
                 onClick={() => setPrivacyOpen(true)}
-                className="inline-flex items-center justify-center px-2 py-1 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+                className="inline-flex items-center justify-center px-2 py-2 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
               >
                 מדיניות פרטיות
               </button>
             </div>
-          </div>
+          )}
           {/* COPYRIGHT — ALL SCREEN SIZES */}
           <div className="text-center text-xs text-muted-foreground pt-1">
             © {new Date().getFullYear()} לשבור ת'ראש. כל הזכויות שמורות.
