@@ -261,7 +261,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             </div>
             {/* ROW 2 - legal */}
-            <div className="grid grid-cols-3 items-center text-xs text-muted-foreground">
+            <div className="grid grid-cols-2 gap-2 items-center text-xs text-muted-foreground">
               {/* left */}
               <button
                 onClick={() => setTermsOpen(true)}
@@ -269,9 +269,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 תנאי שימוש
               </button>
-
-              {/* center */}
-              <div className="text-center">© {new Date().getFullYear()} לשבור ת'ראש</div>
 
               {/* right */}
               <button
@@ -282,6 +279,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               </button>
             </div>
           </div>
+          {/* COPYRIGHT — ALL SCREEN SIZES */}
+          <div className="text-center text-xs text-muted-foreground pt-1">
+            © {new Date().getFullYear()} לשבור ת'ראש. כל הזכויות שמורות.
         </div>
       </footer>{" "}
       {/* Mobile bottom nav */}
