@@ -98,7 +98,7 @@ function Index() {
                   <Trophy className="size-7" />
                 </div>
 
-                <h3 className="font-display text-2xl font-bold mb-4">נקודות, שלבים ושיאים</h3>
+                <h3 className="font-display text-2xl font-bold mb-4">נקודות שלבים ושיאים</h3>
 
                 <ul className="space-y-3 text-lg sm:text-xl text-muted-foreground leading-relaxed">
                   <li className="flex items-start gap-2">
