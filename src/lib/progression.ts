@@ -184,9 +184,25 @@ export function findAchievementTitle(category: AchievementCategory, threshold: n
   return daysTitle(threshold);
 }
 
-// Returns ISO date (YYYY-MM-DD) for the current UTC day.
+// Returns ISO date (YYYY-MM-DD) according to Israel local time.
+// Asia/Jerusalem automatically handles daylight-saving time.
 export function todayIsoDate(d: Date = new Date()): string {
-  return d.toISOString().slice(0, 10);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(d);
+
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+
+  if (!year || !month || !day) {
+    throw new Error("Failed to calculate Israel local date");
+  }
+
+  return `${year}-${month}-${day}`;
 }
 
 // Given last play date and today, compute the new consecutive-play-days streak.
