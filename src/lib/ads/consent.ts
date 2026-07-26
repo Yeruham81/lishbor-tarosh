@@ -11,7 +11,19 @@ import { useEffect, useState, useCallback } from "react";
  * Important: this preference controls PERSONALIZATION only — it does NOT
  * control whether the ad placeholder or (future) ads render. See
  * `src/lib/ads/eligibility.ts` for ad eligibility.
+ *
+ * ⚠️ NOT A CERTIFIED CMP.
+ * This local consent record is an INTERNAL preference mechanism only. It is
+ * not a Google-certified Consent Management Platform and is not an IAB TCF
+ * (Transparency & Consent Framework) implementation. It MUST NOT be used as
+ * the sole source of truth for AdSense personalization or any downstream
+ * ad-serving decision in regions/products where a certified CMP or IAB TCF
+ * integration is required (e.g. EEA/UK/CH under Google's EU user consent
+ * policy). When live AdSense is enabled, integrate a Google-certified CMP
+ * (or equivalent TCF vendor) and defer to its signals; the record here may
+ * complement — but never replace — that source of truth.
  */
+
 
 export const CONSENT_STORAGE_KEY = "cookie_consent_v1";
 export const CONSENT_VERSION = 1;

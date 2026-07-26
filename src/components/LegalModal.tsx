@@ -37,6 +37,22 @@ export function LegalModal({
                   ))}
                 </ul>
               )}
+              {s.links && s.links.length > 0 && (
+                <ul className="space-y-1">
+                  {s.links.map((l, j) => (
+                    <li key={j}>
+                      <a
+                        href={l.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline underline-offset-2 hover:opacity-80"
+                      >
+                        {l.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
               {s.subsections?.map((sub, j) => (
                 <div key={j} className="space-y-1 mt-2">
                   <h4 className="font-semibold text-foreground">{sub.heading}</h4>
@@ -52,8 +68,25 @@ export function LegalModal({
                       ))}
                     </ul>
                   )}
+                  {sub.links && sub.links.length > 0 && (
+                    <ul className="space-y-1">
+                      {sub.links.map((l, k) => (
+                        <li key={k}>
+                          <a
+                            href={l.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary underline underline-offset-2 hover:opacity-80"
+                          >
+                            {l.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               ))}
+
             </section>
           ))}
         </div>

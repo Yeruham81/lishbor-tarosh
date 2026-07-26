@@ -1,11 +1,23 @@
 // Hebrew legal content for the app. Sourced from the uploaded DOCX files.
 
+export type LegalLink = {
+  label: string;
+  url: string;
+};
+
 export type LegalSection = {
   heading?: string;
   paragraphs?: string[];
   bullets?: string[];
-  subsections?: { heading: string; paragraphs?: string[]; bullets?: string[] }[];
+  links?: LegalLink[];
+  subsections?: {
+    heading: string;
+    paragraphs?: string[];
+    bullets?: string[];
+    links?: LegalLink[];
+  }[];
 };
+
 
 export type LegalDocument = {
   title: string;
