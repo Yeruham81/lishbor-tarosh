@@ -53,7 +53,6 @@ export function AdSenseUnit({
       cancelled = true;
     };
     // A changed key in AdSlot remounts this component and resets initedRef.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publisherId, slotId]);
 
   return (
