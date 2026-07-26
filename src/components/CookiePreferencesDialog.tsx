@@ -6,18 +6,19 @@ import { OPEN_COOKIE_PREFERENCES_EVENT, readConsent, saveConsent } from "@/lib/a
 import { toast } from "sonner";
 /** * Globally-mounted preferences dialog. Opens whenever any component * dispatches `openCookiePreferences()`. Reuses the centralized consent * storage — never touches localStorage directly. */ export function CookiePreferencesDialog() {
   const [open, setOpen] = useState(false);
-  const [analytics, setAnalytics] = useState(true);
-  const [advertising, setAdvertising] = useState(true);
+  const [analytics, setAnalytics] = useState(false);
+  const [advertising, setAdvertising] = useState(false);
   useEffect(() => {
     const handler = () => {
       const rec = readConsent();
-      setAnalytics(rec ? rec.analytics : true);
-      setAdvertising(rec ? rec.advertising : true);
+      setAnalytics(rec ? rec.analytics : false);
+      setAdvertising(rec ? rec.advertising : false);
       setOpen(true);
     };
     window.addEventListener(OPEN_COOKIE_PREFERENCES_EVENT, handler);
     return () => window.removeEventListener(OPEN_COOKIE_PREFERENCES_EVENT, handler);
   }, []);
+
   const savePrefs = () => {
     saveConsent({ analytics, advertising });
     setOpen(false);
