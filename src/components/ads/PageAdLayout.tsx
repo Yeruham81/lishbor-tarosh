@@ -96,23 +96,23 @@ export function PageAdLayout({
    * Do not reuse the previous cycle's layout while the effect is selecting
    * the layout for the new cycle. This prevents an extra ad-unit lifecycle.
    */
-  const desktopLayout = selection?.screen === screen && selection.cycleKey === cycleKey ? selection.layout : null;
+  const selectedLayout = selection?.screen === screen && selection.cycleKey === cycleKey ? selection.layout : null;
 
   const showLeft =
     isWide === true &&
-    desktopLayout !== null &&
-    (desktopLayout === "both-sides" || desktopLayout === "left-and-bottom");
+    selectedLayout !== null &&
+    (selectedLayout === "both-sides" || selectedLayout === "left-and-bottom");
 
   const showRight =
     isWide === true &&
-    desktopLayout !== null &&
-    (desktopLayout === "both-sides" || desktopLayout === "right-and-bottom");
+    selectedLayout !== null &&
+    (selectedLayout === "both-sides" || selectedLayout === "right-and-bottom");
 
   const showBottom =
     isWide === false ||
     (isWide === true &&
-      desktopLayout !== null &&
-      (desktopLayout === "left-and-bottom" || desktopLayout === "right-and-bottom"));
+      selectedLayout !== null &&
+      (selectedLayout === "left-and-bottom" || selectedLayout === "right-and-bottom"));
 
   return (
     <div className="w-full">
