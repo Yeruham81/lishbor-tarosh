@@ -14,53 +14,157 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+type AuthMode = "signin" | "signup" | "forgot";
+
+function getAuthErrorMessage(error: any, mode: AuthMode): string {
+  const code = error?.code as string | undefined;
+
+  switch (code) {
+    case "invalid_credentials":
+      return "כתובת האימייל או הסיסמה שגויות";
+
+    case "email_not_confirmed":
+      return "יש לאשר את כתובת האימייל לפני ההתחברות";
+
+    case "email_exists":
+    case "user_already_exists":
+      return "כבר קיים חשבון עם כתובת האימייל הזאת";
+
+    case "weak_password":
+      return "הסיסמה חלשה מדי. בחרו סיסמה חזקה יותר";
+
+    case "signup_disabled":
+    case "email_provider_disabled":
+      return "ההרשמה באמצעות אימייל מושבתת כרגע";
+
+    case "email_address_invalid":
+      return "כתובת האימייל שהוזנה אינה תקינה";
+
+    case "email_address_not_authorized":
+      return "לא ניתן לשלוח הודעות לכתובת האימייל הזאת כרגע";
+
+    case "over_email_send_rate_limit":
+      return "נשלחו יותר מדי הודעות אימייל. המתינו מעט ונסו שוב";
+
+    case "over_request_rate_limit":
+      return "בוצעו יותר מדי ניסיונות. המתינו כמה דקות ונסו שוב";
+
+    case "user_banned":
+      return "החשבון הזה חסום ואינו יכול להתחבר";
+
+    case "request_timeout":
+      return "הבקשה נמשכה זמן רב מדי. נסו שוב";
+
+    case "validation_failed":
+      return "הפרטים שהוזנו אינם תקינים";
+  }
+
+  // שומר הודעות עבריות שיצרנו בעצמנו בקוד.
+  if (typeof error?.message === "string" && /[\u0590-\u05FF]/.test(error.message)) {
+    return error.message;
+  }
+
+  if (mode === "forgot") {
+    return "לא ניתן לשלוח כרגע קישור לאיפוס הסיסמה. נסו שוב";
+  }
+
+  if (mode === "signup") {
+    return "לא ניתן להשלים את ההרשמה כרגע. נסו שוב";
+  }
+
+  return "לא ניתן להתחבר כרגע. נסו שוב";
+}
+
 function AuthPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { mode: initialMode } = Route.useSearch();
 
-  const [mode, setMode] = useState<"signin" | "signup" | "forgot">(initialMode === "signup" ? "signup" : "signin");
+  const [mode, setMode] = useState<AuthMode>(initialMode === "signup" ? "signup" : "signin");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+
   const flags = useFeatureFlags();
 
   useEffect(() => {
-    if (user) navigate({ to: "/play", replace: true });
+    if (user) {
+      navigate({
+        to: "/play",
+        replace: true,
+      });
+    }
   }, [user, navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       if (mode === "forgot") {
-        if (!email) throw new Error("נא להזין כתובת אימייל");
+        if (!email) {
+          throw new Error("נא להזין כתובת אימייל");
+        }
+
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
         });
-        if (error) throw error;
+
+        if (error) {
+          throw error;
+        }
+
         toast.success("שלחנו לכם מייל לאיפוס הסיסמה. בדקו את תיבת הדואר.");
+
         setMode("signin");
       } else if (mode === "signup") {
-        if (flags.loading) throw new Error("רגע, טוען הגדרות...");
-        if (!flags.allowNewRegistrations) throw new Error("הרשמות חדשות מושבתות כרגע. נסו שוב מאוחר יותר.");
-        if (password.length < 6) throw new Error("הסיסמה חייבת להכיל לפחות 6 תווים");
+        if (flags.loading) {
+          throw new Error("רגע, טוען הגדרות...");
+        }
+
+        if (!flags.allowNewRegistrations) {
+          throw new Error("הרשמות חדשות מושבתות כרגע. נסו שוב מאוחר יותר.");
+        }
+
+        if (password.length < 6) {
+          throw new Error("הסיסמה חייבת להכיל לפחות 6 תווים");
+        }
+
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { username, display_name: username }, emailRedirectTo: window.location.origin },
+          options: {
+            data: {
+              username,
+              display_name: username,
+            },
+            emailRedirectTo: window.location.origin,
+          },
         });
-        if (error) throw error;
-        if (!data?.user) throw new Error("ההרשמה נכשלה. נסו שוב.");
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.user) {
+          throw new Error("ההרשמה נכשלה. נסו שוב.");
+        }
+
         toast.success("נרשמת בהצלחה! מתחברים...");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          throw error;
+        }
       }
     } catch (err: any) {
-      toast.error(err.message || "שגיאה");
+      toast.error(getAuthErrorMessage(err, mode));
     } finally {
       setLoading(false);
     }
@@ -68,16 +172,38 @@ function AuthPage() {
 
   const google = async () => {
     setLoading(true);
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (r.error) toast.error("שגיאה בכניסה עם Google");
-    setLoading(false);
+
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+
+      if (result.error) {
+        toast.error("לא ניתן להתחבר באמצעות Google. נסו שוב.");
+      }
+    } catch {
+      toast.error("לא ניתן להתחבר באמצעות Google. נסו שוב.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const apple = async () => {
     setLoading(true);
-    const r = await lovable.auth.signInWithOAuth("apple", { redirect_uri: window.location.origin });
-    if (r.error) toast.error("שגיאה בכניסה עם Apple");
-    setLoading(false);
+
+    try {
+      const result = await lovable.auth.signInWithOAuth("apple", {
+        redirect_uri: window.location.origin,
+      });
+
+      if (result.error) {
+        toast.error("לא ניתן להתחבר באמצעות Apple. נסו שוב.");
+      }
+    } catch {
+      toast.error("לא ניתן להתחבר באמצעות Apple. נסו שוב.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -87,6 +213,7 @@ function AuthPage() {
           <h1 className="font-display text-3xl font-extrabold text-center mb-1 text-gradient-sunset">
             {mode === "signin" ? "כיף שחזרתם" : mode === "signup" ? "ברוכים הבאים" : "שכחתי סיסמא"}
           </h1>
+
           <p className="text-center text-muted-foreground text-sm mb-6">
             {mode === "signin"
               ? "התחברו והמשיכו לשחק"
@@ -98,6 +225,7 @@ function AuthPage() {
           {mode !== "forgot" && (
             <>
               <button
+                type="button"
                 onClick={google}
                 disabled={loading}
                 className="w-full mb-3 py-3 rounded-xl border bg-card hover:bg-muted font-medium flex items-center justify-center gap-2 transition"
@@ -124,6 +252,7 @@ function AuthPage() {
               </button>
 
               <button
+                type="button"
                 onClick={apple}
                 disabled={loading}
                 className="w-full mb-4 py-3 rounded-xl bg-black text-white hover:opacity-90 font-medium flex items-center justify-center gap-2 transition"
@@ -155,6 +284,7 @@ function AuthPage() {
                 dir="rtl"
               />
             )}
+
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -164,6 +294,7 @@ function AuthPage() {
               className="w-full px-4 py-3 rounded-xl border bg-card text-right"
               dir="ltr"
             />
+
             {mode !== "forgot" && (
               <input
                 value={password}
@@ -176,7 +307,9 @@ function AuthPage() {
                 dir="ltr"
               />
             )}
+
             <button
+              type="submit"
               disabled={loading}
               className="w-full py-3 rounded-xl bg-gradient-sunset text-white font-display font-bold shadow-glow hover:opacity-90 disabled:opacity-50 transition"
             >
@@ -208,6 +341,7 @@ function AuthPage() {
             </button>
           )}
         </div>
+
         <div className="text-center mt-4">
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
             ← חזרה למסך הבית
