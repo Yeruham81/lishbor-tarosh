@@ -28,7 +28,6 @@ function ContactPage() {
   const [type, setType] = useState<(typeof TYPES)[number]["v"]>("idea");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
@@ -44,16 +43,26 @@ function ContactPage() {
           type,
           subject: subject.trim() || undefined,
           message: message.trim(),
-          contact_email: email.trim() || undefined,
         },
       });
 
       toast.success("המשוב נשלח, תודה!");
       setSubject("");
       setMessage("");
-      setEmail("");
     } catch (err: any) {
-      toast.error(err.message);
+      const message = String(err?.message ?? "").toLowerCase();
+
+      if (err?.status === 401 || message.includes("unauthorized") || message.includes("not authenticated")) {
+        toast.error("יש להתחבר מחדש כדי לשלוח את הפנייה");
+      } else if (err?.status === 403 || message.includes("permission denied") || message.includes("forbidden")) {
+        toast.error("אין לכם הרשאה לשלוח את הפנייה");
+      } else if (message.includes("failed to fetch") || message.includes("network")) {
+        toast.error("לא ניתן להתחבר לשרת. בדקו את החיבור ונסו שוב");
+      } else if (message.includes("rate limit") || message.includes("too many requests")) {
+        toast.error("נשלחו יותר מדי פניות. המתינו מעט ונסו שוב");
+      } else {
+        toast.error("לא ניתן לשלוח את הפנייה כרגע. נסו שוב");
+      }
     } finally {
       setBusy(false);
     }
