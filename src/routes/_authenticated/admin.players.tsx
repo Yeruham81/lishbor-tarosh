@@ -46,6 +46,8 @@ export const Route = createFileRoute("/_authenticated/admin/players")({
 
 const COLS = [
   { key: "player", label: "שחקן" },
+  { key: "email", label: "אימייל" },
+  { key: "age", label: "גיל" },
   { key: "player_level", label: "רמה" },
   { key: "level", label: "שלב" },
   { key: "score", label: "ניקוד" },
