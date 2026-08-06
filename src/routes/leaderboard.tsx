@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { canonical, publicPageMeta } from "@/lib/site";
+import { canonical, publicPageMeta, NOINDEX_META } from "@/lib/site";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -14,11 +14,14 @@ import { useFeatureFlags } from "@/hooks/use-public-settings";
 export const Route = createFileRoute("/leaderboard")({
   component: LB,
   head: () => ({
-    meta: publicPageMeta({
-      title: "מי בראש — טבלת המובילים | לשבור ת'ראש",
-      description: "טבלת המובילים של לשבור ת'ראש: מי צובר הכי הרבה נקודות השבוע, החודש ובכל הזמנים.",
-      path: "/leaderboard",
-    }),
+    meta: [
+      ...publicPageMeta({
+        title: "מי בראש — טבלת המובילים | לשבור ת'ראש",
+        description: "טבלת המובילים של לשבור ת'ראש: מי צובר הכי הרבה נקודות השבוע, החודש ובכל הזמנים.",
+        path: "/leaderboard",
+      }),
+      ...NOINDEX_META,
+    ],
     links: [canonical("/leaderboard")],
   }),
 });
@@ -55,27 +58,27 @@ function LB() {
   return (
     <AppShell>
       <PageAdLayout screen="leaderboard">
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="text-center mb-6">
-          <Trophy className="size-12 mx-auto text-primary mb-2" />
-          <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">מי בראש</h1>
-        </div>
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
+          <div className="text-center mb-6">
+            <Trophy className="size-12 mx-auto text-primary mb-2" />
+            <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">מי בראש</h1>
+          </div>
 
-        <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} dir="rtl">
-          <TabsList className="grid grid-cols-4 w-full mb-4">
+          <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} dir="rtl">
+            <TabsList className="grid grid-cols-4 w-full mb-4">
+              {TABS.map((t) => (
+                <TabsTrigger key={t.value} value={t.value}>
+                  {t.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
             {TABS.map((t) => (
-              <TabsTrigger key={t.value} value={t.value}>
-                {t.label}
-              </TabsTrigger>
+              <TabsContent key={t.value} value={t.value}>
+                <Board period={t.value} currentUserId={user?.id} />
+              </TabsContent>
             ))}
-          </TabsList>
-          {TABS.map((t) => (
-            <TabsContent key={t.value} value={t.value}>
-              <Board period={t.value} currentUserId={user?.id} />
-            </TabsContent>
-          ))}
-        </Tabs>
-      </div>
+          </Tabs>
+        </div>
       </PageAdLayout>
     </AppShell>
   );
