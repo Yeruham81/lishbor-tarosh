@@ -28,7 +28,7 @@ export const Route = createFileRoute("/demo")({
         property: "og:description",
         content: "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
       },
-      ...NOINDEX_META,
+      NOINDEX_META,
     ],
     links: [canonical("/demo")],
   }),
