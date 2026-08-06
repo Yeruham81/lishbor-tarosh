@@ -31,9 +31,9 @@ export function DisplayNameSetup() {
   const doConfirm = useServerFn(confirmDisplayName);
 
   const { data } = useQuery({
-    queryKey: ["display-name-status"],
+    queryKey: ["display-name-status", user?.id],
     queryFn: () => fetchStatus(),
-    enabled: !!user,
+    enabled: !!user?.id,
   });
 
   const [name, setName] = useState("");
