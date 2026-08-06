@@ -192,13 +192,13 @@ function MessagesPage() {
         rows={
           list.isLoading ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                 טוען...
               </TableCell>
             </TableRow>
           ) : rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                 אין פניות
               </TableCell>
             </TableRow>
@@ -305,7 +305,7 @@ function MessagesPage() {
           </DialogHeader>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="text-muted-foreground">מאת:</span> {viewing?.name}
+              <span className="text-muted-foreground">מאת:</span> {viewing?.name} ({viewing?.email})
             </div>
             <div className="whitespace-pre-wrap p-3 rounded-lg bg-muted">{viewing?.message}</div>
             {viewing?.reply_text && (
