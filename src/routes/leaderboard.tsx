@@ -20,7 +20,7 @@ export const Route = createFileRoute("/leaderboard")({
         description: "טבלת המובילים של לשבור ת'ראש: מי צובר הכי הרבה נקודות השבוע, החודש ובכל הזמנים.",
         path: "/leaderboard",
       }),
-      ...NOINDEX_META,
+      NOINDEX_META,
     ],
     links: [canonical("/leaderboard")],
   }),
