@@ -3,6 +3,7 @@ import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanst
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "sonner";
+import { SITE_LOCALE, SITE_NAME, absoluteUrl } from "@/lib/site";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
