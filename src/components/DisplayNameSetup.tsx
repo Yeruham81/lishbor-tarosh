@@ -87,7 +87,7 @@ export function DisplayNameSetup() {
       toast.success("הכינוי שבחרתם נשמר. ברוכים הבאים! 🎉");
 
       await qc.invalidateQueries({
-        queryKey: ["display-name-status"],
+        queryKey: ["display-name-status", user.id],
       });
 
       await qc.invalidateQueries({
