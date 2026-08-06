@@ -206,6 +206,9 @@ function MessagesPage() {
             rows.map((r) => (
               <TableRow key={r.id}>
                 {t.isVisible("name") && <TableCell className="font-medium">{r.name ?? "—"}</TableCell>}
+                {t.isVisible("email") && (
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
+                )}
                 {t.isVisible("type") && (
                   <TableCell>
                     <span
