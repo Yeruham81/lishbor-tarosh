@@ -138,7 +138,6 @@ function AuthPage() {
           options: {
             data: {
               username,
-              display_name: username,
             },
             emailRedirectTo: window.location.origin,
           },
