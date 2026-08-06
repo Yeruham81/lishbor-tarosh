@@ -1,11 +1,15 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { NOINDEX_META } from "@/lib/site";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { getChallenge } from "@/lib/social.functions";
 import { Trophy, Swords } from "lucide-react";
 
-export const Route = createFileRoute("/challenge/$token")({ component: ChallengePage });
+export const Route = createFileRoute("/challenge/$token")({
+  component: ChallengePage,
+  head: () => ({ meta: [NOINDEX_META] }),
+});
 
 function ChallengePage() {
   const { token } = useParams({ from: "/challenge/$token" });

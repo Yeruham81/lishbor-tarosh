@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { NOINDEX_META } from "@/lib/site";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -6,6 +7,7 @@ import { AppShell } from "@/components/AppShell";
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
+  head: () => ({ meta: [NOINDEX_META] }),
 });
 
 function getResetPasswordErrorMessage(error: any): string {

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { normalizeLetter, normalizeWord, buildRevealMask, wordLengths } from "@/lib/hebrew";
 import { SCORING, computeSolveScore, currentSolveValue } from "@/lib/progression";
 import { DEMO_CLUES } from "@/lib/demo-clues";
+import { SITE_LOCALE, absoluteUrl, canonical } from "@/lib/site";
 
 export const Route = createFileRoute("/demo")({
   component: DemoPage,
@@ -21,11 +22,14 @@ export const Route = createFileRoute("/demo")({
         content: "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
       },
       { property: "og:title", content: "משחק לדוגמה — לשבור ת'ראש" },
+      { property: "og:url", content: absoluteUrl("/demo") },
+      { property: "og:locale", content: SITE_LOCALE },
       {
         property: "og:description",
         content: "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
       },
     ],
+    links: [canonical("/demo")],
   }),
 });
 
