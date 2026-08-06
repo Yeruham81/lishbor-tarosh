@@ -3,9 +3,7 @@ import type {} from "@tanstack/react-start";
 import { SITE_ORIGIN } from "@/lib/site";
 
 /**
- * Public sitemap. Only genuinely public, indexable routes are listed.
- * Authenticated, admin, auth, password-reset and tokenized challenge routes
- * are intentionally excluded (they also carry a noindex robots meta tag).
+ * Public sitemap. Only the homepage is intended for indexing.
  */
 interface SitemapEntry {
   path: string;
