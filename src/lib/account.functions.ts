@@ -374,7 +374,7 @@ export const setAvatarPath = createServerFn({
           .from("avatars")
           .remove(
             list.map(
-              (f) => ${context.userId}/${f.name},
+              (f) => `${context.userId}/${f.name}`,
             ),
           );
       }
