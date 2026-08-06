@@ -9,25 +9,33 @@ import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
+
     if (error || !data.user) {
       await supabase.auth.signOut().catch(() => {});
       throw redirect({ to: "/auth" });
     }
-    return { user: data.user };
+
+    return {
+      user: data.user,
+    };
   },
+
   component: AuthenticatedShell,
 });
 
 function AuthenticatedShell() {
   usePrefsApplier();
+
   const { user } = useAuth();
   const fetchStatus = useServerFn(getDisplayNameStatus);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["display-name-status"],
+    queryKey: ["display-name-status", user?.id],
     queryFn: () => fetchStatus(),
-    enabled: !!user,
+    enabled: !!user?.id,
   });
 
   const needsSetup = !!user && (isLoading || !data || !data.confirmed);
