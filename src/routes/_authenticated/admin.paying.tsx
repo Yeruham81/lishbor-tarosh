@@ -55,6 +55,7 @@ function PayingPlayersPage() {
         headers={
           <>
             <TableHead>שם</TableHead>
+            <TableHead className="hidden md:table-cell">גיל</TableHead>
             <TableHead className="hidden md:table-cell">תאריך הרשמה</TableHead>
             <TableHead>תאריך תשלום</TableHead>
             <TableHead>סכום</TableHead>
@@ -77,6 +78,7 @@ function PayingPlayersPage() {
             rows.map((r) => (
               <TableRow key={r.id}>
                 <TableCell className="font-medium">{r.display_name ?? r.username}</TableCell>
+                <TableCell className="hidden md:table-cell">{r.age ?? "—"}</TableCell>
                 <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                   {fmtDate(r.created_at)}
                 </TableCell>
