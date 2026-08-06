@@ -236,6 +236,8 @@ function PlayersPage() {
               <Checkbox checked={allSelected} onCheckedChange={(c) => t.selectAll(allIds, !!c)} />
             </TableHead>
             {t.isVisible("player") && <TableHead>שחקן</TableHead>}
+            {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
+            {t.isVisible("age") && <TableHead className="hidden lg:table-cell">גיל</TableHead>}
             {t.isVisible("player_level") && <TableHead className="hidden lg:table-cell">רמה</TableHead>}
             {t.isVisible("level") && (
               <SortableHead sortKey="level" currentSort={t.sort} currentDir={t.dir} onSort={t.setSort}>
