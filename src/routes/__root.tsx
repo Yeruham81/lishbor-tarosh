@@ -3,6 +3,7 @@ import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanst
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "sonner";
+import { SITE_LOCALE, SITE_NAME, absoluteUrl } from "@/lib/site";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -15,7 +16,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "לשבור ת'ראש - המשחק שעושה היגיון" },
       { property: "og:description", content: "כי זה לא רק מה אתם יודעים - זה גם איך אתם חושבים" },
       { name: "twitter:description", content: "כי זה לא רק מה אתם יודעים - זה גם איך אתם חושבים" },
-      { property: "og:site_name", content: "לשבור ת'ראש" },
+      { property: "og:site_name", content: SITE_NAME },
+      { property: "og:locale", content: SITE_LOCALE },
+      { property: "og:url", content: absoluteUrl("/") },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/95776419-1419-4174-8c98-941a05712d28" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/95776419-1419-4174-8c98-941a05712d28" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubmitPuzzleRouteImport } from './routes/submit-puzzle'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as DemoRouteImport } from './routes/demo'
@@ -35,6 +36,11 @@ import { Route as AuthenticatedAdminDefinitionsRouteImport } from './routes/_aut
 const SubmitPuzzleRoute = SubmitPuzzleRouteImport.update({
   id: '/submit-puzzle',
   path: '/submit-puzzle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/demo': typeof DemoRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/instructions': typeof AuthenticatedInstructionsRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/demo': typeof DemoRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
   '/instructions': typeof AuthenticatedInstructionsRoute
   '/levels': typeof AuthenticatedLevelsRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/demo': typeof DemoRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit-puzzle': typeof SubmitPuzzleRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/instructions': typeof AuthenticatedInstructionsRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/leaderboard'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/submit-puzzle'
     | '/admin'
     | '/instructions'
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/leaderboard'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/submit-puzzle'
     | '/instructions'
     | '/levels'
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/leaderboard'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/submit-puzzle'
     | '/_authenticated/admin'
     | '/_authenticated/instructions'
@@ -300,6 +312,7 @@ export interface RootRouteChildren {
   DemoRoute: typeof DemoRoute
   LeaderboardRoute: typeof LeaderboardRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubmitPuzzleRoute: typeof SubmitPuzzleRoute
   ChallengeTokenRoute: typeof ChallengeTokenRoute
 }
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/submit-puzzle'
       fullPath: '/submit-puzzle'
       preLoaderRoute: typeof SubmitPuzzleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -516,6 +536,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoRoute: DemoRoute,
   LeaderboardRoute: LeaderboardRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubmitPuzzleRoute: SubmitPuzzleRoute,
   ChallengeTokenRoute: ChallengeTokenRoute,
 }

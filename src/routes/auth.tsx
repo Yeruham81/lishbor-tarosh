@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { NOINDEX_META } from "@/lib/site";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/auth")({
     mode: search.mode === "signup" ? "signup" : undefined,
   }),
   component: AuthPage,
+  head: () => ({ meta: [NOINDEX_META] }),
 });
 
 type AuthMode = "signin" | "signup" | "forgot";

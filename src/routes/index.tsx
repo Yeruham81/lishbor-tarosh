@@ -1,10 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { canonical, publicPageMeta } from "@/lib/site";
 import { AppShell } from "@/components/AppShell";
 import { PageAdLayout } from "@/components/ads/PageAdLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { Sparkles, Trophy, Zap, Brain } from "lucide-react";
 
-export const Route = createFileRoute("/")({ component: Index });
+export const Route = createFileRoute("/")({
+  component: Index,
+  head: () => ({
+    meta: publicPageMeta({
+      title: "לשבור ת'ראש - המשחק שעושה היגיון",
+      description: "כי זה לא רק מה אתם יודעים - זה גם איך אתם חושבים. משחק הגדרות היגיון בעברית.",
+      path: "/",
+    }),
+    links: [canonical("/")],
+  }),
+});
 
 function Index() {
   const { user, loading } = useAuth();

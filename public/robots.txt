@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /profile
+Disallow: /challenge/
+
+Sitemap: https://lishbor-tarosh.fun/sitemap.xml

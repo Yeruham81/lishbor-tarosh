@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { canonical, publicPageMeta } from "@/lib/site";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
@@ -8,7 +9,17 @@ import { submitPuzzle } from "@/lib/social.functions";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
 
-export const Route = createFileRoute("/submit-puzzle")({ component: SubmitPuzzlePage });
+export const Route = createFileRoute("/submit-puzzle")({
+  component: SubmitPuzzlePage,
+  head: () => ({
+    meta: publicPageMeta({
+      title: "הוספת הגדרה | לשבור ת'ראש",
+      description: "יש לכם רעיון להגדרה? שלחו אותה אלינו והיא עשויה להיכנס למשחק.",
+      path: "/submit-puzzle",
+    }),
+    links: [canonical("/submit-puzzle")],
+  }),
+});
 
 function SubmitPuzzlePage() {
   const { user, loading } = useAuth();

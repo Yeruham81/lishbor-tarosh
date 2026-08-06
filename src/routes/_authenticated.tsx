@@ -6,6 +6,7 @@ import { usePrefsApplier } from "@/hooks/use-prefs-applier";
 import { supabase } from "@/integrations/supabase/client";
 import { getDisplayNameStatus } from "@/lib/account.functions";
 import { useAuth } from "@/hooks/use-auth";
+import { NOINDEX_META } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -22,6 +23,8 @@ export const Route = createFileRoute("/_authenticated")({
       user: data.user,
     };
   },
+
+  head: () => ({ meta: [NOINDEX_META] }),
 
   component: AuthenticatedShell,
 });
