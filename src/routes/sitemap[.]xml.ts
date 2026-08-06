@@ -13,13 +13,7 @@ interface SitemapEntry {
   priority?: string;
 }
 
-const ENTRIES: SitemapEntry[] = [
-  { path: "/", changefreq: "weekly", priority: "1.0" },
-  { path: "/demo", changefreq: "weekly", priority: "0.9" },
-  { path: "/leaderboard", changefreq: "daily", priority: "0.7" },
-  { path: "/submit-puzzle", changefreq: "monthly", priority: "0.5" },
-  { path: "/contact", changefreq: "yearly", priority: "0.4" },
-];
+const ENTRIES: SitemapEntry[] = [{ path: "/", changefreq: "weekly", priority: "1.0" }];
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
