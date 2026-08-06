@@ -50,6 +50,7 @@ const TYPE_CLASS: Record<string, string> = {
 
 const COLS = [
   { key: "name", label: "שם" },
+  { key: "email", label: "אימייל" },
   { key: "type", label: "סוג" },
   { key: "subject", label: "נושא" },
   { key: "message", label: "הודעה" },
@@ -171,6 +172,7 @@ function MessagesPage() {
         headers={
           <>
             {t.isVisible("name") && <TableHead>שם</TableHead>}
+            {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
             {t.isVisible("type") && <TableHead>סוג</TableHead>}
             {t.isVisible("subject") && <TableHead>נושא</TableHead>}
             {t.isVisible("message") && <TableHead className="hidden lg:table-cell">הודעה</TableHead>}
