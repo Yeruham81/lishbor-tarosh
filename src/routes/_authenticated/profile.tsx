@@ -65,6 +65,62 @@ const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 const AVATAR_ACCEPTED_MIMES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const AVATAR_HINT_FORMATS = "PNG, JPG, WEBP, GIF";
 
+function getProfileErrorMessage(error: any, fallback: string): string {
+  const originalMessage = typeof error?.message === "string" ? error.message : "";
+  const message = originalMessage.toLowerCase();
+  const code = String(error?.code ?? "").toLowerCase();
+
+  // Keep Hebrew messages created by the application unchanged.
+  if (/[\u0590-\u05FF]/.test(originalMessage)) {
+    return originalMessage;
+  }
+
+  if (
+    error?.status === 401 ||
+    code === "unauthorized" ||
+    code === "session_expired" ||
+    code === "session_not_found" ||
+    code === "bad_jwt" ||
+    message.includes("unauthorized") ||
+    message.includes("not authenticated") ||
+    message.includes("jwt")
+  ) {
+    return "פג תוקף ההתחברות. התחברו מחדש ונסו שוב";
+  }
+
+  if (
+    error?.status === 403 ||
+    code === "forbidden" ||
+    code === "permission_denied" ||
+    message.includes("permission denied") ||
+    message.includes("forbidden")
+  ) {
+    return "אין לכם הרשאה לבצע את הפעולה";
+  }
+
+  if (code === "weak_password" || message.includes("weak password")) {
+    return "הסיסמה חלשה מדי. בחרו סיסמה חזקה יותר";
+  }
+
+  if (code === "same_password" || message.includes("same password")) {
+    return "הסיסמה החדשה חייבת להיות שונה מהסיסמה הנוכחית";
+  }
+
+  if (code.includes("rate_limit") || message.includes("rate limit") || message.includes("too many requests")) {
+    return "בוצעו יותר מדי ניסיונות. המתינו מעט ונסו שוב";
+  }
+
+  if (message.includes("failed to fetch") || message.includes("network") || message.includes("fetch failed")) {
+    return "לא ניתן להתחבר לשרת. בדקו את החיבור ונסו שוב";
+  }
+
+  if (message.includes("payload too large") || message.includes("file too large")) {
+    return "הקובץ שנבחר גדול מדי";
+  }
+
+  return fallback;
+}
+
 function Profile() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -111,7 +167,7 @@ function Profile() {
       await doUpdatePrefs({ data: patch });
       refresh();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(getProfileErrorMessage(e, "לא ניתן לשמור את ההגדרות כרגע. נסו שוב"));
     }
   };
   const setA11y = (patch: Partial<AccessibilityPrefs>) => {
@@ -162,7 +218,7 @@ function Profile() {
       toast.success("התמונה עודכנה");
       qc.invalidateQueries({ queryKey: ["avatar-url"] });
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(getProfileErrorMessage(e, "לא ניתן להעלות את תמונת הפרופיל כרגע. נסו שוב"));
     } finally {
       setUploading(false);
     }
@@ -174,7 +230,7 @@ function Profile() {
       qc.invalidateQueries({ queryKey: ["avatar-url"] });
       toast.success("התמונה הוסרה");
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(getProfileErrorMessage(e, "לא ניתן להסיר את תמונת הפרופיל כרגע. נסו שוב"));
     }
   };
 
@@ -196,7 +252,7 @@ function Profile() {
       setPwd("");
       setPwd2("");
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(getProfileErrorMessage(e, "לא ניתן לעדכן את הסיסמה כרגע. נסו שוב"));
     } finally {
       setPwdBusy(false);
     }
@@ -211,7 +267,7 @@ function Profile() {
       await qc.invalidateQueries();
       toast.success("הפרופיל אופס. ברוך הבא מחדש!");
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(getProfileErrorMessage(e, "לא ניתן לאפס את נתוני המשחק כרגע. נסו שוב"));
     } finally {
       setResetting(false);
     }
@@ -227,7 +283,7 @@ function Profile() {
       toast.success("הפרופיל נמחק");
       navigate({ to: "/" });
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(getProfileErrorMessage(e, "לא ניתן למחוק את הפרופיל כרגע. נסו שוב"));
     } finally {
       setDeleting(false);
     }
@@ -241,334 +297,334 @@ function Profile() {
   return (
     <AppShell>
       <PageAdLayout screen="profile">
-      <div className="container mx-auto px-4 py-8 max-w-3xl space-y-6">
-        {/* Header card */}
-        <div className="bg-gradient-sunset rounded-3xl p-6 text-white shadow-glow">
-          <div className="flex items-center gap-4">
-            <div className="size-20 rounded-full bg-white/20 flex items-center justify-center overflow-hidden text-3xl font-display font-extrabold">
-              {avatarQ.data?.url ? (
-                <img src={avatarQ.data.url} alt="תמונת פרופיל" className="size-full object-cover" />
-              ) : (
-                (p.display_name?.[0] ?? p.username[0])
-              )}
-            </div>
-            <div className="min-w-0">
-              <h1 className="font-display text-3xl font-extrabold truncate">{p.display_name ?? p.username}</h1>
-              <p className="text-white/80 truncate" dir="ltr">
-                {user?.email ?? `@${p.username}`}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Account management */}
-        <Card icon={<UserCircle2 className="size-5 text-primary" />} title="ניהול החשבון">
-          {/* Nickname (permanent) — shown before avatar */}
-          <div>
-            <div className="text-sm font-medium mb-2">כינוי</div>
-            <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border bg-muted/30">
-              <span className="font-display text-lg font-bold truncate">{p.display_name ?? p.username}</span>
-              <span className="text-xs text-muted-foreground shrink-0">קבוע</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">הכינוי נקבע בעת ההרשמה למשחק ואינו ניתן לשינוי</p>
-          </div>
-
-          {/* Avatar */}
-          <div>
-            <div className="text-sm font-medium mb-2">תמונת פרופיל</div>
+        <div className="container mx-auto px-4 py-8 max-w-3xl space-y-6">
+          {/* Header card */}
+          <div className="bg-gradient-sunset rounded-3xl p-6 text-white shadow-glow">
             <div className="flex items-center gap-4">
-              <div className="size-16 rounded-full bg-muted flex items-center justify-center overflow-hidden border">
+              <div className="size-20 rounded-full bg-white/20 flex items-center justify-center overflow-hidden text-3xl font-display font-extrabold">
                 {avatarQ.data?.url ? (
                   <img src={avatarQ.data.url} alt="תמונת פרופיל" className="size-full object-cover" />
                 ) : (
-                  <UserCircle2 className="size-10 text-muted-foreground" />
+                  (p.display_name?.[0] ?? p.username[0])
                 )}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="min-w-0">
+                <h1 className="font-display text-3xl font-extrabold truncate">{p.display_name ?? p.username}</h1>
+                <p className="text-white/80 truncate" dir="ltr">
+                  {user?.email ?? `@${p.username}`}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Account management */}
+          <Card icon={<UserCircle2 className="size-5 text-primary" />} title="ניהול החשבון">
+            {/* Nickname (permanent) — shown before avatar */}
+            <div>
+              <div className="text-sm font-medium mb-2">כינוי</div>
+              <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border bg-muted/30">
+                <span className="font-display text-lg font-bold truncate">{p.display_name ?? p.username}</span>
+                <span className="text-xs text-muted-foreground shrink-0">קבוע</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">הכינוי נקבע בעת ההרשמה למשחק ואינו ניתן לשינוי</p>
+            </div>
+
+            {/* Avatar */}
+            <div>
+              <div className="text-sm font-medium mb-2">תמונת פרופיל</div>
+              <div className="flex items-center gap-4">
+                <div className="size-16 rounded-full bg-muted flex items-center justify-center overflow-hidden border">
+                  {avatarQ.data?.url ? (
+                    <img src={avatarQ.data.url} alt="תמונת פרופיל" className="size-full object-cover" />
+                  ) : (
+                    <UserCircle2 className="size-10 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    accept={AVATAR_ACCEPTED_MIMES.join(",")}
+                    className="hidden"
+                    onChange={(e) => e.target.files?.[0] && onAvatarPick(e.target.files[0])}
+                  />
+                  <button
+                    onClick={() => fileInput.current?.click()}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted text-sm font-medium transition disabled:opacity-50"
+                  >
+                    <Camera className="size-4" /> {avatarQ.data?.url ? "החלפת תמונה" : "העלאת תמונה"}
+                  </button>
+                  {avatarQ.data?.url && (
+                    <button
+                      onClick={onAvatarRemove}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground text-sm font-medium transition"
+                    >
+                      <X className="size-4" /> הסרה
+                    </button>
+                  )}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                גודל מרבי: {Math.round(AVATAR_MAX_BYTES / 1024 / 1024)}MB · פורמטים נתמכים: {AVATAR_HINT_FORMATS}
+              </p>
+            </div>
+
+            {/* Password change (email auth only) */}
+            {isEmailAuth && (
+              <form onSubmit={onChangePassword} className="space-y-2">
+                <div className="text-sm font-medium flex items-center gap-2">
+                  <KeyRound className="size-4" /> החלפת סיסמה
+                </div>
                 <input
-                  ref={fileInput}
-                  type="file"
-                  accept={AVATAR_ACCEPTED_MIMES.join(",")}
-                  className="hidden"
-                  onChange={(e) => e.target.files?.[0] && onAvatarPick(e.target.files[0])}
+                  type="password"
+                  value={pwd}
+                  onChange={(e) => setPwd(e.target.value)}
+                  minLength={6}
+                  placeholder="סיסמה חדשה (לפחות 6 תווים)"
+                  className="w-full px-3 py-2.5 rounded-xl border bg-background text-left"
+                  dir="ltr"
+                  autoComplete="new-password"
+                />
+                <input
+                  type="password"
+                  value={pwd2}
+                  onChange={(e) => setPwd2(e.target.value)}
+                  minLength={6}
+                  placeholder="אימות סיסמה"
+                  className="w-full px-3 py-2.5 rounded-xl border bg-background text-left"
+                  dir="ltr"
+                  autoComplete="new-password"
                 />
                 <button
-                  onClick={() => fileInput.current?.click()}
-                  disabled={uploading}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted text-sm font-medium transition disabled:opacity-50"
+                  type="submit"
+                  disabled={pwdBusy || !pwd || !pwd2}
+                  className="w-full py-2.5 rounded-xl bg-card border hover:bg-muted transition font-medium disabled:opacity-50"
                 >
-                  <Camera className="size-4" /> {avatarQ.data?.url ? "החלפת תמונה" : "העלאת תמונה"}
+                  {pwdBusy ? "מעדכן..." : "עדכון סיסמה"}
                 </button>
-                {avatarQ.data?.url && (
-                  <button
-                    onClick={onAvatarRemove}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground text-sm font-medium transition"
-                  >
-                    <X className="size-4" /> הסרה
-                  </button>
-                )}
+              </form>
+            )}
+
+            {/* Private mode */}
+            <Toggle
+              icon={<EyeOff className="size-4" />}
+              label="מצב פרטי"
+              hint="הסתרת הפרופיל משחקנים אחרים"
+              checked={!!p.is_private}
+              onChange={(v) => setPref({ is_private: v })}
+            />
+
+            {/* Account actions — single horizontal row (RTL): נתק (right) | שכח (center) | מחק (left) */}
+            <div className="pt-3 border-t">
+              <div dir="rtl" className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <button
+                  onClick={onSignOut}
+                  className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border bg-card hover:bg-muted transition font-medium text-sm sm:text-base"
+                >
+                  <LogOut className="size-4 shrink-0" />
+                  <div className="flex flex-col items-center min-w-0 leading-tight">
+                    <span className="truncate">נתק אותי</span>
+                    <span className="truncate text-[12px] font-normal opacity-70">התנתקות ויציאה מהמשחק</span>
+                  </div>
+                </button>
+                <button
+                  onClick={onForgetMe}
+                  disabled={resetting}
+                  className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border border-warning/40 text-warning hover:bg-warning hover:text-warning-foreground transition font-medium text-sm sm:text-base disabled:opacity-50"
+                >
+                  <Eraser className="size-4 shrink-0" />
+                  <div className="flex flex-col items-center min-w-0 leading-tight">
+                    <span className="truncate">{resetting ? "מאפס..." : "שכח אותי"}</span>
+                    <span className="truncate text-[12px] font-normal opacity-70">איפוס ההיסטוריה והניקוד</span>
+                  </div>
+                </button>
+                <button
+                  onClick={onDelete}
+                  disabled={deleting}
+                  className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground transition font-medium text-sm sm:text-base disabled:opacity-50"
+                >
+                  <Trash2 className="size-4 shrink-0" />
+                  <div className="flex flex-col items-center min-w-0 leading-tight">
+                    <span className="truncate">{deleting ? "מוחק..." : "מחק אותי"}</span>
+                    <span className="truncate text-[12px] font-normal opacity-70">מחיקת הפרופיל לצמיתות</span>
+                  </div>
+                </button>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              גודל מרבי: {Math.round(AVATAR_MAX_BYTES / 1024 / 1024)}MB · פורמטים נתמכים: {AVATAR_HINT_FORMATS}
-            </p>
-          </div>
+          </Card>
 
-          {/* Password change (email auth only) */}
-          {isEmailAuth && (
-            <form onSubmit={onChangePassword} className="space-y-2">
+          {/* Game settings */}
+          <Card icon={<Gamepad2 className="size-5 text-primary" />} title="ניהול המשחק">
+            <div>
+              <div className="text-sm font-medium mb-2">רמה</div>
+              <select
+                value={(p as any).player_level ?? ""}
+                onChange={async (e) => {
+                  const n = Number(e.target.value);
+                  if (!Number.isInteger(n) || n < 1 || n > 5) return;
+                  try {
+                    await doUpdateLevel({ data: { playerLevel: n } });
+                    refresh();
+                    toast.success("רמת השחקן עודכנה");
+                  } catch (err: any) {
+                    toast.error(getProfileErrorMessage(err, "לא ניתן לעדכן את רמת השחקן כרגע. נסו שוב"));
+                  }
+                }}
+                className="w-full px-3 py-2.5 rounded-xl border bg-background text-right"
+              >
+                <option value="">איך אתם בפתירת הגדרות היגיון?</option>
+                {PLAYER_LEVELS.map((l) => (
+                  <option key={l.value} value={l.value}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Toggle
+              label="מעבר אוטומטי להגדרה הבאה"
+              hint="לאחר פתרון הגדרה, המשחק יעבור אוטומטית להגדרה הבאה תוך 3 שניות"
+              checked={!!p.auto_next}
+              onChange={(v) => setPref({ auto_next: v })}
+            />
+            <div className="pt-3 border-t space-y-2">
               <div className="text-sm font-medium flex items-center gap-2">
-                <KeyRound className="size-4" /> החלפת סיסמה
+                <BellOff className="size-4" /> ביטול התראות
               </div>
-              <input
-                type="password"
-                value={pwd}
-                onChange={(e) => setPwd(e.target.value)}
-                minLength={6}
-                placeholder="סיסמה חדשה (לפחות 6 תווים)"
-                className="w-full px-3 py-2.5 rounded-xl border bg-background text-left"
-                dir="ltr"
-                autoComplete="new-password"
+              <p className="text-xs text-muted-foreground -mt-1">הפעלת מתג משתיקה את ההתראה המתאימה</p>
+              <Toggle
+                small
+                label="ביטול התראות על מעבר שלבים"
+                checked={!!mutes.mute_level_up}
+                onChange={(v) => setMute({ mute_level_up: v })}
               />
-              <input
-                type="password"
-                value={pwd2}
-                onChange={(e) => setPwd2(e.target.value)}
-                minLength={6}
-                placeholder="אימות סיסמה"
-                className="w-full px-3 py-2.5 rounded-xl border bg-background text-left"
-                dir="ltr"
-                autoComplete="new-password"
+              <Toggle
+                small
+                label="ביטול התראות על השלמת אתגרים"
+                checked={!!mutes.mute_challenge}
+                onChange={(v) => setMute({ mute_challenge: v })}
               />
-              <button
-                type="submit"
-                disabled={pwdBusy || !pwd || !pwd2}
-                className="w-full py-2.5 rounded-xl bg-card border hover:bg-muted transition font-medium disabled:opacity-50"
-              >
-                {pwdBusy ? "מעדכן..." : "עדכון סיסמה"}
-              </button>
-            </form>
-          )}
-
-          {/* Private mode */}
-          <Toggle
-            icon={<EyeOff className="size-4" />}
-            label="מצב פרטי"
-            hint="הסתרת הפרופיל משחקנים אחרים"
-            checked={!!p.is_private}
-            onChange={(v) => setPref({ is_private: v })}
-          />
-
-          {/* Account actions — single horizontal row (RTL): נתק (right) | שכח (center) | מחק (left) */}
-          <div className="pt-3 border-t">
-            <div dir="rtl" className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <button
-                onClick={onSignOut}
-                className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border bg-card hover:bg-muted transition font-medium text-sm sm:text-base"
-              >
-                <LogOut className="size-4 shrink-0" />
-                <div className="flex flex-col items-center min-w-0 leading-tight">
-                  <span className="truncate">נתק אותי</span>
-                  <span className="truncate text-[12px] font-normal opacity-70">התנתקות ויציאה מהמשחק</span>
-                </div>
-              </button>
-              <button
-                onClick={onForgetMe}
-                disabled={resetting}
-                className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border border-warning/40 text-warning hover:bg-warning hover:text-warning-foreground transition font-medium text-sm sm:text-base disabled:opacity-50"
-              >
-                <Eraser className="size-4 shrink-0" />
-                <div className="flex flex-col items-center min-w-0 leading-tight">
-                  <span className="truncate">{resetting ? "מאפס..." : "שכח אותי"}</span>
-                  <span className="truncate text-[12px] font-normal opacity-70">איפוס ההיסטוריה והניקוד</span>
-                </div>
-              </button>
-              <button
-                onClick={onDelete}
-                disabled={deleting}
-                className="inline-flex items-center justify-center gap-2 py-3 px-2 rounded-xl border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground transition font-medium text-sm sm:text-base disabled:opacity-50"
-              >
-                <Trash2 className="size-4 shrink-0" />
-                <div className="flex flex-col items-center min-w-0 leading-tight">
-                  <span className="truncate">{deleting ? "מוחק..." : "מחק אותי"}</span>
-                  <span className="truncate text-[12px] font-normal opacity-70">מחיקת הפרופיל לצמיתות</span>
-                </div>
-              </button>
+              <Toggle
+                small
+                label="ביטול התראות על אתגר יומי חדש"
+                checked={!!mutes.mute_daily}
+                onChange={(v) => setMute({ mute_daily: v })}
+              />
+              <Toggle
+                small
+                label="ביטול התראות על אירועים מיוחדים"
+                checked={!!mutes.mute_events}
+                onChange={(v) => setMute({ mute_events: v })}
+              />
+              <Toggle
+                small
+                label="ביטול הכרזות על תכונות חדשות"
+                checked={!!mutes.mute_announcements}
+                onChange={(v) => setMute({ mute_announcements: v })}
+              />
             </div>
-          </div>
-        </Card>
+          </Card>
 
-        {/* Game settings */}
-        <Card icon={<Gamepad2 className="size-5 text-primary" />} title="ניהול המשחק">
-          <div>
-            <div className="text-sm font-medium mb-2">רמה</div>
-            <select
-              value={(p as any).player_level ?? ""}
-              onChange={async (e) => {
-                const n = Number(e.target.value);
-                if (!Number.isInteger(n) || n < 1 || n > 5) return;
-                try {
-                  await doUpdateLevel({ data: { playerLevel: n } });
-                  refresh();
-                  toast.success("רמת השחקן עודכנה");
-                } catch (err: any) {
-                  toast.error(err.message);
-                }
-              }}
-              className="w-full px-3 py-2.5 rounded-xl border bg-background text-right"
+          {/* Display & colors */}
+          <Card icon={<PaletteIcon className="size-5 text-primary" />} title="תצוגה וצבעים">
+            <div>
+              <div className="text-sm font-medium mb-2">מצב תצוגה</div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setA11y({ mode: "light" })}
+                  className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${(a11y.mode ?? "light") === "light" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
+                >
+                  <Sun className="size-4" /> בהיר
+                </button>
+                <button
+                  onClick={() => setA11y({ mode: "dark" })}
+                  className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${a11y.mode === "dark" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
+                >
+                  <Moon className="size-4" /> כהה
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div className="text-sm font-medium mb-2">פלטת צבעים</div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {PALETTES.map((pl) => (
+                  <button
+                    key={pl.id}
+                    onClick={() => setA11y({ palette: pl.id as Palette })}
+                    className={`p-3 rounded-xl border transition text-center ${(a11y.palette ?? "sunset") === pl.id ? "ring-2 ring-primary border-transparent" : "hover:bg-muted"}`}
+                  >
+                    <div className="h-10 rounded-lg mb-2" style={{ background: pl.swatch }} />
+                    <div className="text-sm font-medium">{pl.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Toggle
+              label="צבעים ידידותיים לעיוורי צבעים"
+              checked={!!a11y.colorblind}
+              onChange={(v) => setA11y({ colorblind: v })}
+            />
+            <Toggle
+              label="ניגודיות גבוהה"
+              checked={!!a11y.high_contrast}
+              onChange={(v) => setA11y({ high_contrast: v })}
+            />
+
+            {/* Reset display settings */}
+            <button
+              onClick={resetDisplaySettings}
+              className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl border bg-card hover:bg-muted transition font-medium text-sm"
             >
-              <option value="">איך אתם בפתירת הגדרות היגיון?</option>
-              {PLAYER_LEVELS.map((l) => (
-                <option key={l.value} value={l.value}>
-                  {l.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <Toggle
-            label="מעבר אוטומטי להגדרה הבאה"
-            hint="לאחר פתרון הגדרה, המשחק יעבור אוטומטית להגדרה הבאה תוך 3 שניות"
-            checked={!!p.auto_next}
-            onChange={(v) => setPref({ auto_next: v })}
-          />
-          <div className="pt-3 border-t space-y-2">
-            <div className="text-sm font-medium flex items-center gap-2">
-              <BellOff className="size-4" /> ביטול התראות
+              <RotateCcw className="size-4" /> איפוס הגדרות תצוגה
+            </button>
+          </Card>
+
+          {/* Accessibility */}
+          <Card icon={<Accessibility className="size-5 text-primary" />} title="נגישות">
+            <div>
+              <div className="text-sm font-medium mb-2 flex items-center gap-2">
+                <Type className="size-4" /> גודל טקסט
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    ["small", "קטן"],
+                    ["normal", "רגיל"],
+                    ["large", "גדול"],
+                  ] as const
+                ).map(([v, label]) => (
+                  <button
+                    key={v}
+                    onClick={() => setA11y({ text_size: v })}
+                    className={`px-3 py-2.5 rounded-xl border transition ${(a11y.text_size ?? "normal") === v ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground -mt-1">הפעלת מתג משתיקה את ההתראה המתאימה</p>
             <Toggle
-              small
-              label="ביטול התראות על מעבר שלבים"
-              checked={!!mutes.mute_level_up}
-              onChange={(v) => setMute({ mute_level_up: v })}
+              label="תמיכה בקורא מסך"
+              hint="הפעלת שיפורי נגישות לנעזרים בקורא מסך"
+              checked={!!a11y.screen_reader}
+              onChange={(v) => setA11y({ screen_reader: v })}
             />
-            <Toggle
-              small
-              label="ביטול התראות על השלמת אתגרים"
-              checked={!!mutes.mute_challenge}
-              onChange={(v) => setMute({ mute_challenge: v })}
-            />
-            <Toggle
-              small
-              label="ביטול התראות על אתגר יומי חדש"
-              checked={!!mutes.mute_daily}
-              onChange={(v) => setMute({ mute_daily: v })}
-            />
-            <Toggle
-              small
-              label="ביטול התראות על אירועים מיוחדים"
-              checked={!!mutes.mute_events}
-              onChange={(v) => setMute({ mute_events: v })}
-            />
-            <Toggle
-              small
-              label="ביטול הכרזות על תכונות חדשות"
-              checked={!!mutes.mute_announcements}
-              onChange={(v) => setMute({ mute_announcements: v })}
-            />
+          </Card>
+
+          {/* Cookie preferences — subtle action at the bottom of the profile */}
+          <div dir="rtl" className="pt-2 text-center">
+            <button
+              type="button"
+              onClick={openCookiePreferences}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition"
+            >
+              <Cookie className="size-3.5" />
+              ניהול העדפות עוגיות
+            </button>
           </div>
-        </Card>
-
-        {/* Display & colors */}
-        <Card icon={<PaletteIcon className="size-5 text-primary" />} title="תצוגה וצבעים">
-          <div>
-            <div className="text-sm font-medium mb-2">מצב תצוגה</div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setA11y({ mode: "light" })}
-                className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${(a11y.mode ?? "light") === "light" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
-              >
-                <Sun className="size-4" /> בהיר
-              </button>
-              <button
-                onClick={() => setA11y({ mode: "dark" })}
-                className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${a11y.mode === "dark" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
-              >
-                <Moon className="size-4" /> כהה
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-sm font-medium mb-2">פלטת צבעים</div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {PALETTES.map((pl) => (
-                <button
-                  key={pl.id}
-                  onClick={() => setA11y({ palette: pl.id as Palette })}
-                  className={`p-3 rounded-xl border transition text-center ${(a11y.palette ?? "sunset") === pl.id ? "ring-2 ring-primary border-transparent" : "hover:bg-muted"}`}
-                >
-                  <div className="h-10 rounded-lg mb-2" style={{ background: pl.swatch }} />
-                  <div className="text-sm font-medium">{pl.label}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <Toggle
-            label="צבעים ידידותיים לעיוורי צבעים"
-            checked={!!a11y.colorblind}
-            onChange={(v) => setA11y({ colorblind: v })}
-          />
-          <Toggle
-            label="ניגודיות גבוהה"
-            checked={!!a11y.high_contrast}
-            onChange={(v) => setA11y({ high_contrast: v })}
-          />
-
-          {/* Reset display settings */}
-          <button
-            onClick={resetDisplaySettings}
-            className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl border bg-card hover:bg-muted transition font-medium text-sm"
-          >
-            <RotateCcw className="size-4" /> איפוס הגדרות תצוגה
-          </button>
-        </Card>
-
-        {/* Accessibility */}
-        <Card icon={<Accessibility className="size-5 text-primary" />} title="נגישות">
-          <div>
-            <div className="text-sm font-medium mb-2 flex items-center gap-2">
-              <Type className="size-4" /> גודל טקסט
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {(
-                [
-                  ["small", "קטן"],
-                  ["normal", "רגיל"],
-                  ["large", "גדול"],
-                ] as const
-              ).map(([v, label]) => (
-                <button
-                  key={v}
-                  onClick={() => setA11y({ text_size: v })}
-                  className={`px-3 py-2.5 rounded-xl border transition ${(a11y.text_size ?? "normal") === v ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <Toggle
-            label="תמיכה בקורא מסך"
-            hint="הפעלת שיפורי נגישות לנעזרים בקורא מסך"
-            checked={!!a11y.screen_reader}
-            onChange={(v) => setA11y({ screen_reader: v })}
-          />
-        </Card>
-
-        {/* Cookie preferences — subtle action at the bottom of the profile */}
-        <div dir="rtl" className="pt-2 text-center">
-          <button
-            type="button"
-            onClick={openCookiePreferences}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition"
-          >
-            <Cookie className="size-3.5" />
-            ניהול העדפות עוגיות
-          </button>
         </div>
-      </div>
       </PageAdLayout>
     </AppShell>
   );
