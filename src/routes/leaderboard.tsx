@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { canonical, publicPageMeta } from "@/lib/site";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -10,7 +11,17 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Trophy, Medal, Award } from "lucide-react";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 
-export const Route = createFileRoute("/leaderboard")({ component: LB });
+export const Route = createFileRoute("/leaderboard")({
+  component: LB,
+  head: () => ({
+    meta: publicPageMeta({
+      title: "מי בראש — טבלת המובילים | לשבור ת'ראש",
+      description: "טבלת המובילים של לשבור ת'ראש: מי צובר הכי הרבה נקודות השבוע, החודש ובכל הזמנים.",
+      path: "/leaderboard",
+    }),
+    links: [canonical("/leaderboard")],
+  }),
+});
 
 type Period = "today" | "week" | "month" | "all";
 const TABS: { value: Period; label: string }[] = [

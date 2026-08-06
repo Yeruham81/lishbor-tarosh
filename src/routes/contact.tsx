@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { canonical, publicPageMeta } from "@/lib/site";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
@@ -8,7 +9,17 @@ import { submitFeedback } from "@/lib/social.functions";
 import { toast } from "sonner";
 import { Mail, Bug, Lightbulb, AlertTriangle, MessageSquare } from "lucide-react";
 
-export const Route = createFileRoute("/contact")({ component: ContactPage });
+export const Route = createFileRoute("/contact")({
+  component: ContactPage,
+  head: () => ({
+    meta: publicPageMeta({
+      title: "יצירת קשר | לשבור ת'ראש",
+      description: "שאלות, הצעות או דיווח על תקלה? כתבו לנו ונחזור אליכם.",
+      path: "/contact",
+    }),
+    links: [canonical("/contact")],
+  }),
+});
 
 const TYPES = [
   { v: "bug", label: "דיווח על באג", icon: <Bug className="size-4" /> },
