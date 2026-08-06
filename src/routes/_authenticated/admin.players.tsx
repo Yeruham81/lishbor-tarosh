@@ -426,6 +426,9 @@ function ViewDialog({ target, onClose }: { target: any | null; onClose: () => vo
         {target && (
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
+              <span className="text-muted-foreground">אימייל:</span> {target.email ?? "—"}
+            </div>
+            <div>
               <span className="text-muted-foreground">שלב:</span> {target.level ?? 1}
             </div>
             <div>
