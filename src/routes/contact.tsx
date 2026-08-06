@@ -28,6 +28,7 @@ function ContactPage() {
   const [type, setType] = useState<(typeof TYPES)[number]["v"]>("idea");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
@@ -43,12 +44,14 @@ function ContactPage() {
           type,
           subject: subject.trim() || undefined,
           message: message.trim(),
+          contact_email: email.trim() || undefined,
         },
       });
 
       toast.success("המשוב נשלח, תודה!");
       setSubject("");
       setMessage("");
+      setEmail("");
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -59,67 +62,67 @@ function ContactPage() {
   return (
     <AppShell>
       <PageAdLayout screen="contact">
-      <div className="container mx-auto px-4 py-8 max-w-2xl" dir="rtl">
-        <div className="text-center mb-6">
-          <Mail className="size-12 mx-auto text-primary mb-2" />
-          <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">יצירת קשר</h1>
-          <p className="text-muted-foreground mt-2 text-base">תקלות? תלונות? הצעות לשיפור? שתפו אותנו!</p>
-        </div>
+        <div className="container mx-auto px-4 py-8 max-w-2xl" dir="rtl">
+          <div className="text-center mb-6">
+            <Mail className="size-12 mx-auto text-primary mb-2" />
+            <h1 className="font-display text-4xl font-extrabold text-gradient-sunset">יצירת קשר</h1>
+            <p className="text-muted-foreground mt-2 text-base">תקלות? תלונות? הצעות לשיפור? שתפו אותנו!</p>
+          </div>
 
-        <form onSubmit={submit} className="bg-card border rounded-3xl shadow-card p-5 sm:p-7 space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">סוג הפנייה</label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {TYPES.map((t) => (
-                <button
-                  key={t.v}
-                  type="button"
-                  onClick={() => setType(t.v)}
-                  className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-xs transition ${type === t.v ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
-                >
-                  {t.icon} <span>{t.label}</span>
-                </button>
-              ))}
+          <form onSubmit={submit} className="bg-card border rounded-3xl shadow-card p-5 sm:p-7 space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">סוג הפנייה</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {TYPES.map((t) => (
+                  <button
+                    key={t.v}
+                    type="button"
+                    onClick={() => setType(t.v)}
+                    className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-xs transition ${type === t.v ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
+                  >
+                    {t.icon} <span>{t.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">נושא</label>
-            <input
-              dir="rtl"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              maxLength={200}
-              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="כותרת קצרה"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">נושא</label>
+              <input
+                dir="rtl"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                maxLength={200}
+                className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="כותרת קצרה"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">תוכן ההודעה</label>
-            <textarea
-              dir="rtl"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              required
-              minLength={3}
-              maxLength={4000}
-              rows={10}
-              className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y"
-              placeholder="ספרו לנו במה מדובר..."
-            />
-            <div className="text-xs text-muted-foreground mt-1 text-left">{message.length} / 4000</div>
-          </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">תוכן ההודעה</label>
+              <textarea
+                dir="rtl"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+                minLength={3}
+                maxLength={4000}
+                rows={10}
+                className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                placeholder="ספרו לנו במה מדובר..."
+              />
+              <div className="text-xs text-muted-foreground mt-1 text-left">{message.length} / 4000</div>
+            </div>
 
-          <button
-            type="submit"
-            disabled={busy}
-            className="w-full py-3 bg-gradient-sunset text-white font-display font-bold shadow-glow hover:opacity-90 transition disabled:opacity-50 rounded-xl"
-          >
-            {busy ? "שולח..." : "שליחה"}
-          </button>
-        </form>
-      </div>
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full py-3 bg-gradient-sunset text-white font-display font-bold shadow-glow hover:opacity-90 transition disabled:opacity-50 rounded-xl"
+            >
+              {busy ? "שולח..." : "שליחה"}
+            </button>
+          </form>
+        </div>
       </PageAdLayout>
     </AppShell>
   );
