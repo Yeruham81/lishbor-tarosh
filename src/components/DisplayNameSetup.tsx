@@ -7,9 +7,13 @@ import { toast } from "sonner";
 import { UserCircle2, AlertTriangle } from "lucide-react";
 
 const NICK_RE = /^[A-Za-z\u0590-\u05FF0-9 .,_-]{2,20}$/;
+
 const normalizeNick = (s: string) => s.replace(/\s+/g, " ").trim();
 
-export const PLAYER_LEVELS: { value: number; label: string }[] = [
+export const PLAYER_LEVELS: {
+  value: number;
+  label: string;
+}[] = [
   { value: 1, label: "מתחילים" },
   { value: 2, label: "מתקדמים" },
   { value: 3, label: "מיומנים" },
@@ -17,9 +21,12 @@ export const PLAYER_LEVELS: { value: number; label: string }[] = [
   { value: 5, label: "מומחים" },
 ];
 
+const AGES = Array.from({ length: 100 - 18 + 1 }, (_, i) => 18 + i);
+
 export function DisplayNameSetup() {
   const { user } = useAuth();
   const qc = useQueryClient();
+
   const fetchStatus = useServerFn(getDisplayNameStatus);
   const doConfirm = useServerFn(confirmDisplayName);
 
@@ -30,26 +37,41 @@ export function DisplayNameSetup() {
   });
 
   const [name, setName] = useState("");
+  const [age, setAge] = useState<string>("");
   const [level, setLevel] = useState<string>("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (data && !data.confirmed) {
       const seed = (data.suggested ?? data.current ?? "").trim();
+
       setName(NICK_RE.test(seed) && seed.length <= 20 ? seed : "");
     }
   }, [data]);
 
-  if (!user || !data || data.confirmed) return null;
+  if (!user || !data || data.confirmed) {
+    return null;
+  }
 
   const trimmed = normalizeNick(name);
+  const ageN = Number(age);
   const levelN = Number(level);
 
-  const valid = NICK_RE.test(trimmed) && Number.isInteger(levelN) && levelN >= 1 && levelN <= 5;
+  const valid =
+    NICK_RE.test(trimmed) &&
+    Number.isInteger(ageN) &&
+    ageN >= 18 &&
+    ageN <= 100 &&
+    Number.isInteger(levelN) &&
+    levelN >= 1 &&
+    levelN <= 5;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!valid) return;
+
+    if (!valid) {
+      return;
+    }
 
     setBusy(true);
 
@@ -57,6 +79,7 @@ export function DisplayNameSetup() {
       await doConfirm({
         data: {
           displayName: trimmed,
+          age: ageN,
           playerLevel: levelN,
         },
       });
@@ -66,9 +89,11 @@ export function DisplayNameSetup() {
       await qc.invalidateQueries({
         queryKey: ["display-name-status"],
       });
+
       await qc.invalidateQueries({
         queryKey: ["profile"],
       });
+
       await qc.invalidateQueries({
         queryKey: ["stats"],
       });
@@ -84,36 +109,56 @@ export function DisplayNameSetup() {
       className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
       dir="rtl"
     >
-      <form onSubmit={onSubmit} className="bg-card border rounded-3xl shadow-glow p-5 sm:p-6 max-w-sm w-full space-y-3">
+      <form
+        onSubmit={onSubmit}
+        className="bg-card border rounded-3xl shadow-glow p-6 sm:p-8 max-w-md w-full space-y-4 max-h-[95vh] overflow-y-auto"
+      >
         <div className="text-center">
-          <UserCircle2 className="size-10 mx-auto text-primary mb-2" />
+          <UserCircle2 className="size-12 mx-auto text-primary mb-2" />
 
           <h2 className="font-display text-2xl font-extrabold text-gradient-sunset">עוד רגע מתחילים</h2>
 
-          <p className="text-sm text-muted-foreground mt-2">כמה פרטים שיעזרו לנו להתאים את המשחק אליכם</p>
+          <p className="text-sm text-muted-foreground mt-3">כמה פרטים שיעזרו לנו להתאים את המשחק אליכם</p>
         </div>
+
+        <label className="block text-sm font-medium mb-1">בחרו כינוי</label>
+
+        <input
+          dir="auto"
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          maxLength={20}
+          aria-label="כינוי"
+          placeholder="כינוי"
+          className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+
+        <p className="text-xs text-muted-foreground mt-0.5">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
 
         <div>
-          <label className="block text-sm font-medium mb-1">בחרו כינוי</label>
+          <div className="flex items-center gap-2 bg-warning/10 border border-warning/30 rounded-xl px-3 py-1.5 text-xs mb-3">
+            <AlertTriangle className="size-4 text-warning shrink-0" />
 
-          <input
-            dir="auto"
-            autoFocus
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            maxLength={20}
-            aria-label="כינוי"
-            placeholder="כינוי"
+            <p className="text-foreground/90">שימו לב, את הכינוי לא תוכלו לשנות בהמשך</p>
+          </div>
+
+          <label className="block text-sm font-medium mb-1">גיל</label>
+
+          <select
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            aria-label="גיל"
             className="w-full px-4 py-3 rounded-xl border bg-background text-right focus:outline-none focus:ring-2 focus:ring-primary"
-          />
+          >
+            <option value="">בני כמה אתם?</option>
 
-          <p className="text-xs text-muted-foreground mt-1">בעברית או באנגלית, עם או בלי רווחים, עד 20 תווים</p>
-        </div>
-
-        <div className="flex items-center gap-2 bg-warning/10 border border-warning/30 rounded-xl px-3 py-1.5 text-xs">
-          <AlertTriangle className="size-4 text-warning shrink-0" />
-
-          <p className="text-foreground/90">שימו לב, את הכינוי לא תוכלו לשנות בהמשך</p>
+            {AGES.map((a) => (
+              <option key={a} value={a}>
+                {a}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
