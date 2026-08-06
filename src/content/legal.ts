@@ -18,7 +18,6 @@ export type LegalSection = {
   }[];
 };
 
-
 export type LegalDocument = {
   title: string;
   updated: string;
@@ -172,7 +171,7 @@ export const privacyPolicy: LegalDocument = {
     },
     {
       heading: "13. יצירת קשר",
-      paragraphs: ["לשאלות בנושא פרטיות:", "Email: [יושלם בהמשך]"],
+      paragraphs: ["לשאלות בנושא פרטיות:", "Email: admin@lishbor-tarosh.fun"],
     },
   ],
 };
