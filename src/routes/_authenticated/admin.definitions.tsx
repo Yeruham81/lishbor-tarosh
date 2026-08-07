@@ -92,8 +92,30 @@ function DefinitionsPage() {
   const [editing, setEditing] = useState<any | null>(null);
   const [createNonce, setCreateNonce] = useState(0);
   const [importOpen, setImportOpen] = useState(false);
+  const [bulkLevelOpen, setBulkLevelOpen] = useState(false);
+  const [bulkCatOpen, setBulkCatOpen] = useState(false);
 
   const cats = useQuery({ queryKey: ["admin", "categories"], queryFn: () => catsFn() });
+
+  const statusOptions = useMemo(
+    () => [{ label: "כל הסטטוסים", value: "all" }, ...STATUSES.map((s) => ({ label: statusHe(s), value: s }))],
+    [],
+  );
+  const catOptions = useMemo(
+    () => [
+      { label: "כל הקטגוריות", value: "all" },
+      ...((cats.data ?? []) as string[]).map((c) => ({ label: c, value: c })),
+    ],
+    [cats.data],
+  );
+  const diffOptions = useMemo(
+    () => [
+      { label: "כל הרמות", value: "all" },
+      ...[1, 2, 3, 4, 5].map((n) => ({ label: String(n), value: String(n) })),
+    ],
+    [],
+  );
+
 
   const queryArgs = {
     status: t.filters.status !== "all" ? (t.filters.status as any) : undefined,
@@ -174,7 +196,7 @@ function DefinitionsPage() {
     if (!window.confirm(`למחוק לצמיתות ${t.selected.length} הגדרות? לא ניתן לשחזר פעולה זו.`)) return;
 
     try {
-      await Promise.all(t.selected.map((id) => hardDelFn.mutateAsync(id)));
+      await Promise.all(t.selected.map((id) => hardDelFn({ data: { id } })));
 
       toast.success(`נמחקו לצמיתות ${t.selected.length} הגדרות`);
       t.clearSel();
