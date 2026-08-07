@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type SortDir = "asc" | "desc";
 
@@ -23,29 +23,54 @@ const STORAGE_PREFIX = "admin:table:";
 
 export function useAdminTable(module: string, init: AdminTableInit) {
   const key = `${STORAGE_PREFIX}${module}`;
-  const [state, setState] = useState<AdminTableState>(() => {
-    const base: AdminTableState = {
-      search: "",
-      filters: init.defaultFilters ?? {},
-      sort: init.defaultSort,
-      dir: init.defaultDir ?? "desc",
-      page: 0,
-      pageSize: init.defaultPageSize ?? 20,
-      hiddenCols: [],
-    };
-    if (typeof window === "undefined") return base;
+  const base: AdminTableState = {
+    search: "",
+    filters: init.defaultFilters ?? {},
+    sort: init.defaultSort,
+    dir: init.defaultDir ?? "desc",
+    page: 0,
+    pageSize: init.defaultPageSize ?? 20,
+    hiddenCols: [],
+  };
+
+  const [state, setState] = useState<AdminTableState>(base);
+  const storageLoaded = useRef(false);
+
+  // Load saved table preferences after client hydration
+  useEffect(() => {
     try {
       const raw = localStorage.getItem(key);
-      if (!raw) return base;
-      const parsed = JSON.parse(raw);
-      return { ...base, ...parsed, filters: { ...base.filters, ...(parsed.filters ?? {}) } };
-    } catch {
-      return base;
-    }
-  });
 
+      if (raw) {
+        const parsed = JSON.parse(raw);
+
+        setState({
+          ...base,
+          ...parsed,
+          filters: {
+            ...base.filters,
+            ...(parsed.filters ?? {}),
+          },
+          // Don't restore the previous page position
+          page: 0,
+        });
+      }
+    } catch {
+      // Ignore invalid or unavailable localStorage
+    } finally {
+      storageLoaded.current = true;
+    }
+  }, [key]);
+
+  // Save preferences only after localStorage has been loaded
   useEffect(() => {
-    try { localStorage.setItem(key, JSON.stringify(state)); } catch { /* noop */ }
+    if (!storageLoaded.current) return;
+
+    try {
+      localStorage.setItem(key, JSON.stringify(state));
+    } catch {
+      // noop
+    }
   }, [key, state]);
 
   // debounced search for queries (400ms)
@@ -56,8 +81,7 @@ export function useAdminTable(module: string, init: AdminTableInit) {
   }, [state.search]);
 
   const setSearch = (v: string) => setState((s) => ({ ...s, search: v, page: 0 }));
-  const setFilter = (k: string, v: string) =>
-    setState((s) => ({ ...s, filters: { ...s.filters, [k]: v }, page: 0 }));
+  const setFilter = (k: string, v: string) => setState((s) => ({ ...s, filters: { ...s.filters, [k]: v }, page: 0 }));
   const setSort = (sortKey: string) =>
     setState((s) => ({
       ...s,
@@ -70,16 +94,13 @@ export function useAdminTable(module: string, init: AdminTableInit) {
   const toggleCol = (col: string) =>
     setState((s) => ({
       ...s,
-      hiddenCols: s.hiddenCols.includes(col)
-        ? s.hiddenCols.filter((x) => x !== col)
-        : [...s.hiddenCols, col],
+      hiddenCols: s.hiddenCols.includes(col) ? s.hiddenCols.filter((x) => x !== col) : [...s.hiddenCols, col],
     }));
   const isVisible = (col: string) => !state.hiddenCols.includes(col);
 
   // selection (not persisted)
   const [selected, setSelected] = useState<string[]>([]);
-  const toggleSel = (id: string) =>
-    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  const toggleSel = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   const selectAll = (ids: string[], v: boolean) => setSelected(v ? Array.from(new Set(ids)) : []);
   const clearSel = () => setSelected([]);
 
