@@ -38,7 +38,6 @@ import {
   adminExport,
   adminListCategories,
   adminBulkSetDefinitionStatus,
-  adminBulkSoftDeleteDefinitions,
   adminBulkUpdateDefinitions,
   adminDuplicateDefinition,
 } from "@/lib/admin.functions";
@@ -86,7 +85,6 @@ function DefinitionsPage() {
   const restoreFn = useServerFn(adminRestoreDefinition);
   const catsFn = useServerFn(adminListCategories);
   const bulkStatusFn = useServerFn(adminBulkSetDefinitionStatus);
-  const bulkDelFn = useServerFn(adminBulkSoftDeleteDefinitions);
   const bulkUpdateFn = useServerFn(adminBulkUpdateDefinitions);
   const duplicateFn = useServerFn(adminDuplicateDefinition);
 
@@ -172,37 +170,19 @@ function DefinitionsPage() {
   };
   const runBulkDelete = async () => {
     if (t.selected.length === 0) return;
-    if (!window.confirm(`למחוק ${t.selected.length} הגדרות? ניתן לשחזר.`)) return;
+
+    if (!window.confirm(`למחוק לצמיתות ${t.selected.length} הגדרות? לא ניתן לשחזר פעולה זו.`)) return;
+
     try {
-      await bulkDelFn({ data: { ids: t.selected } });
-      toast.success(`נמחקו ${t.selected.length} הגדרות`);
+      await Promise.all(t.selected.map((id) => hardDelFn.mutateAsync(id)));
+
+      toast.success(`נמחקו לצמיתות ${t.selected.length} הגדרות`);
       t.clearSel();
       invalidate();
     } catch (e: any) {
       toast.error(e.message);
     }
   };
-  const [bulkLevelOpen, setBulkLevelOpen] = useState(false);
-  const [bulkCatOpen, setBulkCatOpen] = useState(false);
-
-  const statusOptions = useMemo(
-    () => [{ label: "כל הסטטוסים", value: "all" }, ...STATUSES.map((s) => ({ label: statusHe(s), value: s }))],
-    [],
-  );
-  const catOptions = useMemo(
-    () => [
-      { label: "כל הקטגוריות", value: "all" },
-      ...((cats.data ?? []) as string[]).map((c) => ({ label: c, value: c })),
-    ],
-    [cats.data],
-  );
-  const diffOptions = useMemo(
-    () => [
-      { label: "כל הרמות", value: "all" },
-      ...[1, 2, 3, 4, 5].map((n) => ({ label: String(n), value: String(n) })),
-    ],
-    [],
-  );
 
   const allIds = rows.map((r) => r.id);
   const allSelected = allIds.length > 0 && allIds.every((id) => t.selected.includes(id));
