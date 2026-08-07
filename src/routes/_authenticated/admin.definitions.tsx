@@ -92,6 +92,24 @@ function DefinitionsPage() {
   const [editing, setEditing] = useState<any | null>(null);
   const [createNonce, setCreateNonce] = useState(0);
   const [importOpen, setImportOpen] = useState(false);
+
+  const runBulkArchive = async () => {
+    if (t.selected.length === 0) return;
+
+    if (!window.confirm(`להעביר ${t.selected.length} הגדרות לארכיון? ניתן יהיה לשחזר אותן.`)) return;
+
+    try {
+      await Promise.all(t.selected.map((id) => softDelFn({ data: { id } })));
+
+      toast.success(`${t.selected.length} הגדרות הועברו לארכיון`);
+
+      t.clearSel();
+      invalidate();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   const [bulkLevelOpen, setBulkLevelOpen] = useState(false);
   const [bulkCatOpen, setBulkCatOpen] = useState(false);
 
