@@ -196,7 +196,7 @@ function DefinitionsPage() {
     if (!window.confirm(`למחוק לצמיתות ${t.selected.length} הגדרות? לא ניתן לשחזר פעולה זו.`)) return;
 
     try {
-      await Promise.all(t.selected.map((id) => hardDelFn.mutateAsync(id)));
+      await Promise.all(t.selected.map((id) => hardDelFn({ data: { id } })));
 
       toast.success(`נמחקו לצמיתות ${t.selected.length} הגדרות`);
       t.clearSel();
