@@ -116,7 +116,6 @@ function DefinitionsPage() {
     [],
   );
 
-
   const queryArgs = {
     status: t.filters.status !== "all" ? (t.filters.status as any) : undefined,
     category: t.filters.category !== "all" ? t.filters.category : undefined,
@@ -264,18 +263,56 @@ function DefinitionsPage() {
         onClearSelection={t.clearSel}
         bulkActions={
           <>
+            {t.selected.length === 1 && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const row = rows.find((r) => r.id === t.selected[0]);
+                    if (!row) return;
+
+                    setEditing(row);
+                    setOpen(true);
+                  }}
+                >
+                  עריכה
+                </Button>
+
+                <Button size="sm" variant="outline" onClick={() => duplicate.mutate(t.selected[0])}>
+                  שכפול
+                </Button>
+              </>
+            )}
+
             <Button size="sm" variant="outline" onClick={() => runBulkStatus("active")}>
               הפעלה
             </Button>
+
             <Button size="sm" variant="outline" onClick={() => runBulkStatus("inactive")}>
               השבתה
             </Button>
+
+            <Button size="sm" variant="outline" onClick={() => runBulkStatus("draft")}>
+              החזרה לטיוטה
+            </Button>
+
+            <Button size="sm" variant="outline" onClick={() => runBulkStatus("hidden")}>
+              הסתרה
+            </Button>
+
             <Button size="sm" variant="outline" onClick={() => setBulkLevelOpen(true)}>
               שינוי קושי
             </Button>
+
             <Button size="sm" variant="outline" onClick={() => setBulkCatOpen(true)}>
               שינוי קטגוריה
             </Button>
+
+            <Button size="sm" variant="outline" onClick={runBulkArchive}>
+              העברה לארכיון
+            </Button>
+
             <Button size="sm" variant="destructive" onClick={runBulkDelete}>
               מחיקה
             </Button>
