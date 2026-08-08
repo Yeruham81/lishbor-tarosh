@@ -14,6 +14,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "google-adsense-account",
         content: "ca-pub-6833431679534018",
       },
+      {
+        name: "google-site-verification",
+        content: "yhd3M3CXpBLtYgSwHzkM3XqIkK4bCy4ULaavjCZdyVE",
+      },
       { title: "לשבור ת'ראש - המשחק שעושה היגיון" },
       { name: "description", content: "כי זה לא רק מה אתם יודעים - זה גם איך אתם חושבים" },
       { property: "og:title", content: "לשבור ת'ראש - המשחק שעושה היגיון" },
