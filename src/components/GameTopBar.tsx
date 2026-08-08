@@ -25,7 +25,7 @@ export function GameTopBar({ profile, helpVariant }: { profile: Profile; helpVar
 
   return (
     <>
-      <div className="grid grid-cols-3 md:grid-cols-[1fr_1fr_1fr_auto] gap-2 md:gap-2.5 mb-3 items-stretch">
+      <div className="grid grid-cols-3 md:grid-cols-[1fr_1fr_1fr_auto] gap-2 md:gap-2.5 mb-1.5 items-stretch">
         <Stat label="ניקוד כולל" value={totalScore} icon={<Trophy className="size-4" />} />
         <Stat label="שלב נוכחי" value={currentStage} icon={<Star className="size-4 text-warning" />} />
         <Stat label="רצף" value={profile?.current_streak ?? 0} icon={<Flame className="size-4 text-orange-500" />} />
@@ -43,20 +43,17 @@ export function GameTopBar({ profile, helpVariant }: { profile: Profile; helpVar
       </div>
 
       {profile && (
-        <div className="mb-4">
-          <div className="flex justify-between text-xs text-muted-foreground mb-1">
-            <span>שלב {currentStage}</span>
-            <span>
-              {next
-                ? `${totalScore.toLocaleString("he-IL")} / ${next.required.toLocaleString("he-IL")}`
-                : totalScore.toLocaleString("he-IL")}
-            </span>
-          </div>
-          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
             <div
               className="h-full bg-gradient-sunset transition-all duration-500"
               style={{ width: `${progressPct}%` }}
             />
+          </div>
+          <div className="shrink-0 text-xs text-muted-foreground whitespace-nowrap">
+            {next
+              ? `${totalScore.toLocaleString("he-IL")} / ${next.required.toLocaleString("he-IL")}`
+              : totalScore.toLocaleString("he-IL")}
           </div>
         </div>
       )}
