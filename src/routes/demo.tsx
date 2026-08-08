@@ -165,7 +165,11 @@ function DemoPage() {
   return (
     <AppShell>
       <div className="container mx-auto px-4 py-3 max-w-3xl">
+        <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-gradient-sunset text-center mb-3">
+          משחק לדוגמה — הגדרות היגיון
+        </h1>
         {/* Local top bar — demo scoped, no auth-only links */}
+
         <div className="grid grid-cols-3 gap-3 mb-4 items-stretch">
           <Stat label="ניקוד" value={totalScore} icon={<Trophy className="size-4" />} />
           <Stat label="שלב" value={1} icon={<Star className="size-4 text-warning" />} />
