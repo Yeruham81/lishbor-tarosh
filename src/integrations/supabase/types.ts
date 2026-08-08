@@ -680,6 +680,7 @@ export type Database = {
         Returns: boolean
       }
       is_blocked: { Args: { _uid: string }; Returns: boolean }
+      is_registration_enabled: { Args: never; Returns: boolean }
       is_submissions_enabled: { Args: never; Returns: boolean }
       touch_last_seen: { Args: never; Returns: undefined }
     }

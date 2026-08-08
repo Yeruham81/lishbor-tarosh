@@ -144,8 +144,14 @@ function AuthPage() {
         });
 
         if (error) {
+          // The database blocks account creation server-side when an admin
+          // disables new registrations.
+          if (/registrations_disabled/i.test(error.message ?? "")) {
+            throw new Error("הרשמות חדשות מושבתות כרגע. נסו שוב מאוחר יותר.");
+          }
           throw error;
         }
+
 
         if (!data?.user) {
           throw new Error("ההרשמה נכשלה. נסו שוב.");
