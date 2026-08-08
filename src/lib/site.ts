@@ -54,3 +54,65 @@ export function publicPageMeta(opts: { title: string; description: string; path:
     { name: "twitter:description", content: opts.description },
   ];
 }
+
+/** Shared site logo (favicon) as an absolute URL for structured data. */
+export const SITE_LOGO_URL = absoluteUrl("/favicon.jpg");
+
+/** Build a WebSite JSON-LD object for the homepage. */
+export function websiteJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: absoluteUrl("/"),
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: absoluteUrl("/play?q={search_term_string}"),
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+/** Build an Organization JSON-LD object for the homepage. */
+export function organizationJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: absoluteUrl("/"),
+    logo: SITE_LOGO_URL,
+  };
+}
+
+/** Build a SoftwareApplication (Game) JSON-LD object. */
+export function gameApplicationJsonLd(opts: {
+  name: string;
+  description: string;
+  path: string;
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    applicationCategory: "Game",
+    name: opts.name,
+    description: opts.description,
+    url: absoluteUrl(opts.path),
+    operatingSystem: "Any",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "ILS",
+    },
+  };
+}
+
+/** Helper to emit a JSON-LD script entry for route `head()`. */
+export function jsonLdScript(data: Record<string, unknown>) {
+  return {
+    type: "application/ld+json" as const,
+    children: JSON.stringify(data),
+  };
+}
