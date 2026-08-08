@@ -92,7 +92,7 @@ const GAMEPLAY_BOOL_FIELDS: Field[] = [
   },
   {
     key: "disable_ads_button_visible",
-    label: 'הצגת כפתור "ביטול פרסומות"',
+    label: 'הצגת כפתור "תנו בראש"',
     hint: "הצגת/הסתרת הכפתור (בקרוב — לפי תכונה עתידית)",
     type: "boolean",
     default: true,
