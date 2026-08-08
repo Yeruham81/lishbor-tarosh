@@ -10,7 +10,14 @@ import { toast } from "sonner";
 import { normalizeLetter, normalizeWord, buildRevealMask, wordLengths } from "@/lib/hebrew";
 import { SCORING, computeSolveScore, currentSolveValue } from "@/lib/progression";
 import { DEMO_CLUES } from "@/lib/demo-clues";
-import { SITE_LOCALE, absoluteUrl, canonical, NOINDEX_META } from "@/lib/site";
+import {
+  SITE_LOCALE,
+  absoluteUrl,
+  canonical,
+  NOINDEX_META,
+  gameApplicationJsonLd,
+  jsonLdScript,
+} from "@/lib/site";
 
 export const Route = createFileRoute("/demo")({
   component: DemoPage,
@@ -31,6 +38,15 @@ export const Route = createFileRoute("/demo")({
       NOINDEX_META,
     ],
     links: [canonical("/demo")],
+    scripts: [
+      jsonLdScript(
+        gameApplicationJsonLd({
+          name: "לשבור ת'ראש - משחק לדוגמה",
+          description: "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
+          path: "/demo",
+        })
+      ),
+    ],
   }),
 });
 
