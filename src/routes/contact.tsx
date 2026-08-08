@@ -110,8 +110,12 @@ function ContactPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">נושא</label>
+              <label htmlFor="contact-subject" className="block text-sm font-medium mb-1">
+                נושא
+              </label>
               <input
+                id="contact-subject"
+                name="subject"
                 dir="rtl"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
@@ -122,8 +126,12 @@ function ContactPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">תוכן ההודעה</label>
+              <label htmlFor="contact-message" className="block text-sm font-medium mb-1">
+                תוכן ההודעה
+              </label>
               <textarea
+                id="contact-message"
+                name="message"
                 dir="rtl"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -134,6 +142,7 @@ function ContactPage() {
                 className="w-full px-3 py-2.5 rounded-xl border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-y"
                 placeholder="ספרו לנו במה מדובר..."
               />
+
               <div className="text-xs text-muted-foreground mt-1 text-left">{message.length} / 4000</div>
             </div>
 

@@ -33,7 +33,9 @@ function Index() {
 
             <h1 className="font-display text-5xl sm:text-7xl font-black leading-tight mb-4">
               <span className="text-gradient-sunset">לשבור ת'ראש</span>
+              <span className="block mt-2 text-xl sm:text-3xl font-bold text-foreground">משחק הגדרות היגיון</span>
             </h1>
+
 
             <p className="text-[clamp(0.85rem,4vw,1.25rem)] sm:text-xl whitespace-nowrap tracking-tighter text-muted-foreground text-center w-[calc(100%+1rem)] -mx-2 sm:w-auto sm:mx-auto mb-8">
               זה לא רק מה אתם יודעים — זה גם איך אתם חושבים

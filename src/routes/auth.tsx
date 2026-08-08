@@ -279,6 +279,9 @@ function AuthPage() {
           <form onSubmit={submit} className="space-y-3">
             {mode === "signup" && (
               <input
+                id="auth-username"
+                name="username"
+                aria-label="שם משתמש"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -291,6 +294,9 @@ function AuthPage() {
             )}
 
             <input
+              id="auth-email"
+              name="email"
+              aria-label="אימייל"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -302,6 +308,9 @@ function AuthPage() {
 
             {mode !== "forgot" && (
               <input
+                id="auth-password"
+                name="password"
+                aria-label="סיסמה"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -312,6 +321,7 @@ function AuthPage() {
                 dir="ltr"
               />
             )}
+
 
             <button
               type="submit"
