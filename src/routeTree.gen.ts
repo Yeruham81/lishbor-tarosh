@@ -9,58 +9,37 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SubmitPuzzleRouteImport } from './routes/submit-puzzle'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as LeaderboardRouteImport } from './routes/leaderboard'
-import { Route as DemoRouteImport } from './routes/demo'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ChallengeTokenRouteImport } from './routes/challenge.$token'
-import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
-import { Route as AuthenticatedPlayRouteImport } from './routes/_authenticated/play'
-import { Route as AuthenticatedLevelsRouteImport } from './routes/_authenticated/levels'
-import { Route as AuthenticatedInstructionsRouteImport } from './routes/_authenticated/instructions'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DemoRouteImport } from './routes/demo'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SubmitPuzzleRouteImport } from './routes/submit-puzzle'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedInstructionsRouteImport } from './routes/_authenticated/instructions'
+import { Route as AuthenticatedLevelsRouteImport } from './routes/_authenticated/levels'
+import { Route as AuthenticatedPlayRouteImport } from './routes/_authenticated/play'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as ChallengeTokenRouteImport } from './routes/challenge.$token'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
-import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin.submissions'
-import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
-import { Route as AuthenticatedAdminPlayersRouteImport } from './routes/_authenticated/admin.players'
-import { Route as AuthenticatedAdminPayingRouteImport } from './routes/_authenticated/admin.paying'
-import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminDefinitionsRouteImport } from './routes/_authenticated/admin.definitions'
+import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
+import { Route as AuthenticatedAdminPayingRouteImport } from './routes/_authenticated/admin.paying'
+import { Route as AuthenticatedAdminPlayersRouteImport } from './routes/_authenticated/admin.players'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin.submissions'
+import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
 
-const SubmitPuzzleRoute = SubmitPuzzleRouteImport.update({
-  id: '/submit-puzzle',
-  path: '/submit-puzzle',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LeaderboardRoute = LeaderboardRouteImport.update({
-  id: '/leaderboard',
-  path: '/leaderboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoRoute = DemoRouteImport.update({
-  id: '/demo',
-  path: '/demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -68,33 +47,39 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChallengeTokenRoute = ChallengeTokenRouteImport.update({
-  id: '/challenge/$token',
-  path: '/challenge/$token',
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AuthenticatedRoute,
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedPlayRoute = AuthenticatedPlayRouteImport.update({
-  id: '/play',
-  path: '/play',
-  getParentRoute: () => AuthenticatedRoute,
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedLevelsRoute = AuthenticatedLevelsRouteImport.update({
-  id: '/levels',
-  path: '/levels',
+const SubmitPuzzleRoute = SubmitPuzzleRouteImport.update({
+  id: '/submit-puzzle',
+  path: '/submit-puzzle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedInstructionsRoute =
@@ -103,44 +88,35 @@ const AuthenticatedInstructionsRoute =
     path: '/instructions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AuthenticatedLevelsRoute = AuthenticatedLevelsRouteImport.update({
+  id: '/levels',
+  path: '/levels',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPlayRoute = AuthenticatedPlayRouteImport.update({
+  id: '/play',
+  path: '/play',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const ChallengeTokenRoute = ChallengeTokenRouteImport.update({
+  id: '/challenge/$token',
+  path: '/challenge/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminTaxonomyRoute =
-  AuthenticatedAdminTaxonomyRouteImport.update({
-    id: '/taxonomy',
-    path: '/taxonomy',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSubmissionsRoute =
-  AuthenticatedAdminSubmissionsRouteImport.update({
-    id: '/submissions',
-    path: '/submissions',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSettingsRoute =
-  AuthenticatedAdminSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminPlayersRoute =
-  AuthenticatedAdminPlayersRouteImport.update({
-    id: '/players',
-    path: '/players',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminPayingRoute =
-  AuthenticatedAdminPayingRouteImport.update({
-    id: '/paying',
-    path: '/paying',
+const AuthenticatedAdminDefinitionsRoute =
+  AuthenticatedAdminDefinitionsRouteImport.update({
+    id: '/definitions',
+    path: '/definitions',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminMessagesRoute =
@@ -149,10 +125,34 @@ const AuthenticatedAdminMessagesRoute =
     path: '/messages',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminDefinitionsRoute =
-  AuthenticatedAdminDefinitionsRouteImport.update({
-    id: '/definitions',
-    path: '/definitions',
+const AuthenticatedAdminPayingRoute =
+  AuthenticatedAdminPayingRouteImport.update({
+    id: '/paying',
+    path: '/paying',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminPlayersRoute =
+  AuthenticatedAdminPlayersRouteImport.update({
+    id: '/players',
+    path: '/players',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSubmissionsRoute =
+  AuthenticatedAdminSubmissionsRouteImport.update({
+    id: '/submissions',
+    path: '/submissions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminTaxonomyRoute =
+  AuthenticatedAdminTaxonomyRouteImport.update({
+    id: '/taxonomy',
+    path: '/taxonomy',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 
@@ -319,53 +319,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/submit-puzzle': {
-      id: '/submit-puzzle'
-      path: '/submit-puzzle'
-      fullPath: '/submit-puzzle'
-      preLoaderRoute: typeof SubmitPuzzleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/leaderboard': {
-      id: '/leaderboard'
-      path: '/leaderboard'
-      fullPath: '/leaderboard'
-      preLoaderRoute: typeof LeaderboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo': {
-      id: '/demo'
-      path: '/demo'
-      fullPath: '/demo'
-      preLoaderRoute: typeof DemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -375,39 +333,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/challenge/$token': {
-      id: '/challenge/$token'
-      path: '/challenge/$token'
-      fullPath: '/challenge/$token'
-      preLoaderRoute: typeof ChallengeTokenRouteImport
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/profile': {
-      id: '/_authenticated/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AuthenticatedProfileRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/play': {
-      id: '/_authenticated/play'
-      path: '/play'
-      fullPath: '/play'
-      preLoaderRoute: typeof AuthenticatedPlayRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/levels': {
-      id: '/_authenticated/levels'
-      path: '/levels'
-      fullPath: '/levels'
-      preLoaderRoute: typeof AuthenticatedLevelsRouteImport
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/submit-puzzle': {
+      id: '/submit-puzzle'
+      path: '/submit-puzzle'
+      fullPath: '/submit-puzzle'
+      preLoaderRoute: typeof SubmitPuzzleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/instructions': {
@@ -417,12 +396,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInstructionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+    '/_authenticated/levels': {
+      id: '/_authenticated/levels'
+      path: '/levels'
+      fullPath: '/levels'
+      preLoaderRoute: typeof AuthenticatedLevelsRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/play': {
+      id: '/_authenticated/play'
+      path: '/play'
+      fullPath: '/play'
+      preLoaderRoute: typeof AuthenticatedPlayRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/challenge/$token': {
+      id: '/challenge/$token'
+      path: '/challenge/$token'
+      fullPath: '/challenge/$token'
+      preLoaderRoute: typeof ChallengeTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -431,39 +431,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/taxonomy': {
-      id: '/_authenticated/admin/taxonomy'
-      path: '/taxonomy'
-      fullPath: '/admin/taxonomy'
-      preLoaderRoute: typeof AuthenticatedAdminTaxonomyRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/submissions': {
-      id: '/_authenticated/admin/submissions'
-      path: '/submissions'
-      fullPath: '/admin/submissions'
-      preLoaderRoute: typeof AuthenticatedAdminSubmissionsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/settings': {
-      id: '/_authenticated/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/players': {
-      id: '/_authenticated/admin/players'
-      path: '/players'
-      fullPath: '/admin/players'
-      preLoaderRoute: typeof AuthenticatedAdminPlayersRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/paying': {
-      id: '/_authenticated/admin/paying'
-      path: '/paying'
-      fullPath: '/admin/paying'
-      preLoaderRoute: typeof AuthenticatedAdminPayingRouteImport
+    '/_authenticated/admin/definitions': {
+      id: '/_authenticated/admin/definitions'
+      path: '/definitions'
+      fullPath: '/admin/definitions'
+      preLoaderRoute: typeof AuthenticatedAdminDefinitionsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/messages': {
@@ -473,11 +445,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMessagesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/definitions': {
-      id: '/_authenticated/admin/definitions'
-      path: '/definitions'
-      fullPath: '/admin/definitions'
-      preLoaderRoute: typeof AuthenticatedAdminDefinitionsRouteImport
+    '/_authenticated/admin/paying': {
+      id: '/_authenticated/admin/paying'
+      path: '/paying'
+      fullPath: '/admin/paying'
+      preLoaderRoute: typeof AuthenticatedAdminPayingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/players': {
+      id: '/_authenticated/admin/players'
+      path: '/players'
+      fullPath: '/admin/players'
+      preLoaderRoute: typeof AuthenticatedAdminPlayersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/submissions': {
+      id: '/_authenticated/admin/submissions'
+      path: '/submissions'
+      fullPath: '/admin/submissions'
+      preLoaderRoute: typeof AuthenticatedAdminSubmissionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/taxonomy': {
+      id: '/_authenticated/admin/taxonomy'
+      path: '/taxonomy'
+      fullPath: '/admin/taxonomy'
+      preLoaderRoute: typeof AuthenticatedAdminTaxonomyRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
   }
