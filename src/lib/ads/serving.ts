@@ -3,20 +3,23 @@ import type { AdServingMode } from "./types";
 /**
  * Central AdServingMode hook.
  *
- * During Phase 3 this MUST always return "none". No real Google request may
- * occur, regardless of personalization preference, admin settings, or IDs.
+ * PRE-APPROVAL HARD LOCK:
+ * This MUST return "none" until AdSense approval and explicit live activation.
+ * No real Google ad request may occur, regardless of admin settings, IDs,
+ * local cookie preferences, or CMP state.
  *
- * ⚠️ Future consent-based serving logic MUST NOT rely solely on the local
- * `cookie_consent_v1` advertising preference (see `src/lib/ads/consent.ts`).
- * When AdSense is enabled, the decision between personalized /
- * non-personalized / limited ads must take into account a Google-certified
- * CMP (or an equivalent IAB TCF-compliant consent source) — especially for
- * EEA/UK/CH traffic under Google's EU user consent policy. The local
- * preference may act as an additional signal or override, but the certified
- * consent source is the authoritative input. Do not implement that logic
- * here yet.
+ * CMP preparation now lives centrally in `src/lib/ads/consent.ts` via
+ * `useCertifiedCmp()`, which observes a Google-certified / IAB TCF-compatible
+ * CMP without making any serving decision. When live serving is implemented,
+ * this hook is the only place that should combine:
+ *
+ * - certified CMP / TCF state,
+ * - the application's local advertising preference as an additional signal,
+ * - product/region requirements,
+ * - and the desired personalized / non-personalized / limited mode.
+ *
+ * Do not move that logic into AdSlot or individual routes.
  */
 export function useAdServingMode(): AdServingMode {
   return "none";
 }
-
