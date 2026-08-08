@@ -122,11 +122,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 onClick={onDisableAds}
-                aria-label="ביטול פרסומות"
-                title="ביטול פרסומות"
+                aria-label="תנו בראש"
+                title="תנו בראש"
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border-2 border-primary bg-primary/10 hover:bg-primary/20 transition font-medium text-foreground ms-3"
               >
-                <BadgeDollarSign className="size-4" /> ביטול פרסומות
+                <BadgeDollarSign className="size-4" /> תנו בראש
               </button>
             )}
           </nav>
@@ -135,8 +135,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 onClick={onDisableAds}
-                aria-label="ביטול פרסומות"
-                title="ביטול פרסומות"
+                aria-label="תנו בראש"
+                title="תנו בראש"
                 className="md:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border-2 border-primary shadow-sm transition font-medium text-sm text-muted-foreground"
               >
                 ביטול פרסומות
