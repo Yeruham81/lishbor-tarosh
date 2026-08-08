@@ -3,15 +3,15 @@ import { AdSlot } from "./AdSlot";
 import type { AdScreen } from "@/lib/ads/types";
 
 // From 1280px upward, reserve two 160px side rails for ads.
-// At exactly 1280px:
-// 1280 - 32px outer padding - 320px side rails - 32px gaps = 896px,
-// which preserves a full max-w-4xl gameplay/content area.
+// At exactly 1280px the grid uses 8px outer padding + 12px track gaps,
+// leaving a 920px center track. A max-w-4xl (896px) game therefore keeps
+// its full width with an additional ~12px breathing room on each side.
 const SIDE_AD_MIN_VIEWPORT_PX = 1280;
 
 /**
- * SSR-safe desktop detector.
+ * SSR-safe detector for viewports that can support two side ad rails.
  *
- * null  → viewport not known yet; render no ad placement to avoid flicker
+ * null  → viewport not known yet; mount no ad position to avoid flicker
  * true  → desktop: left + right side ads
  * false → mobile/tablet/narrow desktop: bottom ad only
  */
@@ -52,16 +52,16 @@ function useHasSideAdRoom(): boolean | null {
  *
  * Desktop >= 1280px:
  * - two dedicated 160px side rails
- * - 16px separation between each ad rail and the center content column
  * - no bottom ad
- * - the center column still has exactly 896px available at 1280px,
- *   preserving max-w-4xl gameplay without overlap
+ * - center content keeps its natural/max width without overlap
  *
  * Below 1280px:
  * - no side ads
  * - bottom ad only
  *
- * Ads remain mounted for the duration of the supplied cycleKey.
+ * `dir="ltr"` is applied only to the grid so physical left/right slot IDs
+ * cannot be reversed by the app's RTL document direction. Each child restores
+ * RTL for Hebrew UI content.
  */
 export function PageAdLayout({
   screen,
@@ -77,14 +77,19 @@ export function PageAdLayout({
   if (hasSideAdRoom === true) {
     return (
       <div className="w-full">
-        <div className="mx-auto grid w-full max-w-[1600px] grid-cols-[160px_minmax(0,1fr)_160px] gap-4 px-4 items-start">
-          <aside className="col-start-1 row-start-1 pt-6" aria-label="פרסומת צד שמאל">
+        <div
+          dir="ltr"
+          className="mx-auto grid w-full max-w-[1600px] grid-cols-[160px_minmax(0,1fr)_160px] gap-3 px-2 items-start"
+        >
+          <aside dir="rtl" className="pt-6" aria-label="פרסומת צד שמאל">
             <AdSlot screen={screen} position="left" cycleKey={cycleKey} />
           </aside>
 
-          <div className="col-start-2 row-start-1 min-w-0">{children}</div>
+          <div dir="rtl" className="min-w-0">
+            {children}
+          </div>
 
-          <aside className="col-start-3 row-start-1 pt-6" aria-label="פרסומת צד ימין">
+          <aside dir="rtl" className="pt-6" aria-label="פרסומת צד ימין">
             <AdSlot screen={screen} position="right" cycleKey={cycleKey} />
           </aside>
         </div>
