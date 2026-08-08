@@ -19,12 +19,9 @@ void HEBREW_LETTERS;
 
 export function HebrewKeyboard({ onLetter, disabled, revealed, wrong }: Props) {
   return (
-    <div className="space-y-1.5 sm:space-y-2 max-w-2xl mx-auto" dir="rtl">
+    <div className="space-y-1.5 sm:space-y-1.5 lg:space-y-1 max-w-2xl lg:max-w-3xl mx-auto" dir="rtl">
       {ROWS.map((row, ri) => (
-        <div
-          key={ri}
-          className="flex justify-center gap-1 sm:gap-1.5"
-        >
+        <div key={ri} className="flex justify-center gap-1 sm:gap-1.5 lg:gap-1">
           {row.map((l) => {
             const isCorrect = revealed.includes(l);
             const isWrong = wrong.includes(l);
@@ -34,7 +31,7 @@ export function HebrewKeyboard({ onLetter, disabled, revealed, wrong }: Props) {
                 key={l}
                 disabled={disabled || used}
                 onClick={() => onLetter(l)}
-                className={`flex-1 max-w-[12%] aspect-[5/6] sm:aspect-square min-h-[40px] sm:min-h-[48px] rounded-lg font-display font-bold text-base sm:text-xl transition shadow-key
+                className={`flex-1 max-w-[12%] aspect-[5/6] sm:aspect-auto sm:h-12 lg:h-11 min-h-[40px] sm:min-h-0 rounded-lg font-display font-bold text-base sm:text-lg lg:text-base transition shadow-key
                   ${isCorrect ? "bg-success text-success-foreground" : ""}
                   ${isWrong ? "bg-destructive/80 text-destructive-foreground opacity-60" : ""}
                   ${!used ? "bg-card hover:bg-primary hover:text-primary-foreground active:scale-95" : ""}
