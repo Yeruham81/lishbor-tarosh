@@ -65,7 +65,7 @@ export function useAdEligibility(screen: AdScreen): boolean {
   const fetchRole = useServerFn(getMyRole);
 
   const roleQuery = useQuery({
-    queryKey: ["my-role"],
+    queryKey: ["my-role", user?.id],
     queryFn: () => fetchRole(),
     enabled: !!user,
     staleTime: 5 * 60_000,
@@ -81,6 +81,9 @@ export function useAdEligibility(screen: AdScreen): boolean {
     isAdmin,
     adminLoading,
     config,
+    // The paid remove-ads entitlement does not yet have a user-specific
+    // source of truth in the current project. Keep this false until that
+    // feature is implemented, then wire the entitlement here before launch.
     hasRemoveAdsEntitlement: false,
   });
 }
