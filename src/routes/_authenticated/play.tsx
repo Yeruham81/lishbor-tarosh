@@ -17,7 +17,6 @@ import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { useSolveNotifications } from "@/components/SolveNotifications";
 import { PageAdLayout } from "@/components/ads/PageAdLayout";
 
-
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
 
 type ClueState = Awaited<ReturnType<typeof getNextClue>>;
@@ -28,10 +27,6 @@ function Play() {
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [user, loading, navigate]);
-
-
-
-
 
   const fetchClue = useServerFn(getNextClue);
   const fetchClueState = useServerFn(getClueState);
@@ -94,7 +89,6 @@ function Play() {
   const [busy, setBusy] = useState(false);
   const prevRevealedCount = useRef(0);
   const notif = useSolveNotifications();
-
 
   // Auto-advance countdown (seconds remaining, or null when inactive)
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -173,7 +167,6 @@ function Play() {
         qc.invalidateQueries({ queryKey: ["profile"] });
       }
       notif.emit((r as any).events);
-
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -194,7 +187,6 @@ function Play() {
         qc.invalidateQueries({ queryKey: ["profile"] });
       } else toast.info("נחשפה אות חדשה");
       notif.emit((r as any).events);
-
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -236,173 +228,173 @@ function Play() {
     <AppShell>
       {notif.progressModal}
       <PageAdLayout screen="play" cycleKey={adCycleKey}>
-      <div className="container mx-auto px-4 py-3 max-w-3xl">
-        <GameTopBar profile={profile} helpVariant="help" />
+        <div className="container mx-auto px-4 py-2 max-w-4xl">
+          <GameTopBar profile={profile} helpVariant="help" />
 
+          {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען הגדרה...</div>}
+          {clueQ.error && <div className="text-center py-20 text-destructive">{(clueQ.error as Error).message}</div>}
+          {exhausted && (
+            <div className="text-center py-16 bg-card border rounded-3xl shadow-card">
+              <div className="text-6xl mb-4">🎉</div>
+              <h2 className="font-display text-2xl font-bold mb-2">פתרת את כל ההגדרות הזמינות!</h2>
+              <p className="text-muted-foreground">הגדרות חדשות בדרך — חזרו בקרוב.</p>
+            </div>
+          )}
 
-
-        {clueQ.isLoading && <div className="text-center py-20 text-muted-foreground">טוען הגדרה...</div>}
-        {clueQ.error && <div className="text-center py-20 text-destructive">{(clueQ.error as Error).message}</div>}
-        {exhausted && (
-          <div className="text-center py-16 bg-card border rounded-3xl shadow-card">
-            <div className="text-6xl mb-4">🎉</div>
-            <h2 className="font-display text-2xl font-bold mb-2">פתרת את כל ההגדרות הזמינות!</h2>
-            <p className="text-muted-foreground">הגדרות חדשות בדרך — חזרו בקרוב.</p>
-          </div>
-        )}
-
-        {clue && (
-          <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-8">
-            {!clue.isSolved && (
-              <div className="grid grid-cols-3 items-center mb-4">
-                <div className="text-sm text-muted-foreground justify-self-start">
-                  נקודות: <b className="text-foreground">{clue.currentScore}</b>
+          {clue && (
+            <div className="bg-card border rounded-3xl shadow-card p-5 sm:p-6 lg:p-5">
+              {!clue.isSolved && (
+                <div className="grid grid-cols-3 items-center mb-3 sm:mb-2">
+                  <div className="text-sm text-muted-foreground justify-self-start">
+                    נקודות: <b className="text-foreground">{clue.currentScore}</b>
+                  </div>
+                  <div className="flex gap-2 justify-center">
+                    {flags.allowHints && (
+                      <button
+                        onClick={onHint}
+                        disabled={busy || clue.wrong.length < 2}
+                        title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      >
+                        <Lightbulb className="size-4" /> רמז
+                      </button>
+                    )}
+                    {flags.allowSkip && (
+                      <button
+                        onClick={onSkip}
+                        disabled={busy}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-sm hover:bg-muted transition disabled:opacity-50"
+                      >
+                        <SkipForward className="size-4" /> דלג
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5 justify-self-end" aria-label="טעויות">
+                    {[0, 1, 2].map((i) => (
+                      <span
+                        key={i}
+                        className={`size-3 rounded-full border ${
+                          i < clue.wrong.length ? "bg-destructive border-destructive" : "bg-muted border-border"
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <div className="flex gap-2 justify-center">
-                  {flags.allowHints && (
-                    <button
-                      onClick={onHint}
-                      disabled={busy || clue.wrong.length < 2}
-                      title={clue.wrong.length < 2 ? "זמין אחרי 2 טעויות" : ""}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning text-warning-foreground text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                    >
-                      <Lightbulb className="size-4" /> רמז
-                    </button>
+              )}
+
+              {/* Top area: on sm+ when solved, show celebration to the right of the clue/answer */}
+              <div
+                className={
+                  clue.isSolved ? "sm:grid sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] sm:gap-6 sm:items-start" : ""
+                }
+              >
+                <div className="min-w-0">
+                  {clue.category && (
+                    <div className="flex justify-center mb-1.5">
+                      <span className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">
+                        {clue.category}
+                      </span>
+                    </div>
                   )}
-                  {flags.allowSkip && (
-                    <button
-                      onClick={onSkip}
-                      disabled={busy}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-sm hover:bg-muted transition disabled:opacity-50"
-                    >
-                      <SkipForward className="size-4" /> דלג
-                    </button>
+
+                  <h2 className="font-display text-2xl sm:text-[1.65rem] lg:text-[1.7rem] font-bold text-center my-4 sm:my-3 leading-snug">
+                    {clue.clue}
+                  </h2>
+                  {clue.credit && clue.credit.trim() && (
+                    <div dir="rtl" className="text-center text-xs text-muted-foreground -mt-3 mb-2">
+                      הגדרה מאת: {clue.credit}
+                    </div>
                   )}
+
+                  {/* Word boxes */}
+                  <div className="my-4 sm:my-3">
+                    <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
+                  </div>
                 </div>
-                <div className="flex gap-1.5 justify-self-end" aria-label="טעויות">
-                  {[0, 1, 2].map((i) => (
-                    <span
-                      key={i}
-                      className={`size-3 rounded-full border ${
-                        i < clue.wrong.length ? "bg-destructive border-destructive" : "bg-muted border-border"
-                      }`}
+
+                {clue.isSolved && (
+                  <div className="hidden sm:flex flex-col items-center justify-center text-center animate-fade-in py-2">
+                    <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
+                    <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                    <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+                  </div>
+                )}
+              </div>
+
+              {!clue.isSolved ? (
+                <div className="mb-0">
+                  <HebrewKeyboard onLetter={onLetter} revealed={clue.revealed} wrong={clue.wrong} disabled={busy} />
+                </div>
+              ) : (
+                <div
+                  className="py-6 animate-fade-in space-y-3 sm:space-y-8"
+                  onPointerDownCapture={(e) => {
+                    const t = e.target as HTMLElement;
+                    if (t.closest('[data-next-button="true"]')) return;
+                    cancelAutoAdvance();
+                  }}
+                  onKeyDownCapture={(e) => {
+                    const t = e.target as HTMLElement;
+                    if (t.closest('[data-next-button="true"]')) return;
+                    cancelAutoAdvance();
+                  }}
+                >
+                  {clue.explanation && clue.explanation.trim() && (
+                    <Accordion type="single" collapsible className="text-right">
+                      <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
+                        <AccordionTrigger className="text-sm font-medium hover:no-underline">
+                          לא סגורים על הפתרון? קבלו הסבר:
+                        </AccordionTrigger>
+                        <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
+                          {clue.explanation}
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  )}
+
+                  {/* Mobile-only celebration block (desktop/tablet shows it next to the clue) */}
+                  <div className="text-center sm:hidden">
+                    <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
+                    <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
+                    <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
+                  </div>
+
+                  {/* Action area: two columns on sm+ — rating (right in RTL) and CTA (left) */}
+                  <div className="grid gap-4 sm:grid-cols-2 sm:items-center">
+                    <div className="order-2 sm:order-1 flex justify-center">
+                      <ClueRating clueId={clue.id} />
+                    </div>
+                    <div className="order-1 sm:order-2 flex flex-col items-center gap-2">
+                      <button
+                        data-next-button="true"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSkip();
+                        }}
+                        disabled={busy}
+                        className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
+                      >
+                        להגדרה הבאה
+                      </button>
+                      {countdown !== null && countdown > 0 && (
+                        <p className="text-sm text-muted-foreground" aria-live="polite">
+                          {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mt-4 sm:mt-0 text-center">
+                    <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
+                    <ShareButtons
+                      text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
                     />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Top area: on sm+ when solved, show celebration to the right of the clue/answer */}
-            <div
-              className={
-                clue.isSolved
-                  ? "sm:grid sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] sm:gap-6 sm:items-start"
-                  : ""
-              }
-            >
-              <div className="min-w-0">
-                {clue.category && (
-                  <div className="flex justify-center mb-2">
-                    <span className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs">{clue.category}</span>
                   </div>
-                )}
-
-                <h2 className="font-display text-2xl sm:text-3xl font-bold text-center my-5 leading-snug">{clue.clue}</h2>
-                {clue.credit && clue.credit.trim() && (
-                  <div dir="rtl" className="text-center text-xs text-muted-foreground -mt-3 mb-2">
-                    הגדרה מאת: {clue.credit}
-                  </div>
-                )}
-
-                {/* Word boxes */}
-                <div className="my-6">
-                  <WordBoxes wordLengths={clue.wordLengths} mask={clue.mask} shake={shake} />
-                </div>
-              </div>
-
-              {clue.isSolved && (
-                <div className="hidden sm:flex flex-col items-center justify-center text-center animate-fade-in py-2">
-                  <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
-                  <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
-                  <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
                 </div>
               )}
             </div>
-
-            {!clue.isSolved ? (
-              <div className="mb-2">
-                <HebrewKeyboard onLetter={onLetter} revealed={clue.revealed} wrong={clue.wrong} disabled={busy} />
-              </div>
-            ) : (
-              <div
-                className="py-6 animate-fade-in space-y-3 sm:space-y-8"
-                onPointerDownCapture={(e) => {
-                  const t = e.target as HTMLElement;
-                  if (t.closest('[data-next-button="true"]')) return;
-                  cancelAutoAdvance();
-                }}
-                onKeyDownCapture={(e) => {
-                  const t = e.target as HTMLElement;
-                  if (t.closest('[data-next-button="true"]')) return;
-                  cancelAutoAdvance();
-                }}
-              >
-                {clue.explanation && clue.explanation.trim() && (
-                  <Accordion type="single" collapsible className="text-right">
-                    <AccordionItem value="explanation" className="border rounded-xl bg-muted/30 px-4">
-                      <AccordionTrigger className="text-sm font-medium hover:no-underline">
-                        לא סגורים על הפתרון? קבלו הסבר:
-                      </AccordionTrigger>
-                      <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed text-center">
-                        {clue.explanation}
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                )}
-
-                {/* Mobile-only celebration block (desktop/tablet shows it next to the clue) */}
-                <div className="text-center sm:hidden">
-                  <div className="text-6xl mb-3 animate-letter-pop">🎉</div>
-                  <h3 className="font-display text-2xl font-bold mb-1">כל הכבוד!</h3>
-                  <p className="text-muted-foreground">+{clue.currentScore} נקודות</p>
-                </div>
-
-                {/* Action area: two columns on sm+ — rating (right in RTL) and CTA (left) */}
-                <div className="grid gap-4 sm:grid-cols-2 sm:items-center">
-                  <div className="order-2 sm:order-1 flex justify-center">
-                    <ClueRating clueId={clue.id} />
-                  </div>
-                  <div className="order-1 sm:order-2 flex flex-col items-center gap-2">
-                    <button
-                      data-next-button="true"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSkip();
-                      }}
-                      disabled={busy}
-                      className="px-10 py-4 rounded-2xl bg-gradient-sunset text-white font-display font-bold text-lg shadow-glow hover:scale-105 transition disabled:opacity-50"
-                    >
-                      להגדרה הבאה
-                    </button>
-                    {countdown !== null && countdown > 0 && (
-                      <p className="text-sm text-muted-foreground" aria-live="polite">
-                        {countdown === 3 ? "מעבר להגדרה הבאה בעוד 3 שניות..." : `להגדרה הבאה: ${countdown}...`}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-3 mt-4 sm:mt-0 text-center">
-                  <p className="text-xs text-muted-foreground font-medium">שתפו את ההישג ואתגרו חברים</p>
-                  <ShareButtons
-                    text={`פתרתי "${clue.clue}" ב‑לשבור ת'ראש 🧠 ניקוד: ${clue.currentScore}${profile ? ` | רצף: ${profile.current_streak}` : ""}`}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+          )}
+        </div>
       </PageAdLayout>
     </AppShell>
   );
