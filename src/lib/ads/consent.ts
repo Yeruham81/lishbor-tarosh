@@ -24,7 +24,6 @@ import { useEffect, useState, useCallback } from "react";
  * complement — but never replace — that source of truth.
  */
 
-
 export const CONSENT_STORAGE_KEY = "cookie_consent_v1";
 export const CONSENT_VERSION = 1;
 
@@ -134,4 +133,156 @@ export function useAdPersonalization(): {
     preference: record ? (record.advertising ? "granted" : "denied") : "unknown",
     record,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Certified CMP / IAB TCF bridge — preparation only
+// ---------------------------------------------------------------------------
+//
+// This bridge intentionally does NOT decide whether AdSense may load and does
+// NOT translate TCF data into personalized/non-personalized ad serving yet.
+// `useAdServingMode()` remains hard-locked to "none" until live activation is
+// explicitly approved and the selected certified CMP has been configured.
+//
+// The bridge is provider-neutral: any Google-certified CMP exposing the IAB
+// TCF v2 `__tcfapi` can be observed here. This lets the future serving layer
+// consume a centralized CMP signal instead of querying window globals inside
+// individual AdSlot components.
+
+export type CertifiedCmpStatus = "waiting" | "ready" | "unavailable" | "error";
+
+export type CertifiedCmpSnapshot = {
+  status: CertifiedCmpStatus;
+  gdprApplies: boolean | null;
+  tcString: string | null;
+  eventStatus: string | null;
+  cmpId: number | null;
+  cmpVersion: number | null;
+  tcfPolicyVersion: number | null;
+};
+
+type TcfApi = (
+  command: string,
+  version: number,
+  callback: (data: any, success: boolean) => void,
+  parameter?: any,
+) => void;
+
+declare global {
+  interface Window {
+    __tcfapi?: TcfApi;
+  }
+}
+
+const EMPTY_CMP_SNAPSHOT: CertifiedCmpSnapshot = {
+  status: "waiting",
+  gdprApplies: null,
+  tcString: null,
+  eventStatus: null,
+  cmpId: null,
+  cmpVersion: null,
+  tcfPolicyVersion: null,
+};
+
+function snapshotFromTcData(data: any): CertifiedCmpSnapshot {
+  return {
+    status: "ready",
+    gdprApplies: typeof data?.gdprApplies === "boolean" ? data.gdprApplies : null,
+    tcString: typeof data?.tcString === "string" && data.tcString.length > 0 ? data.tcString : null,
+    eventStatus: typeof data?.eventStatus === "string" ? data.eventStatus : null,
+    cmpId: typeof data?.cmpId === "number" ? data.cmpId : null,
+    cmpVersion: typeof data?.cmpVersion === "number" ? data.cmpVersion : null,
+    tcfPolicyVersion: typeof data?.tcfPolicyVersion === "number" ? data.tcfPolicyVersion : null,
+  };
+}
+
+/**
+ * Observe the certified CMP's IAB TCF signal when one is installed.
+ *
+ * - No CMP installed: returns `unavailable` after a short discovery window.
+ * - CMP present but still collecting consent: remains observable via the TCF
+ *   addEventListener callback and updates when consent changes.
+ * - This hook does not load a CMP, does not load Google Ads, and does not make
+ *   any ad-serving decision.
+ */
+export function useCertifiedCmp(): CertifiedCmpSnapshot {
+  const [snapshot, setSnapshot] = useState<CertifiedCmpSnapshot>(EMPTY_CMP_SNAPSHOT);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    let cancelled = false;
+    let listenerId: number | null = null;
+    let attempts = 0;
+    const maxAttempts = 40; // ~10 seconds at 250ms; no permanent polling.
+
+    const attach = (): boolean => {
+      const api = window.__tcfapi;
+      if (typeof api !== "function") return false;
+
+      try {
+        api("addEventListener", 2, (data: any, success: boolean) => {
+          if (cancelled) return;
+
+          if (!success || !data) {
+            setSnapshot((current) => ({ ...current, status: "error" }));
+            return;
+          }
+
+          if (typeof data.listenerId === "number") listenerId = data.listenerId;
+          setSnapshot(snapshotFromTcData(data));
+        });
+        return true;
+      } catch {
+        setSnapshot((current) => ({ ...current, status: "error" }));
+        return true;
+      }
+    };
+
+    if (attach()) {
+      return () => {
+        cancelled = true;
+        if (listenerId !== null && typeof window.__tcfapi === "function") {
+          try {
+            window.__tcfapi("removeEventListener", 2, () => {}, listenerId);
+          } catch {
+            /* best effort only */
+          }
+        }
+      };
+    }
+
+    const timer = window.setInterval(() => {
+      attempts += 1;
+
+      if (attach()) {
+        window.clearInterval(timer);
+        return;
+      }
+
+      if (attempts >= maxAttempts) {
+        window.clearInterval(timer);
+        if (!cancelled) {
+          setSnapshot({
+            ...EMPTY_CMP_SNAPSHOT,
+            status: "unavailable",
+          });
+        }
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      if (listenerId !== null && typeof window.__tcfapi === "function") {
+        try {
+          window.__tcfapi("removeEventListener", 2, () => {}, listenerId);
+        } catch {
+          /* best effort only */
+        }
+      }
+    };
+  }, []);
+
+  return snapshot;
 }
