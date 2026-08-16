@@ -8,9 +8,9 @@ import { AppShell } from "@/components/AppShell";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    mode: search.mode === "signup" ? "signup" : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup" } =>
+    search.mode === "signup" ? { mode: "signup" } : {},
+
   component: AuthPage,
 });
 
