@@ -16,15 +16,14 @@ import {
   Wrench,
   ShieldCheck,
   FileText,
+  Info,
 } from "lucide-react";
 import brandIcon from "@/assets/lishbor-icon.jpg.asset.json";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { LegalModal } from "@/components/LegalModal";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { CookiePreferencesDialog } from "@/components/CookiePreferencesDialog";
-import { privacyPolicy, termsOfUse } from "@/content/legal";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyRole } from "@/lib/account.functions";
@@ -38,8 +37,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const showMobileHelp = !!user && (onPlay || onInstructions);
   const flags = useFeatureFlags();
-  const [privacyOpen, setPrivacyOpen] = useState(false);
-  const [termsOpen, setTermsOpen] = useState(false);
 
   // Popup announcement: show once per session per message text.
   const popupText = flags.popupAnnouncement?.trim() ?? "";
@@ -97,6 +94,21 @@ export function AppShell({ children }: { children: ReactNode }) {
             <NavLink to="/" icon={<Home className="size-4" />}>
               בית
             </NavLink>
+            {!user && (
+              <NavLink to="/demo" icon={<Gamepad2 className="size-4" />}>
+                משחק לדוגמה
+              </NavLink>
+            )}
+            {!user && (
+              <NavLink to="/instructions" icon={<HelpCircle className="size-4" />}>
+                איך משחקים
+              </NavLink>
+            )}
+            {!user && (
+              <NavLink to="/about" icon={<Info className="size-4" />}>
+                אודות
+              </NavLink>
+            )}
             {user && (
               <NavLink to="/play" icon={<Gamepad2 className="size-4" />}>
                 משחק
@@ -193,22 +205,20 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
 
               {/* תנאי שימוש */}
-              <button
-                type="button"
-                onClick={() => setTermsOpen(true)}
+              <Link
+                to="/terms"
                 className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
               >
                 <FileText className="size-4" /> תנאי שימוש
-              </button>
+              </Link>
 
               {/* מדיניות פרטיות */}
-              <button
-                type="button"
-                onClick={() => setPrivacyOpen(true)}
+              <Link
+                to="/privacy"
                 className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
               >
                 <ShieldCheck className="size-4" /> מדיניות פרטיות
-              </button>
+              </Link>
 
               {/* RIGHT — יציאה */}
               <div className="flex justify-end">
@@ -222,22 +232,41 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             </div>
           ) : (
-            <div className="hidden md:grid grid-cols-2 items-center gap-2 max-w-md mx-auto">
-              <button
-                type="button"
-                onClick={() => setTermsOpen(true)}
+            <div className="hidden md:grid grid-cols-5 items-center gap-2 max-w-5xl mx-auto">
+              <Link
+                to="/demo"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                משחק לדוגמה
+              </Link>
+
+              <Link
+                to="/instructions"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                איך משחקים
+              </Link>
+
+              <Link
+                to="/about"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
+              >
+                אודות
+              </Link>
+
+              <Link
+                to="/terms"
                 className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
               >
                 <FileText className="size-4" /> תנאי שימוש
-              </button>
+              </Link>
 
-              <button
-                type="button"
-                onClick={() => setPrivacyOpen(true)}
+              <Link
+                to="/privacy"
                 className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border bg-card hover:bg-muted transition text-sm font-medium"
               >
                 <ShieldCheck className="size-4" /> מדיניות פרטיות
-              </button>
+              </Link>
             </div>
           )}
 
@@ -277,41 +306,65 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
 
               {/* ROW 2 — legal */}
-              <div className="grid grid-cols-2 gap-2 items-center text-xs text-muted-foreground">
-                <button
-                  type="button"
-                  onClick={() => setTermsOpen(true)}
+              <div className="grid grid-cols-3 gap-2 items-center text-xs text-muted-foreground">
+                <Link
+                  to="/about"
+                  className="inline-flex items-center justify-center px-2 py-1 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+                >
+                  אודות
+                </Link>
+
+                <Link
+                  to="/terms"
                   className="inline-flex items-center justify-center px-2 py-1 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
                 >
                   תנאי שימוש
-                </button>
+                </Link>
 
-                <button
-                  type="button"
-                  onClick={() => setPrivacyOpen(true)}
+                <Link
+                  to="/privacy"
                   className="inline-flex items-center justify-center px-2 py-1 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
                 >
                   מדיניות פרטיות
-                </button>
+                </Link>
               </div>
             </div>
           ) : (
             <div className="md:hidden grid grid-cols-2 gap-2 items-center text-xs text-muted-foreground">
-              <button
-                type="button"
-                onClick={() => setTermsOpen(true)}
+              <Link
+                to="/demo"
+                className="inline-flex items-center justify-center px-2 py-2 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+              >
+                משחק לדוגמה
+              </Link>
+
+              <Link
+                to="/instructions"
+                className="inline-flex items-center justify-center px-2 py-2 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+              >
+                איך משחקים
+              </Link>
+
+              <Link
+                to="/about"
+                className="inline-flex items-center justify-center px-2 py-2 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
+              >
+                אודות
+              </Link>
+
+              <Link
+                to="/terms"
                 className="inline-flex items-center justify-center px-2 py-2 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
               >
                 תנאי שימוש
-              </button>
+              </Link>
 
-              <button
-                type="button"
-                onClick={() => setPrivacyOpen(true)}
+              <Link
+                to="/privacy"
                 className="inline-flex items-center justify-center px-2 py-2 rounded-md border bg-card text-xs font-medium hover:bg-muted transition cursor-pointer"
               >
                 מדיניות פרטיות
-              </button>
+              </Link>
             </div>
           )}
           {/* COPYRIGHT — ALL SCREEN SIZES */}
@@ -360,8 +413,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </DialogContent>
         </Dialog>
       )}
-      <LegalModal open={privacyOpen} onOpenChange={setPrivacyOpen} doc={privacyPolicy} />
-      <LegalModal open={termsOpen} onOpenChange={setTermsOpen} doc={termsOfUse} />
       <CookieConsentBanner />
       <CookiePreferencesDialog />
     </div>
