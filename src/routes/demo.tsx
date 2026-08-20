@@ -10,33 +10,16 @@ import { toast } from "sonner";
 import { normalizeLetter, normalizeWord, buildRevealMask, wordLengths } from "@/lib/hebrew";
 import { SCORING, computeSolveScore, currentSolveValue } from "@/lib/progression";
 import { DEMO_CLUES } from "@/lib/demo-clues";
-import {
-  SITE_LOCALE,
-  absoluteUrl,
-  canonical,
-  NOINDEX_META,
-  gameApplicationJsonLd,
-  jsonLdScript,
-} from "@/lib/site";
+import { canonical, publicPageMeta, gameApplicationJsonLd, jsonLdScript } from "@/lib/site";
 
 export const Route = createFileRoute("/demo")({
   component: DemoPage,
   head: () => ({
-    meta: [
-      { title: "משחק לדוגמה — לשבור ת'ראש" },
-      {
-        name: "description",
-        content: "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
-      },
-      { property: "og:title", content: "משחק לדוגמה — לשבור ת'ראש" },
-      { property: "og:url", content: absoluteUrl("/demo") },
-      { property: "og:locale", content: SITE_LOCALE },
-      {
-        property: "og:description",
-        content: "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
-      },
-      NOINDEX_META,
-    ],
+    meta: publicPageMeta({
+      title: "משחק הגדרות היגיון לדוגמה — לשבור ת'ראש",
+      description: "שלוש הגדרות היגיון מקוריות לטעימה. שחקו בחינם ללא הרשמה, קבלו הסברים וגלו איך המשחק עובד.",
+      path: "/demo",
+    }),
     links: [canonical("/demo")],
     scripts: [
       jsonLdScript(
@@ -44,7 +27,7 @@ export const Route = createFileRoute("/demo")({
           name: "לשבור ת'ראש - משחק לדוגמה",
           description: "שלוש הגדרות היגיון לטעימה. שחקו בחינם ללא הרשמה וגלו איך זה עובד.",
           path: "/demo",
-        })
+        }),
       ),
     ],
   }),
@@ -173,6 +156,7 @@ function DemoPage() {
               ← חזרה למסך הבית
             </Link>
           </div>
+          <DemoInformation />
         </div>
       </AppShell>
     );
@@ -298,8 +282,74 @@ function DemoPage() {
             </div>
           )}
         </div>
+
+        <DemoInformation />
       </div>
     </AppShell>
+  );
+}
+
+function DemoInformation() {
+  return (
+    <section className="mt-8 space-y-6 text-right" aria-labelledby="demo-about-title">
+      <div className="rounded-3xl border bg-card shadow-card p-6 sm:p-8">
+        <h2 id="demo-about-title" className="font-display text-2xl sm:text-3xl font-bold">
+          מהו משחק הגדרות היגיון?
+        </h2>
+        <p className="mt-4 text-muted-foreground leading-relaxed">
+          הגדרת היגיון היא חידה קצרה שבה הניסוח עצמו מוביל לפתרון. לפעמים התשובה מבוססת על כפל משמעות, פירוק של מילה,
+          קיצור, צליל דומה או חיבור מפתיע בין רעיונות. לא מספיק להכיר עובדות — צריך להתבונן בכל מילה ולשאול אם היא יכולה
+          להתפרש בדרך נוספת.
+        </p>
+        <p className="mt-3 text-muted-foreground leading-relaxed">
+          בדמו של לשבור ת'ראש מחכות שלוש הגדרות מקוריות. בכל אחת מהן אפשר לבחור אותיות, לצבור נקודות, לקבל רמז לאחר שתי
+          טעויות ולקרוא הסבר מלא לאחר הפתרון. אין צורך להירשם והניקוד נשמר רק במהלך הביקור הנוכחי.
+        </p>
+      </div>
+
+      <div className="grid sm:grid-cols-3 gap-4">
+        <InfoCard title="קוראים אחרת">
+          בודקים אם למילים בהגדרה יש משמעות נוספת, צליל דומה או תפקיד לא צפוי במשפט.
+        </InfoCard>
+        <InfoCard title="נעזרים באותיות">
+          כל אות נכונה נחשפת בתשובה ומצמצמת את האפשרויות עד שאפשר לזהות את המילה או הביטוי.
+        </InfoCard>
+        <InfoCard title="לומדים מההסבר">
+          לאחר כל פתרון אפשר להבין את דרך החשיבה ולזהות תבניות שיעזרו בהגדרות הבאות.
+        </InfoCard>
+      </div>
+
+      <div className="rounded-3xl border bg-gradient-to-br from-primary/10 via-card to-secondary/10 p-6 sm:p-8 text-center">
+        <h2 className="font-display text-2xl font-bold">רוצים להבין את כל הכללים?</h2>
+        <p className="mt-2 text-muted-foreground leading-relaxed">
+          בעמוד ההוראות תמצאו הסבר על הניקוד, הרמזים, הפתרון המושלם וטיפים לזיהוי משחקי מילים נפוצים.
+        </p>
+        <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link
+            to="/instructions"
+            className="px-7 py-3 rounded-2xl border-2 border-primary text-primary bg-card font-display font-bold hover:bg-muted transition"
+          >
+            הוראות וטיפים
+          </Link>
+          <Link
+            to="/auth"
+            search={{ mode: "signup" }}
+            className="px-7 py-3 rounded-2xl bg-gradient-sunset text-white font-display font-bold shadow-glow hover:opacity-90 transition"
+          >
+            הרשמה למשחק המלא
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <article className="rounded-2xl border bg-card p-5 shadow-card">
+      <h3 className="font-display text-lg font-bold">{title}</h3>
+      <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{children}</p>
+    </article>
   );
 }
 
