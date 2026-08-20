@@ -21,7 +21,21 @@ jobs:
         run: bun run typecheck
 
       - name: Tests
-        run: bun test
+        shell: bash
+        run: |
+          if find . \
+            -path ./node_modules -prune -o \
+            -path ./dist -prune -o \
+            -type f \( \
+              -name "*.test.*" -o \
+              -name "*_test_*" -o \
+              -name "*.spec.*" -o \
+              -name "*_spec_*" \
+            \) -print -quit | grep -q .; then
+            bun test
+          else
+            echo "::notice::No Bun test files found; skipping the test step."
+          fi
 
       - name: Build
         run: bun run build
