@@ -2,16 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { SITE_ORIGIN } from "@/lib/site";
 
-/**
- * Public sitemap. Only the homepage is intended for indexing.
- */
+/** Public sitemap containing the site's substantive, indexable pages. */
 interface SitemapEntry {
   path: string;
   changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority?: string;
 }
 
-const ENTRIES: SitemapEntry[] = [{ path: "/", changefreq: "weekly", priority: "1.0" }];
+const ENTRIES: SitemapEntry[] = [
+  { path: "/", changefreq: "weekly", priority: "1.0" },
+  { path: "/demo", changefreq: "monthly", priority: "0.9" },
+  { path: "/instructions", changefreq: "monthly", priority: "0.8" },
+  { path: "/about", changefreq: "monthly", priority: "0.7" },
+];
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
