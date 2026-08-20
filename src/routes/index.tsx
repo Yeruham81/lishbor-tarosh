@@ -29,14 +29,14 @@ export const Route = createFileRoute("/")({
           name: "לשבור ת'ראש",
           description: "כי זה לא רק מה אתם יודעים - זה גם איך אתם חושבים. משחק הגדרות היגיון בעברית.",
           path: "/",
-        })
+        }),
       ),
     ],
   }),
 });
 
 function Index() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
 
   return (
     <AppShell>
@@ -54,7 +54,6 @@ function Index() {
               <span className="block mt-2 text-xl sm:text-3xl font-bold text-foreground">משחק הגדרות היגיון</span>
             </h1>
 
-
             <p className="text-[clamp(0.85rem,4vw,1.25rem)] sm:text-xl whitespace-nowrap tracking-tighter text-muted-foreground text-center w-[calc(100%+1rem)] -mx-2 sm:w-auto sm:mx-auto mb-8">
               זה לא רק מה אתם יודעים — זה גם איך אתם חושבים
             </p>
@@ -67,13 +66,21 @@ function Index() {
                 {user ? "חזרה למשחק" : "התחילו לשחק"}
               </Link>
 
-              {!loading && !user && (
-                <Link
-                  to="/demo"
-                  className="px-7 py-3 rounded-2xl border-2 border-primary text-primary font-display font-bold text-base bg-card hover:bg-muted hover:scale-105 active:scale-95 transition"
-                >
-                  נסו משחק לדוגמה
-                </Link>
+              {!user && (
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link
+                    to="/demo"
+                    className="px-7 py-3 rounded-2xl border-2 border-primary text-primary font-display font-bold text-base bg-card hover:bg-muted hover:scale-105 active:scale-95 transition"
+                  >
+                    נסו משחק לדוגמה
+                  </Link>
+                  <Link
+                    to="/instructions"
+                    className="px-7 py-3 rounded-2xl border bg-card text-foreground font-display font-bold text-base hover:bg-muted hover:scale-105 active:scale-95 transition"
+                  >
+                    איך משחקים?
+                  </Link>
+                </div>
               )}
             </div>
           </div>
@@ -157,7 +164,7 @@ function Index() {
 
             {/* Final CTA */}
             {/* Final CTA — מוצג רק למשתמשים לא מחוברים */}
-            {!loading && !user && (
+            {!user && (
               <div className="mt-8 rounded-3xl border bg-gradient-to-br from-primary/10 via-card to-secondary/10 shadow-card p-7 sm:p-10 text-center">
                 <div className="inline-flex p-3 rounded-2xl bg-gradient-sunset text-white mb-5">
                   <Zap className="size-7" />
