@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -460,6 +460,57 @@ export type Database = {
         }
         Relationships: []
       }
+      purchases: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          environment: string
+          expected_amount: number
+          expected_currency: string
+          id: string
+          invoice_id: string
+          paypal_capture_id: string | null
+          paypal_order_id: string | null
+          paypal_payee_merchant_id: string | null
+          provider: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          environment: string
+          expected_amount: number
+          expected_currency: string
+          id?: string
+          invoice_id: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          paypal_payee_merchant_id?: string | null
+          provider?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          environment?: string
+          expected_amount?: number
+          expected_currency?: string
+          id?: string
+          invoice_id?: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          paypal_payee_merchant_id?: string | null
+          provider?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       puzzle_submissions: {
         Row: {
           admin_notes: string | null
@@ -670,6 +721,17 @@ export type Database = {
           day: string
           rejected: number
           submitted: number
+        }[]
+      }
+      complete_purchase: {
+        Args: {
+          _capture_id: string
+          _merchant_id: string
+          _purchase_id: string
+        }
+        Returns: {
+          already_completed: boolean
+          purchase_id: string
         }[]
       }
       has_role: {
