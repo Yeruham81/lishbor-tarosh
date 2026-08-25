@@ -35,6 +35,7 @@ import { Route as AuthenticatedAdminPlayersRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin.submissions'
 import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
+import { Route as AuthenticatedPaymentReturnRouteImport } from './routes/_authenticated/payment.return'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -172,6 +173,12 @@ const AuthenticatedAdminTaxonomyRoute =
     path: '/taxonomy',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedPaymentReturnRoute =
+  AuthenticatedPaymentReturnRouteImport.update({
+    id: '/payment/return',
+    path: '/payment/return',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
+  '/payment/return': typeof AuthenticatedPaymentReturnRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -224,6 +232,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
+  '/payment/return': typeof AuthenticatedPaymentReturnRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -253,6 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
+  '/_authenticated/payment/return': typeof AuthenticatedPaymentReturnRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/submissions'
     | '/admin/taxonomy'
+    | '/payment/return'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/submissions'
     | '/admin/taxonomy'
+    | '/payment/return'
     | '/admin'
   id:
     | '__root__'
@@ -336,6 +348,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/submissions'
     | '/_authenticated/admin/taxonomy'
+    | '/_authenticated/payment/return'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -540,6 +553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTaxonomyRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/payment/return': {
+      id: '/_authenticated/payment/return'
+      path: '/payment/return'
+      fullPath: '/payment/return'
+      preLoaderRoute: typeof AuthenticatedPaymentReturnRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -573,6 +593,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedLevelsRoute: typeof AuthenticatedLevelsRoute
   AuthenticatedPlayRoute: typeof AuthenticatedPlayRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedPaymentReturnRoute: typeof AuthenticatedPaymentReturnRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -580,6 +601,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedLevelsRoute: AuthenticatedLevelsRoute,
   AuthenticatedPlayRoute: AuthenticatedPlayRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedPaymentReturnRoute: AuthenticatedPaymentReturnRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
