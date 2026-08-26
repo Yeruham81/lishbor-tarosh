@@ -488,8 +488,11 @@ function Profile() {
             </div>
             <Toggle
               label="מעבר אוטומטי להגדרה הבאה"
-              hint="לאחר פתרון הגדרה, המשחק יעבור אוטומטית להגדרה הבאה תוך 3 שניות"
-              checked={!!p.auto_next}
+              hint={
+                p.is_paid ? "לאחר פתרון הגדרה, המשחק יעבור אוטומטית להגדרה הבאה תוך 3 שניות" : "זמין לשחקנים ששילמו"
+              }
+              checked={!!p.is_paid && !!p.auto_next}
+              disabled={!p.is_paid}
               onChange={(v) => setPref({ auto_next: v })}
             />
             <div className="pt-3 border-t space-y-2">
@@ -654,6 +657,7 @@ function Toggle({
   checked,
   onChange,
   small,
+  disabled,
 }: {
   label: string;
   hint?: string;
@@ -661,9 +665,12 @@ function Toggle({
   checked: boolean;
   onChange: (v: boolean) => void;
   small?: boolean;
+  disabled?: boolean;
 }) {
   return (
-    <label className={`flex items-center justify-between gap-3 cursor-pointer ${small ? "py-1" : ""}`}>
+    <label
+      className={`flex items-center justify-between gap-3 ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${small ? "py-1" : ""}`}
+    >
       <div className="min-w-0">
         <div className={`font-medium flex items-center gap-2 ${small ? "text-sm" : ""}`}>
           {icon}
@@ -675,8 +682,10 @@ function Toggle({
         type="button"
         role="switch"
         aria-checked={checked}
+        aria-disabled={disabled}
+        disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 rounded-full transition shrink-0 ${checked ? "bg-gradient-sunset" : "bg-muted border"}`}
+        className={`relative h-6 w-11 rounded-full transition shrink-0 disabled:cursor-not-allowed ${checked ? "bg-gradient-sunset" : "bg-muted border"}`}
       >
         <span
           className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition ${checked ? "right-0.5" : "right-[1.4rem]"}`}
