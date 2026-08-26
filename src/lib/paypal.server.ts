@@ -179,7 +179,7 @@ export function payeeMerchantId(order: PaypalOrder): string | null {
   return order?.purchase_units?.[0]?.payee?.merchant_id ?? null;
 }
 
-/** Fetch the full authoritative order when Create Order returned inimally. */
+/** Fetch the full authoritative order when Create Order returned minimally. */
 export async function ensurePaypalOrderRepresentation(cfg: PaypalConfig, order: PaypalOrder) {
   if (order?.id && approvalUrl(order) && payeeMerchantId(order)) return order;
   if (!order?.id) throw new Error("paypal_order_invalid");
