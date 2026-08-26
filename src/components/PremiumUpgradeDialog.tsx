@@ -4,13 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { BadgeDollarSign, CheckCircle2, Crown, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { createPremiumOrder, premiumStatusQueryKey } from "@/lib/payments.functions";
 import { toast } from "sonner";
 
@@ -51,11 +45,7 @@ export function PremiumUpgradeDialog({
       <DialogContent dir="rtl" className="max-w-md text-right sm:text-right">
         <DialogHeader className="items-center text-center sm:text-center">
           <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10">
-            {isPaid ? (
-              <Crown className="size-6 text-primary" />
-            ) : (
-              <BadgeDollarSign className="size-6 text-primary" />
-            )}
+            {isPaid ? <Crown className="size-6 text-primary" /> : <BadgeDollarSign className="size-6 text-primary" />}
           </div>
           <DialogTitle className="font-display text-2xl font-extrabold">
             {isPaid ? "כבר נתתם בראש!" : "תנו בראש — ותיפרדו מהפרסומות"}
@@ -63,7 +53,7 @@ export function PremiumUpgradeDialog({
           <DialogDescription className="pt-2 text-center leading-relaxed">
             {isPaid
               ? "החשבון שלכם כבר כולל הסרת פרסומות לצמיתות. תודה על התמיכה במשחק."
-              : "תשלום חד־פעמי קטן עוזר לתמוך בהמשך הפיתוח העצמאי של לשבור ת'ראש, ועל הדרך מסיר את הפרסומות מהחשבון שלכם לצמיתות."}
+              : "תשלום חד־פעמי קטן עוזר לתמוך בהמשך הפיתוח העצמאי של לשבור ת'ראש, ועל הדרך מסדר לכם פטור מפרסומות לצמיתות."}
           </DialogDescription>
         </DialogHeader>
 
@@ -91,7 +81,7 @@ export function PremiumUpgradeDialog({
               )}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
-              התשלום מתבצע באתר PayPal. פרטי התשלום אינם נשמרים אצלנו.
+              התשלום מתבצע דרך אתר PayPal. פרטי התשלום אינם נשמרים אצלנו.
             </p>
           </>
         )}
