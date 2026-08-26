@@ -54,7 +54,8 @@ function PayingPlayersPage() {
       <DataTableShell
         headers={
           <>
-            <TableHead>שם</TableHead>
+            <TableHead>שחקן</TableHead>
+            <TableHead className="hidden md:table-cell">אימייל</TableHead>
             <TableHead className="hidden md:table-cell">גיל</TableHead>
             <TableHead className="hidden md:table-cell">תאריך הרשמה</TableHead>
             <TableHead>תאריך תשלום</TableHead>
@@ -64,13 +65,13 @@ function PayingPlayersPage() {
         rows={
           q.isLoading ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                 טוען...
               </TableCell>
             </TableRow>
           ) : rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                 אין שחקנים משלמים
               </TableCell>
             </TableRow>
@@ -78,6 +79,7 @@ function PayingPlayersPage() {
             rows.map((r) => (
               <TableRow key={r.id}>
                 <TableCell className="font-medium">{r.display_name ?? r.username}</TableCell>
+                <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
                 <TableCell className="hidden md:table-cell">{r.age ?? "—"}</TableCell>
                 <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                   {fmtDate(r.created_at)}
