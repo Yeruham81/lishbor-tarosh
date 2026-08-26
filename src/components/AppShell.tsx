@@ -27,7 +27,8 @@ import { CookiePreferencesDialog } from "@/components/CookiePreferencesDialog";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyRole } from "@/lib/account.functions";
-import { toast } from "sonner";
+import { getPremiumStatus, premiumStatusQueryKey } from "@/lib/payments.functions";
+import { PremiumUpgradeDialog } from "@/components/PremiumUpgradeDialog";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
@@ -41,6 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Popup announcement: show once per session per message text.
   const popupText = flags.popupAnnouncement?.trim() ?? "";
   const [popupOpen, setPopupOpen] = useState(false);
+  const [premiumOpen, setPremiumOpen] = useState(false);
   useEffect(() => {
     if (!popupText) return;
     if (typeof window === "undefined") return;
@@ -64,7 +66,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   });
   const isAdmin = !!roleQ.data?.isAdmin;
 
-  const onDisableAds = () => {};
+  const fetchPremiumStatus = useServerFn(getPremiumStatus);
+  const premiumQ = useQuery({
+    queryKey: premiumStatusQueryKey(user?.id),
+    queryFn: () => fetchPremiumStatus(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const canOfferPremium = !!user && premiumQ.isSuccess && !premiumQ.data.isPaid;
+
+  const onDisableAds = () => setPremiumOpen(true);
 
   // Maintenance mode: block non-admins entirely.
   if (!flags.loading && flags.maintenanceMode && !isAdmin && !(user && roleQ.isLoading)) {
@@ -130,7 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </NavLink>
             )}
 
-            {user && flags.disableAdsButtonVisible && (
+            {canOfferPremium && flags.disableAdsButtonVisible && (
               <button
                 type="button"
                 onClick={onDisableAds}
@@ -143,7 +154,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </nav>
           <div className="flex items-center gap-2">
-            {user && flags.disableAdsButtonVisible && (
+            {canOfferPremium && flags.disableAdsButtonVisible && (
               <button
                 type="button"
                 onClick={onDisableAds}
@@ -413,6 +424,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </DialogContent>
         </Dialog>
       )}
+      <PremiumUpgradeDialog open={premiumOpen} onOpenChange={setPremiumOpen} isPaid={!!premiumQ.data?.isPaid} />
       <CookieConsentBanner />
       <CookiePreferencesDialog />
     </div>

@@ -34,9 +34,7 @@ export interface CaptureFacts {
   environment: string;
 }
 
-export type VerifyResult =
-  | { ok: true }
-  | { ok: false; reason: string };
+export type VerifyResult = { ok: true } | { ok: false; reason: string };
 
 function sameAmount(a: string | number, b: string | number): boolean {
   const x = Number(a);
@@ -45,24 +43,40 @@ function sameAmount(a: string | number, b: string | number): boolean {
   return Math.round(x * 100) === Math.round(y * 100);
 }
 
+type UnknownRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): UnknownRecord {
+  return value !== null && typeof value === "object" && !Array.isArray(value) ? (value as UnknownRecord) : {};
+}
+
+function firstRecord(value: unknown): UnknownRecord {
+  return Array.isArray(value) ? asRecord(value[0]) : {};
+}
+
+function asString(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
 /** Extract the facts we care about from a PayPal capture/order response. */
-export function extractCaptureFacts(
-  order: any,
-  environment: string,
-): CaptureFacts {
-  const unit = order?.purchase_units?.[0] ?? {};
-  const capture = unit?.payments?.captures?.[0] ?? null;
-  const amount = capture?.amount ?? unit?.amount ?? null;
+export function extractCaptureFacts(order: unknown, environment: string): CaptureFacts {
+  const orderRecord = asRecord(order);
+  const unit = firstRecord(orderRecord.purchase_units);
+  const payments = asRecord(unit.payments);
+  const capture = firstRecord(payments.captures);
+  const captureAmount = asRecord(capture.amount);
+  const unitAmount = asRecord(unit.amount);
+  const amount = Object.keys(captureAmount).length > 0 ? captureAmount : unitAmount;
+  const payee = asRecord(unit.payee);
   return {
-    orderId: order?.id ?? "",
-    orderStatus: order?.status ?? "",
-    captureId: capture?.id ?? null,
-    captureStatus: capture?.status ?? null,
-    amountValue: amount?.value ?? null,
-    currency: amount?.currency_code ?? null,
-    customId: capture?.custom_id ?? unit?.custom_id ?? null,
-    invoiceId: capture?.invoice_id ?? unit?.invoice_id ?? null,
-    merchantId: unit?.payee?.merchant_id ?? null,
+    orderId: asString(orderRecord.id) ?? "",
+    orderStatus: asString(orderRecord.status) ?? "",
+    captureId: asString(capture.id),
+    captureStatus: asString(capture.status),
+    amountValue: asString(amount.value),
+    currency: asString(amount.currency_code),
+    customId: asString(capture.custom_id) ?? asString(unit.custom_id),
+    invoiceId: asString(capture.invoice_id) ?? asString(unit.invoice_id),
+    merchantId: asString(payee.merchant_id),
     environment,
   };
 }
@@ -70,10 +84,7 @@ export function extractCaptureFacts(
 /**
  * Decide whether a capture may grant premium. Every check must pass.
  */
-export function verifyCapture(
-  purchase: StoredPurchase,
-  facts: CaptureFacts,
-): VerifyResult {
+export function verifyCapture(purchase: StoredPurchase, facts: CaptureFacts): VerifyResult {
   if (facts.environment !== purchase.environment) {
     return { ok: false, reason: "environment_mismatch" };
   }
@@ -115,4 +126,16 @@ export function verifyCapture(
 /** Purchase states from which a capture attempt is allowed. */
 export function canAttemptCapture(status: string): boolean {
   return status === "pending";
+}
+
+/**
+ * States in which the same PayPal order may safely be checked/captured again.
+ * A retry must never create a replacement order or grant an entitlement yet.
+ */
+export function isRetryableCapture(facts: CaptureFacts): boolean {
+  if (["CREATED", "APPROVED", "PAYER_ACTION_REQUIRED"].includes(facts.orderStatus)) {
+    return true;
+  }
+  if (!facts.captureId) return true;
+  return facts.captureStatus === "PENDING";
 }
