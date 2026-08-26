@@ -1,4 +1,3 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -320,13 +319,10 @@ function Profile() {
           </div>
 
           {/* Premium */}
-          <div className="mb-4">
-            <PremiumUpgradeCard />
-          </div>
+          <PremiumUpgradeCard />
 
           {/* Account management */}
           <Card icon={<UserCircle2 className="size-5 text-primary" />} title="ניהול החשבון">
-
             {/* Nickname (permanent) — shown before avatar */}
             <div>
               <div className="text-sm font-medium mb-2">כינוי</div>
