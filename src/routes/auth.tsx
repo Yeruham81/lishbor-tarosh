@@ -9,8 +9,32 @@ import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { NOINDEX_META } from "@/lib/site";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: "signup" } =>
-    search.mode === "signup" ? { mode: "signup" } : {},
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): {
+    mode?: "signup";
+    returnTo?: "payment-return" | "payment-cancel";
+    paymentToken?: string;
+  } => {
+    const result: {
+      mode?: "signup";
+      returnTo?: "payment-return" | "payment-cancel";
+      paymentToken?: string;
+    } = {};
+
+    if (search.mode === "signup") result.mode = "signup";
+
+    const paymentToken =
+      typeof search.paymentToken === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(search.paymentToken)
+        ? search.paymentToken
+        : undefined;
+    if (paymentToken && (search.returnTo === "payment-return" || search.returnTo === "payment-cancel")) {
+      result.returnTo = search.returnTo;
+      result.paymentToken = paymentToken;
+    }
+
+    return result;
+  },
 
   head: () => ({ meta: [NOINDEX_META] }),
   component: AuthPage,
@@ -18,8 +42,10 @@ export const Route = createFileRoute("/auth")({
 
 type AuthMode = "signin" | "signup" | "forgot";
 
-function getAuthErrorMessage(error: any, mode: AuthMode): string {
-  const code = error?.code as string | undefined;
+function getAuthErrorMessage(error: unknown, mode: AuthMode): string {
+  const errorObject =
+    error !== null && typeof error === "object" ? (error as { code?: unknown; message?: unknown }) : {};
+  const code = typeof errorObject.code === "string" ? errorObject.code : undefined;
 
   switch (code) {
     case "invalid_credentials":
@@ -62,8 +88,8 @@ function getAuthErrorMessage(error: any, mode: AuthMode): string {
   }
 
   // שומר הודעות עבריות שיצרנו בעצמנו בקוד.
-  if (typeof error?.message === "string" && /[\u0590-\u05FF]/.test(error.message)) {
-    return error.message;
+  if (typeof errorObject.message === "string" && /[\u0590-\u05FF]/.test(errorObject.message)) {
+    return errorObject.message;
   }
 
   if (mode === "forgot") {
@@ -80,7 +106,7 @@ function getAuthErrorMessage(error: any, mode: AuthMode): string {
 function AuthPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { mode: initialMode } = Route.useSearch();
+  const { mode: initialMode, returnTo, paymentToken } = Route.useSearch();
 
   const [mode, setMode] = useState<AuthMode>(initialMode === "signup" ? "signup" : "signin");
 
@@ -93,12 +119,37 @@ function AuthPage() {
 
   useEffect(() => {
     if (user) {
+      if (returnTo === "payment-return" && paymentToken) {
+        navigate({
+          to: "/payment/return",
+          search: { token: paymentToken },
+          replace: true,
+        });
+        return;
+      }
+      if (returnTo === "payment-cancel" && paymentToken) {
+        navigate({
+          to: "/payment/cancel",
+          search: { token: paymentToken },
+          replace: true,
+        });
+        return;
+      }
       navigate({
         to: "/play",
         replace: true,
       });
     }
-  }, [user, navigate]);
+  }, [user, navigate, paymentToken, returnTo]);
+
+  const authCallbackUrl = () => {
+    if (!returnTo || !paymentToken) return window.location.origin;
+
+    const url = new URL("/auth", window.location.origin);
+    url.searchParams.set("returnTo", returnTo);
+    url.searchParams.set("paymentToken", paymentToken);
+    return url.toString();
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,7 +192,7 @@ function AuthPage() {
             data: {
               username,
             },
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: authCallbackUrl(),
           },
         });
 
@@ -169,7 +220,7 @@ function AuthPage() {
           throw error;
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(getAuthErrorMessage(err, mode));
     } finally {
       setLoading(false);
@@ -181,7 +232,7 @@ function AuthPage() {
 
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: authCallbackUrl(),
       });
 
       if (result.error) {
@@ -199,7 +250,7 @@ function AuthPage() {
 
     try {
       const result = await lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: window.location.origin,
+        redirect_uri: authCallbackUrl(),
       });
 
       if (result.error) {
