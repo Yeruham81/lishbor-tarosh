@@ -163,6 +163,7 @@ export async function capturePaypalOrder(cfg: PaypalConfig, orderId: string, pur
   return paypalFetch<PaypalOrder>(cfg, `/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
     method: "POST",
     requestId: `capture-${purchaseId}`,
+    prefer: "return=representation",
     body: {},
   });
 }
