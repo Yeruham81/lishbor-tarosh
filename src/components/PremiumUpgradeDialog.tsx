@@ -53,16 +53,9 @@ export function PremiumUpgradeDialog({
             {isPaid ? "כבר נתתם בראש!" : "תנו בראש — בלי פרסומות"}
           </DialogTitle>
           <DialogDescription className="pt-2 text-center leading-relaxed">
-            {isPaid ? (
-              "החשבון שלכם כבר כולל הסרת פרסומות לצמיתות. תודה על התמיכה במשחק."
-            ) : (
-              <>
-                <span className="block">בתשלום חד־פעמי של 20 ₪ אתם תומכים בהמשך הפיתוח העצמאי של לשבור ת'ראש.</span>
-                <span className="mt-2 block">
-                  ועל הדרך, אתם נהנים מחוויית משחק משודרגת ללא פרסומות — ללא הגבלת זמן.
-                </span>
-              </>
-            )}
+            {isPaid
+              ? "החשבון שלכם כבר כולל הסרת פרסומות לצמיתות. תודה על התמיכה במשחק."
+              : "בתשלום חד־פעמי של 20 ₪ אתם תומכים בהמשך הפיתוח העצמאי של לשבור ת'ראש. על הדרך, אתם נהנים מחוויית משחק משודרגת ללא פרסומות — לתמיד."}
           </DialogDescription>
         </DialogHeader>
 
@@ -90,7 +83,7 @@ export function PremiumUpgradeDialog({
                   מעבירים אתכם ל־PayPal…
                 </>
               ) : (
-                "לתשלום מאובטח ב־PayPal — 20 ₪"
+                "לתשלום מאובטח – 20 ש״ח"
               )}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
