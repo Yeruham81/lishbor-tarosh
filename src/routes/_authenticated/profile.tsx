@@ -16,6 +16,8 @@ import {
   updatePlayerLevel,
 } from "@/lib/account.functions";
 import { PLAYER_LEVELS } from "@/components/DisplayNameSetup";
+import { PremiumUpgradeCard } from "@/components/PremiumUpgradeCard";
+
 import { openCookiePreferences } from "@/lib/ads/consent";
 import { Cookie } from "lucide-react";
 
@@ -317,8 +319,14 @@ function Profile() {
             </div>
           </div>
 
+          {/* Premium */}
+          <div className="mb-4">
+            <PremiumUpgradeCard />
+          </div>
+
           {/* Account management */}
           <Card icon={<UserCircle2 className="size-5 text-primary" />} title="ניהול החשבון">
+
             {/* Nickname (permanent) — shown before avatar */}
             <div>
               <div className="text-sm font-medium mb-2">כינוי</div>
