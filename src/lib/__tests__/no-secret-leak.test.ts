@@ -34,6 +34,11 @@ describe("no PayPal secrets in the repository", () => {
   });
 
   it("never exposes PayPal config through VITE_ variables", () => {
-    expect(grep("'VITE_PAYPAL'", "src .env* vite.config.ts")).toBe("");
+    const hits = grep("'VITE_PAYPAL'", "src .env* vite.config.ts")
+      .split("\n")
+      .filter(Boolean)
+      .filter((line) => !line.startsWith("src/lib/__tests__/"));
+    expect(hits).toEqual([]);
   });
+
 });
