@@ -551,7 +551,7 @@ export const getProfile = createServerFn({ method: "GET" })
     const { data } = await supabaseAdmin
       .from("profiles")
       .select(
-        "id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, highest_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, last_seen_at, age, is_blocked, created_at, updated_at",
+        "id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, highest_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, last_seen_at, age, is_blocked, is_paid, created_at, updated_at",
       )
       .eq("id", context.userId)
       .single();
