@@ -81,6 +81,21 @@ export function extractCaptureFacts(order: unknown, environment: string): Captur
   };
 }
 
+/** Whether the response contains every field required for local verification. */
+export function hasCompleteCaptureRepresentation(facts: CaptureFacts): boolean {
+  return Boolean(
+    facts.orderId &&
+    facts.orderStatus &&
+    facts.captureId &&
+    facts.captureStatus &&
+    facts.amountValue &&
+    facts.currency &&
+    facts.customId &&
+    facts.invoiceId &&
+    facts.merchantId,
+  );
+}
+
 /**
  * Decide whether a capture may grant premium. Every check must pass.
  */
