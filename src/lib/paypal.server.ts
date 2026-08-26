@@ -20,6 +20,17 @@ export interface PaypalConfig {
   clientSecret: string;
 }
 
+export interface PaypalOrder {
+  id?: string;
+  status?: string;
+  purchase_units?: Array<{
+    payee?: { merchant_id?: string };
+    [key: string]: unknown;
+  }>;
+  links?: Array<{ rel?: string; href?: string }>;
+  [key: string]: unknown;
+}
+
 export function getPaypalConfig(): PaypalConfig {
   const raw = (process.env["PAYPAL_ENVIRONMENT"] ?? "").trim().toLowerCase();
   if (raw !== "sandbox" && raw !== "live") {
@@ -53,22 +64,23 @@ async function getAccessToken(cfg: PaypalConfig): Promise<string> {
     });
     throw new Error("paypal_auth_failed");
   }
-  const json: any = await res.json();
+  const json = (await res.json()) as { access_token?: string };
   if (!json?.access_token) throw new Error("paypal_auth_failed");
   return json.access_token as string;
 }
 
-async function paypalFetch(
+async function paypalFetch<T>(
   cfg: PaypalConfig,
   path: string,
-  init: { method: string; body?: unknown; requestId?: string },
-): Promise<any> {
+  init: { method: string; body?: unknown; requestId?: string; prefer?: "return=representation" },
+): Promise<T> {
   const token = await getAccessToken(cfg);
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
   };
   if (init.requestId) headers["PayPal-Request-Id"] = init.requestId;
+  if (init.prefer) headers.Prefer = init.prefer;
 
   const res = await fetch(`${cfg.apiBase}${path}`, {
     method: init.method,
@@ -85,7 +97,7 @@ async function paypalFetch(
     });
     throw new Error("paypal_request_failed");
   }
-  return json;
+  return json as T;
 }
 
 export interface CreateOrderArgs {
@@ -98,16 +110,33 @@ export interface CreateOrderArgs {
 }
 
 export async function createPaypalOrder(cfg: PaypalConfig, args: CreateOrderArgs) {
-  return paypalFetch(cfg, "/v2/checkout/orders", {
+  return paypalFetch<PaypalOrder>(cfg, "/v2/checkout/orders", {
     method: "POST",
     requestId: `order-${args.purchaseId}`,
+    prefer: "return=representation",
     body: {
       intent: "CAPTURE",
       purchase_units: [
         {
           custom_id: args.purchaseId,
           invoice_id: args.invoiceId,
-          amount: { currency_code: args.currency, value: args.amount },
+          description: "לשבור ת'ראש — גרסת פרימיום",
+          amount: {
+            currency_code: args.currency,
+            value: args.amount,
+            breakdown: {
+              item_total: { currency_code: args.currency, value: args.amount },
+            },
+          },
+          items: [
+            {
+              name: "לשבור ת'ראש — גרסת פרימיום",
+              sku: "PREMIUM_LIFETIME",
+              quantity: "1",
+              category: "DIGITAL_GOODS",
+              unit_amount: { currency_code: args.currency, value: args.amount },
+            },
+          ],
         },
       ],
       payment_source: {
@@ -120,28 +149,18 @@ export async function createPaypalOrder(cfg: PaypalConfig, args: CreateOrderArgs
           },
         },
       },
-      application_context: {
-        shipping_preference: "NO_SHIPPING",
-        user_action: "PAY_NOW",
-        return_url: args.returnUrl,
-        cancel_url: args.cancelUrl,
-      },
     },
   });
 }
 
 export async function getPaypalOrder(cfg: PaypalConfig, orderId: string) {
-  return paypalFetch(cfg, `/v2/checkout/orders/${encodeURIComponent(orderId)}`, {
+  return paypalFetch<PaypalOrder>(cfg, `/v2/checkout/orders/${encodeURIComponent(orderId)}`, {
     method: "GET",
   });
 }
 
-export async function capturePaypalOrder(
-  cfg: PaypalConfig,
-  orderId: string,
-  purchaseId: string,
-) {
-  return paypalFetch(cfg, `/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
+export async function capturePaypalOrder(cfg: PaypalConfig, orderId: string, purchaseId: string) {
+  return paypalFetch<PaypalOrder>(cfg, `/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
     method: "POST",
     requestId: `capture-${purchaseId}`,
     body: {},
@@ -149,12 +168,19 @@ export async function capturePaypalOrder(
 }
 
 /** Approval link the buyer must be redirected to. */
-export function approvalUrl(order: any): string | null {
-  const links: Array<{ rel?: string; href?: string }> = order?.links ?? [];
+export function approvalUrl(order: PaypalOrder): string | null {
+  const links = order.links ?? [];
   const link = links.find((l) => l.rel === "payer-action" || l.rel === "approve");
   return link?.href ?? null;
 }
 
-export function payeeMerchantId(order: any): string | null {
+export function payeeMerchantId(order: PaypalOrder): string | null {
   return order?.purchase_units?.[0]?.payee?.merchant_id ?? null;
+}
+
+/** Fetch the full authoritative order when Create Order returned minimally. */
+export async function ensurePaypalOrderRepresentation(cfg: PaypalConfig, order: PaypalOrder) {
+  if (order?.id && approvalUrl(order) && payeeMerchantId(order)) return order;
+  if (!order?.id) throw new Error("paypal_order_invalid");
+  return getPaypalOrder(cfg, order.id);
 }
