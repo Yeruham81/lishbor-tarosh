@@ -60,9 +60,6 @@ export type AdEligibilityInput = {
   adminLoading: boolean;
   config: AdConfig;
 
-  /**
-   * Reserved for a future ad-removal entitlement such as Premium.
-   * It is not currently connected to profiles.is_paid, payments, or storage.
-   */
+  /** Authenticated, server-verified lifetime ad-removal entitlement. */
   hasRemoveAdsEntitlement?: boolean;
 };
