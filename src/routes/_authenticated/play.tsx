@@ -124,7 +124,7 @@ function Play() {
   // Drive the auto-advance countdown after a solve, if the user opted in
   // and they haven't cancelled by interacting with the success screen.
   useEffect(() => {
-    if (!clue?.isSolved || !profileQ.data?.auto_next || autoCancelled) {
+    if (!clue?.isSolved || !profileQ.data?.is_paid || !profileQ.data?.auto_next || autoCancelled) {
       setCountdown(null);
       return;
     }
@@ -134,7 +134,7 @@ function Play() {
     }, 1000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clue?.isSolved, clue?.id, profileQ.data?.auto_next, autoCancelled]);
+  }, [clue?.isSolved, clue?.id, profileQ.data?.is_paid, profileQ.data?.auto_next, autoCancelled]);
 
   useEffect(() => {
     if (countdown === 0) {
