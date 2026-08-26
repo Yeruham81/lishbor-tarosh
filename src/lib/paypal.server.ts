@@ -1,141 +1,186 @@
 /**
- * Pure, dependency-free verification helpers for PayPal Orders v2 captures.
+ * Server-only PayPal configuration + Orders v2 client.
  *
- * These contain NO secrets and NO network access so they can be unit tested.
- * They are the single place where "may we grant premium?" is decided.
+ * Credentials and the active environment come exclusively from backend
+ * secrets, read at request time (never at module scope). Nothing here is
+ * ever exposed to the browser and no credential is logged.
  */
 
-export const PREMIUM_PRICE = "20.00";
-export const PREMIUM_CURRENCY = "ILS";
+const API_BASES = {
+  sandbox: "https://api-m.sandbox.paypal.com",
+  live: "https://api-m.paypal.com",
+} as const;
 
-export interface StoredPurchase {
-  id: string;
-  user_id: string;
-  status: string;
-  environment: string;
-  expected_amount: number | string;
-  expected_currency: string;
-  invoice_id: string;
-  paypal_order_id: string | null;
-  paypal_capture_id: string | null;
-  paypal_payee_merchant_id: string | null;
+export type PaypalEnvironment = keyof typeof API_BASES;
+
+export interface PaypalConfig {
+  environment: PaypalEnvironment;
+  apiBase: string;
+  clientId: string;
+  clientSecret: string;
 }
 
-export interface CaptureFacts {
-  orderId: string;
-  orderStatus: string;
-  captureId: string | null;
-  captureStatus: string | null;
-  amountValue: string | null;
-  currency: string | null;
-  customId: string | null;
-  invoiceId: string | null;
-  merchantId: string | null;
-  environment: string;
+export interface PaypalOrder {
+  id?: string;
+  status?: string;
+  purchase_units?: Array<{
+    payee?: { merchant_id?: string };
+    [key: string]: unknown;
+  }>;
+  links?: Array<{ rel?: string; href?: string }>;
+  [key: string]: unknown;
 }
 
-export type VerifyResult = { ok: true } | { ok: false; reason: string };
-
-function sameAmount(a: string | number, b: string | number): boolean {
-  const x = Number(a);
-  const y = Number(b);
-  if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
-  return Math.round(x * 100) === Math.round(y * 100);
+export function getPaypalConfig(): PaypalConfig {
+  const raw = (process.env["PAYPAL_ENVIRONMENT"] ?? "").trim().toLowerCase();
+  if (raw !== "sandbox" && raw !== "live") {
+    throw new Error("paypal_environment_invalid");
+  }
+  const environment = raw as PaypalEnvironment;
+  const prefix = environment === "sandbox" ? "PAYPAL_SANDBOX" : "PAYPAL_LIVE";
+  const clientId = process.env[`${prefix}_CLIENT_ID`];
+  const clientSecret = process.env[`${prefix}_CLIENT_SECRET`];
+  if (!clientId || !clientSecret) {
+    throw new Error("paypal_credentials_missing");
+  }
+  return { environment, apiBase: API_BASES[environment], clientId, clientSecret };
 }
 
-type UnknownRecord = Record<string, unknown>;
-
-function asRecord(value: unknown): UnknownRecord {
-  return value !== null && typeof value === "object" && !Array.isArray(value) ? (value as UnknownRecord) : {};
+async function getAccessToken(cfg: PaypalConfig): Promise<string> {
+  const basic = btoa(`${cfg.clientId}:${cfg.clientSecret}`);
+  const res = await fetch(`${cfg.apiBase}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+  });
+  if (!res.ok) {
+    console.error("[paypal] oauth failed", {
+      status: res.status,
+      debugId: res.headers.get("paypal-debug-id"),
+      environment: cfg.environment,
+    });
+    throw new Error("paypal_auth_failed");
+  }
+  const json = (await res.json()) as { access_token?: string };
+  if (!json?.access_token) throw new Error("paypal_auth_failed");
+  return json.access_token as string;
 }
 
-function firstRecord(value: unknown): UnknownRecord {
-  return Array.isArray(value) ? asRecord(value[0]) : {};
-}
-
-function asString(value: unknown): string | null {
-  return typeof value === "string" && value.length > 0 ? value : null;
-}
-
-/** Extract the facts we care about from a PayPal capture/order response. */
-export function extractCaptureFacts(order: unknown, environment: string): CaptureFacts {
-  const orderRecord = asRecord(order);
-  const unit = firstRecord(orderRecord.purchase_units);
-  const payments = asRecord(unit.payments);
-  const capture = firstRecord(payments.captures);
-  const captureAmount = asRecord(capture.amount);
-  const unitAmount = asRecord(unit.amount);
-  const amount = Object.keys(captureAmount).length > 0 ? captureAmount : unitAmount;
-  const payee = asRecord(unit.payee);
-  return {
-    orderId: asString(orderRecord.id) ?? "",
-    orderStatus: asString(orderRecord.status) ?? "",
-    captureId: asString(capture.id),
-    captureStatus: asString(capture.status),
-    amountValue: asString(amount.value),
-    currency: asString(amount.currency_code),
-    customId: asString(capture.custom_id) ?? asString(unit.custom_id),
-    invoiceId: asString(capture.invoice_id) ?? asString(unit.invoice_id),
-    merchantId: asString(payee.merchant_id),
-    environment,
+async function paypalFetch<T>(
+  cfg: PaypalConfig,
+  path: string,
+  init: { method: string; body?: unknown; requestId?: string; prefer?: "return=representation" },
+): Promise<T> {
+  const token = await getAccessToken(cfg);
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
   };
+  if (init.requestId) headers["PayPal-Request-Id"] = init.requestId;
+  if (init.prefer) headers.Prefer = init.prefer;
+
+  const res = await fetch(`${cfg.apiBase}${path}`, {
+    method: init.method,
+    headers,
+    body: init.body ? JSON.stringify(init.body) : undefined,
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok) {
+    console.error("[paypal] request failed", {
+      path,
+      status: res.status,
+      debugId: res.headers.get("paypal-debug-id"),
+      environment: cfg.environment,
+    });
+    throw new Error("paypal_request_failed");
+  }
+  return json as T;
 }
 
-/**
- * Decide whether a capture may grant premium. Every check must pass.
- */
-export function verifyCapture(purchase: StoredPurchase, facts: CaptureFacts): VerifyResult {
-  if (facts.environment !== purchase.environment) {
-    return { ok: false, reason: "environment_mismatch" };
-  }
-  if (facts.orderStatus !== "COMPLETED") {
-    return { ok: false, reason: "order_not_completed" };
-  }
-  if (!facts.captureId) return { ok: false, reason: "missing_capture" };
-  if (facts.captureStatus !== "COMPLETED") {
-    return { ok: false, reason: "capture_not_completed" };
-  }
-  if (!purchase.paypal_order_id || facts.orderId !== purchase.paypal_order_id) {
-    return { ok: false, reason: "order_id_mismatch" };
-  }
-  if (!facts.amountValue || !sameAmount(facts.amountValue, purchase.expected_amount)) {
-    return { ok: false, reason: "amount_mismatch" };
-  }
-  if (facts.currency !== purchase.expected_currency || facts.currency !== PREMIUM_CURRENCY) {
-    return { ok: false, reason: "currency_mismatch" };
-  }
-  if (facts.customId !== purchase.id) {
-    return { ok: false, reason: "custom_id_mismatch" };
-  }
-  if (facts.invoiceId !== purchase.invoice_id) {
-    return { ok: false, reason: "invoice_id_mismatch" };
-  }
-  if (
-    !facts.merchantId ||
-    !purchase.paypal_payee_merchant_id ||
-    facts.merchantId !== purchase.paypal_payee_merchant_id
-  ) {
-    return { ok: false, reason: "merchant_mismatch" };
-  }
-  if (purchase.paypal_capture_id && purchase.paypal_capture_id !== facts.captureId) {
-    return { ok: false, reason: "capture_already_used" };
-  }
-  return { ok: true };
+export interface CreateOrderArgs {
+  purchaseId: string;
+  invoiceId: string;
+  amount: string;
+  currency: string;
+  returnUrl: string;
+  cancelUrl: string;
 }
 
-/** Purchase states from which a capture attempt is allowed. */
-export function canAttemptCapture(status: string): boolean {
-  return status === "pending";
+export async function createPaypalOrder(cfg: PaypalConfig, args: CreateOrderArgs) {
+  return paypalFetch<PaypalOrder>(cfg, "/v2/checkout/orders", {
+    method: "POST",
+    requestId: `order-${args.purchaseId}`,
+    prefer: "return=representation",
+    body: {
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          custom_id: args.purchaseId,
+          invoice_id: args.invoiceId,
+          description: "לשבור ת'ראש — גרסת פרימיום",
+          amount: {
+            currency_code: args.currency,
+            value: args.amount,
+            breakdown: {
+              item_total: { currency_code: args.currency, value: args.amount },
+            },
+          },
+          items: [
+            {
+              name: "לשבור ת'ראש — גרסת פרימיום",
+              sku: "PREMIUM_LIFETIME",
+              quantity: "1",
+              category: "DIGITAL_GOODS",
+              unit_amount: { currency_code: args.currency, value: args.amount },
+            },
+          ],
+        },
+      ],
+      payment_source: {
+        paypal: {
+          experience_context: {
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: args.returnUrl,
+            cancel_url: args.cancelUrl,
+          },
+        },
+      },
+    },
+  });
 }
 
-/**
- * States in which the same PayPal order may safely be checked/captured again.
- * A retry must never create a replacement order or grant an entitlement yet.
- */
-export function isRetryableCapture(facts: CaptureFacts): boolean {
-  if (["CREATED", "APPROVED", "PAYER_ACTION_REQUIRED"].includes(facts.orderStatus)) {
-    return true;
-  }
-  if (!facts.captureId) return true;
-  return facts.captureStatus === "PENDING";
+export async function getPaypalOrder(cfg: PaypalConfig, orderId: string) {
+  return paypalFetch<PaypalOrder>(cfg, `/v2/checkout/orders/${encodeURIComponent(orderId)}`, {
+    method: "GET",
+  });
+}
+
+export async function capturePaypalOrder(cfg: PaypalConfig, orderId: string, purchaseId: string) {
+  return paypalFetch<PaypalOrder>(cfg, `/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
+    method: "POST",
+    requestId: `capture-${purchaseId}`,
+    body: {},
+  });
+}
+
+/** Approval link the buyer must be redirected to. */
+export function approvalUrl(order: PaypalOrder): string | null {
+  const links = order.links ?? [];
+  const link = links.find((l) => l.rel === "payer-action" || l.rel === "approve");
+  return link?.href ?? null;
+}
+
+export function payeeMerchantId(order: PaypalOrder): string | null {
+  return order?.purchase_units?.[0]?.payee?.merchant_id ?? null;
+}
+
+/** Fetch the full authoritative order when Create Order returned minimally. */
+export async function ensurePaypalOrderRepresentation(cfg: PaypalConfig, order: PaypalOrder) {
+  if (order?.id && approvalUrl(order) && payeeMerchantId(order)) return order;
+  if (!order?.id) throw new Error("paypal_order_invalid");
+  return getPaypalOrder(cfg, order.id);
 }
