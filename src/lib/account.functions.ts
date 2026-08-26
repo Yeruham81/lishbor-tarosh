@@ -22,10 +22,7 @@ export const getStats = createServerFn({ method: "GET" })
     const totalSolved = p.solved_count ?? 0;
     const totalSkipped = p.definitions_skipped ?? 0;
     const totalPlayed = p.definitions_played ?? 0;
-    const successRate =
-      totalPlayed > 0
-        ? Math.round((totalSolved / totalPlayed) * 100)
-        : 0;
+    const successRate = totalPlayed > 0 ? Math.round((totalSolved / totalPlayed) * 100) : 0;
 
     return {
       profile,
@@ -52,22 +49,10 @@ export const resetAccount = createServerFn({ method: "POST" })
     const { userId } = context;
 
     await Promise.all([
-      supabaseAdmin
-        .from("game_progress")
-        .delete()
-        .eq("user_id", userId),
-      supabaseAdmin
-        .from("hint_usage")
-        .delete()
-        .eq("user_id", userId),
-      supabaseAdmin
-        .from("clue_ratings")
-        .delete()
-        .eq("user_id", userId),
-      supabaseAdmin
-        .from("challenges")
-        .delete()
-        .eq("challenger_id", userId),
+      supabaseAdmin.from("game_progress").delete().eq("user_id", userId),
+      supabaseAdmin.from("hint_usage").delete().eq("user_id", userId),
+      supabaseAdmin.from("clue_ratings").delete().eq("user_id", userId),
+      supabaseAdmin.from("challenges").delete().eq("challenger_id", userId),
     ]);
 
     await supabaseAdmin
@@ -101,39 +86,17 @@ export const deleteAccount = createServerFn({ method: "POST" })
     const { userId } = context;
 
     await Promise.all([
-      supabaseAdmin
-        .from("game_progress")
-        .delete()
-        .eq("user_id", userId),
-      supabaseAdmin
-        .from("hint_usage")
-        .delete()
-        .eq("user_id", userId),
-      supabaseAdmin
-        .from("clue_ratings")
-        .delete()
-        .eq("user_id", userId),
-      supabaseAdmin
-        .from("challenges")
-        .delete()
-        .eq("challenger_id", userId),
-      supabaseAdmin
-        .from("feedback")
-        .delete()
-        .eq("user_id", userId),
-      supabaseAdmin
-        .from("user_roles")
-        .delete()
-        .eq("user_id", userId),
+      supabaseAdmin.from("game_progress").delete().eq("user_id", userId),
+      supabaseAdmin.from("hint_usage").delete().eq("user_id", userId),
+      supabaseAdmin.from("clue_ratings").delete().eq("user_id", userId),
+      supabaseAdmin.from("challenges").delete().eq("challenger_id", userId),
+      supabaseAdmin.from("feedback").delete().eq("user_id", userId),
+      supabaseAdmin.from("user_roles").delete().eq("user_id", userId),
     ]);
 
-    await supabaseAdmin
-      .from("profiles")
-      .delete()
-      .eq("id", userId);
+    await supabaseAdmin.from("profiles").delete().eq("id", userId);
 
-    const { error } =
-      await supabaseAdmin.auth.admin.deleteUser(userId);
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (error) throw new Error(error.message);
 
@@ -155,11 +118,7 @@ const confirmSchema = z.object({
           "ניתן להשתמש באותיות עברית/אנגלית, מספרים, רווחים ו- . , _ - בלבד",
         ),
     ),
-  age: z
-    .number()
-    .int()
-    .min(18, "גיל לא תקין")
-    .max(100, "גיל לא תקין"),
+  age: z.number().int().min(18, "גיל לא תקין").max(100, "גיל לא תקין"),
   playerLevel: z.number().int().min(1).max(5),
 });
 
@@ -243,29 +202,18 @@ export const getDisplayNameStatus = createServerFn({
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select(
-        "display_name, display_name_confirmed, username",
-      )
+      .select("display_name, display_name_confirmed, username")
       .eq("id", userId)
       .single();
 
     // Try to extract a suggested name from JWT user_metadata
-    const meta = (claims?.user_metadata ?? {}) as Record<
-      string,
-      any
-    >;
+    const meta = (claims?.user_metadata ?? {}) as Record<string, any>;
 
-    const suggested: string | null =
-      meta.full_name ||
-      meta.name ||
-      meta.display_name ||
-      profile?.display_name ||
-      null;
+    const suggested: string | null = meta.full_name || meta.name || meta.display_name || profile?.display_name || null;
 
     return {
       confirmed: !!profile?.display_name_confirmed,
-      current:
-        profile?.display_name ?? profile?.username ?? "",
+      current: profile?.display_name ?? profile?.username ?? "",
       suggested,
     };
   });
@@ -274,20 +222,14 @@ export const getDisplayNameStatus = createServerFn({
 const prefsSchema = z.object({
   is_private: z.boolean().optional(),
   auto_next: z.boolean().optional(),
-  notification_prefs: z
-    .record(z.string(), z.boolean())
-    .optional(),
+  notification_prefs: z.record(z.string(), z.boolean()).optional(),
   accessibility_prefs: z
     .object({
       colorblind: z.boolean().optional(),
       high_contrast: z.boolean().optional(),
-      text_size: z
-        .enum(["small", "normal", "large"])
-        .optional(),
+      text_size: z.enum(["small", "normal", "large"]).optional(),
       screen_reader: z.boolean().optional(),
-      palette: z
-        .enum(["sunset", "ocean", "forest", "candy"])
-        .optional(),
+      palette: z.enum(["sunset", "ocean", "forest", "candy"]).optional(),
       mode: z.enum(["light", "dark"]).optional(),
     })
     .optional(),
@@ -307,6 +249,17 @@ export const updatePreferences = createServerFn({
     }
 
     if (typeof data.auto_next === "boolean") {
+      if (data.auto_next) {
+        const { data: paidProfile, error: paidError } = await supabaseAdmin
+          .from("profiles")
+          .select("id")
+          .eq("id", userId)
+          .eq("is_paid", true)
+          .maybeSingle();
+
+        if (paidError) throw new Error(paidError.message);
+        if (!paidProfile) throw new Error("premium_required");
+      }
       patch.auto_next = data.auto_next;
     }
 
@@ -322,8 +275,7 @@ export const updatePreferences = createServerFn({
         .eq("id", userId)
         .single();
 
-      const curPrefs = (cur?.accessibility_prefs ??
-        {}) as Record<string, any>;
+      const curPrefs = (cur?.accessibility_prefs ?? {}) as Record<string, any>;
 
       patch.accessibility_prefs = {
         ...curPrefs,
@@ -365,18 +317,10 @@ export const setAvatarPath = createServerFn({
 
     // Best-effort: remove old file when clearing
     if (!data.path) {
-      const { data: list } = await supabaseAdmin.storage
-        .from("avatars")
-        .list(context.userId);
+      const { data: list } = await supabaseAdmin.storage.from("avatars").list(context.userId);
 
       if (list?.length) {
-        await supabaseAdmin.storage
-          .from("avatars")
-          .remove(
-            list.map(
-              (f) => `${context.userId}/${f.name}`,
-            ),
-          );
+        await supabaseAdmin.storage.from("avatars").remove(list.map((f) => `${context.userId}/${f.name}`));
       }
     }
 
@@ -402,10 +346,7 @@ export const getAvatarUrl = createServerFn({
 
     const { data: signed } = await supabaseAdmin.storage
       .from("avatars")
-      .createSignedUrl(
-        profile.avatar_url,
-        60 * 60 * 24,
-      );
+      .createSignedUrl(profile.avatar_url, 60 * 60 * 24);
 
     return {
       url: signed?.signedUrl ?? null,
