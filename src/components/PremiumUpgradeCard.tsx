@@ -1,16 +1,15 @@
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Crown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
-import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { createPremiumOrder, getPremiumStatus, premiumStatusQueryKey } from "@/lib/payments.functions";
 
 /** One-time premium purchase (20 ₪) via PayPal. */
 export function PremiumUpgradeCard() {
   const { user } = useAuth();
-  const flags = useFeatureFlags();
   const fetchStatus = useServerFn(getPremiumStatus);
   const createOrder = useServerFn(createPremiumOrder);
   const [pending, setPending] = useState(false);
@@ -20,15 +19,6 @@ export function PremiumUpgradeCard() {
     queryFn: () => fetchStatus(),
     enabled: !!user,
   });
-
-  // The admin switch controls the premium offer everywhere. While the
-  // setting is loading, render nothing to avoid briefly flashing the offer.
-  // Paid users still keep their entitlement/status message when the offer is hidden.
-  if (flags.loading) return null;
-
-  if (!flags.disableAdsButtonVisible) {
-    if (isLoading || isError || !data?.isPaid) return null;
-  }
 
   if (isLoading) {
     return (
@@ -84,7 +74,7 @@ export function PremiumUpgradeCard() {
             מעבירים לתשלום…
           </>
         ) : (
-          "לתשלום מאובטח ב־PayPal"
+          "לתשלום מאובטח – 20 ש״ח"
         )}
       </Button>
     </div>
