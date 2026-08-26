@@ -53,7 +53,7 @@ export function PremiumUpgradeDialog({
           <DialogDescription className="pt-2 text-center leading-relaxed">
             {isPaid
               ? "החשבון שלכם כבר כולל הסרת פרסומות לצמיתות. תודה על התמיכה במשחק."
-              : "תשלום חד־פעמי קטן עוזר לתמוך בהמשך הפיתוח העצמאי של לשבור ת'ראש, ועל הדרך מסדר לכם פטור מפרסומות לצמיתות."}
+              : "תשלום חד־פעמי קטן עוזר לתמוך בהמשך הפיתוח העצמאי של לשבור ת'ראש, ועל הדרך מסיר את הפרסומות מהחשבון שלכם לצמיתות."}
           </DialogDescription>
         </DialogHeader>
 
@@ -81,7 +81,7 @@ export function PremiumUpgradeDialog({
               )}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
-              התשלום מתבצע דרך אתר PayPal. פרטי התשלום אינם נשמרים אצלנו.
+              התשלום מתבצע באתר PayPal. פרטי התשלום אינם נשמרים אצלנו.
             </p>
           </>
         )}
