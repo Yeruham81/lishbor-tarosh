@@ -241,13 +241,28 @@ export const capturePremiumOrder = createServerFn({ method: "POST" })
       .single();
     if (profileErr || !profile) throw new Error("profile_lookup_failed");
     if (profile.is_paid) {
-      const { error } = await supabaseAdmin
+      const { data: canceled, error } = await supabaseAdmin
         .from("purchases")
         .update({ status: "canceled" })
         .eq("id", purchase.id)
-        .eq("status", "pending");
+        .eq("status", "pending")
+        .select("id")
+        .maybeSingle();
       if (error) throw new Error("purchase_status_update_failed");
-      throw new Error("already_premium");
+      if (canceled) throw new Error("already_premium");
+
+      // The verified webhook can complete this purchase between our initial
+      // purchase lookup and profile lookup. Report that race as success.
+      const { data: latest, error: latestError } = await supabaseAdmin
+        .from("purchases")
+        .select("status")
+        .eq("id", purchase.id)
+        .single();
+      if (latestError || !latest) throw new Error("purchase_lookup_failed");
+      if (latest.status === "completed") {
+        return { status: "completed" as const, alreadyCompleted: true };
+      }
+      throw new Error("purchase_not_pending");
     }
 
     let order: Awaited<ReturnType<typeof capturePaypalOrder>>;
