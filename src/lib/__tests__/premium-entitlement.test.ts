@@ -75,6 +75,23 @@ describe("Premium entitlement", () => {
     expect(payments).toContain("order = await getPaypalOrder(cfg, data.orderId)");
   });
 
+  it("replaces only a pending PayPal order that is confirmed missing", () => {
+    const payments = readFileSync("src/lib/payments.functions.ts", "utf8");
+
+    expect(payments).toContain("if (!isPaypalRequestError(error, 404)) throw error");
+    expect(payments).toContain("[paypal] stale pending order closed");
+    expect(payments).toContain("return null");
+  });
+
+  it("resumes an existing PayPal checkout while it can still be completed", () => {
+    const payments = readFileSync("src/lib/payments.functions.ts", "utf8");
+
+    expect(payments).toContain('if (status === "CREATED" && url)');
+    expect(payments).toContain("return { orderId: purchase.paypal_order_id, approvalUrl: url }");
+    expect(payments).toContain('if (status === "APPROVED" || status === "COMPLETED")');
+    expect(payments).toContain("approvalUrl: localReturnUrl(purchase.paypal_order_id)");
+  });
+
   it("preserves the approved PayPal order while an unauthenticated user signs back in", () => {
     const authenticatedRoute = readFileSync("src/routes/_authenticated.tsx", "utf8");
     const authRoute = readFileSync("src/routes/auth.tsx", "utf8");
@@ -90,8 +107,54 @@ describe("Premium entitlement", () => {
     const dialog = readFileSync("src/components/PremiumUpgradeDialog.tsx", "utf8");
     const card = readFileSync("src/components/PremiumUpgradeCard.tsx", "utf8");
 
-    expect(dialog).toContain("לתשלום מאובטח – 20 ש״ח");
+    expect(dialog).toContain("מעבר לתשלום מאובטח");
     expect(card).toContain("לתשלום מאובטח – 20 ש״ח");
     expect(dialog).not.toContain("PayPal — 20 ₪");
+  });
+
+  it("allows automatic clue advancement only for paid players", () => {
+    const profileRoute = readFileSync("src/routes/_authenticated/profile.tsx", "utf8");
+    const accountFunctions = readFileSync("src/lib/account.functions.ts", "utf8");
+    const gameFunctions = readFileSync("src/lib/game.functions.ts", "utf8");
+    const playRoute = readFileSync("src/routes/_authenticated/play.tsx", "utf8");
+
+    expect(profileRoute).toContain("checked={!!p.is_paid && !!p.auto_next}");
+    expect(profileRoute).toContain("disabled={!p.is_paid}");
+    expect(profileRoute).toContain("disabled={disabled}");
+    expect(profileRoute).toContain('"זמין לשחקנים ששילמו"');
+    expect(accountFunctions).toContain('.eq("is_paid", true)');
+    expect(accountFunctions).toContain('throw new Error("premium_required")');
+    expect(gameFunctions).toContain("is_blocked, is_paid, created_at");
+    expect(playRoute).toContain("!profileQ.data?.is_paid || !profileQ.data?.auto_next");
+  });
+
+  it("enforces the automatic-advance entitlement in the database", () => {
+    const migration = readFileSync("supabase/migrations/20260827010000_premium_auto_next_entitlement.sql", "utf8");
+
+    expect(migration).toContain("CHECK (auto_next = false OR is_paid = true)");
+    expect(migration).toContain("auth.role() IN ('anon', 'authenticated')");
+    expect(migration).toContain("payment_entitlement_read_only");
+  });
+
+  it("shows paid-player status and email in the requested admin columns", () => {
+    const playersRoute = readFileSync("src/routes/_authenticated/admin.players.tsx", "utf8");
+    const payingRoute = readFileSync("src/routes/_authenticated/admin.paying.tsx", "utf8");
+
+    const emailColumn = playersRoute.indexOf('{ key: "email", label: "אימייל" }');
+    const subscriptionColumn = playersRoute.indexOf('{ key: "subscription", label: "מנוי" }');
+    const ageColumn = playersRoute.indexOf('{ key: "age", label: "גיל" }');
+    const payingPlayerHeader = payingRoute.indexOf("<TableHead>שחקן</TableHead>");
+    const payingEmailHeader = payingRoute.indexOf('className="hidden md:table-cell">אימייל</TableHead>');
+    const payingAgeHeader = payingRoute.indexOf('className="hidden md:table-cell">גיל</TableHead>');
+
+    expect(emailColumn).toBeGreaterThan(-1);
+    expect(subscriptionColumn).toBeGreaterThan(emailColumn);
+    expect(ageColumn).toBeGreaterThan(subscriptionColumn);
+    expect(playersRoute).toContain("r.is_paid ?");
+    expect(playersRoute).toContain("text-emerald-700");
+    expect(payingPlayerHeader).toBeGreaterThan(-1);
+    expect(payingEmailHeader).toBeGreaterThan(payingPlayerHeader);
+    expect(payingAgeHeader).toBeGreaterThan(payingEmailHeader);
+    expect(payingRoute).toContain('{r.email ?? "—"}');
   });
 });
