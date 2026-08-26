@@ -8,9 +8,12 @@ import { execSync } from "node:child_process";
 describe("no PayPal secrets in the repository", () => {
   const grep = (pattern: string, paths: string) => {
     try {
-      return execSync(`rg -n --hidden -g '!node_modules' -g '!.git' -g '!bun.lock' ${pattern} ${paths}`, {
-        encoding: "utf8",
-      }).trim();
+      return execSync(
+        `rg -n --hidden -g '!node_modules' -g '!.git' -g '!bun.lock' ${pattern} ${paths}`,
+        {
+          encoding: "utf8",
+        },
+      ).trim();
     } catch {
       return "";
     }
@@ -25,7 +28,7 @@ describe("no PayPal secrets in the repository", () => {
   });
 
   it("keeps credential env reads out of client-reachable modules", () => {
-    const hits = grep("'PAYPAL_(SANDBOX|LIVE)_CLIENT_(ID|SECRET)'", "src")
+    const hits = grep("'PAYPAL_(SANDBOX|LIVE)_(CLIENT_(ID|SECRET)|WEBHOOK_ID)'", "src")
       .split("\n")
       .filter(Boolean)
       .filter((line) => !line.startsWith("src/lib/paypal.server.ts"))
@@ -40,5 +43,4 @@ describe("no PayPal secrets in the repository", () => {
       .filter((line) => !line.startsWith("src/lib/__tests__/"));
     expect(hits).toEqual([]);
   });
-
 });
