@@ -172,6 +172,7 @@ describe("paypal server config", () => {
     process.env["PAYPAL_ENVIRONMENT"] = "sandbox";
     process.env["PAYPAL_SANDBOX_CLIENT_ID"] = "test-id";
     process.env["PAYPAL_SANDBOX_CLIENT_SECRET"] = "test-secret";
+    process.env["PAYPAL_SANDBOX_WEBHOOK_ID"] = "WEBHOOK123";
   });
 
   afterEach(() => {
@@ -197,6 +198,13 @@ describe("paypal server config", () => {
     const { getPaypalConfig } = await import("@/lib/paypal.server");
     process.env["PAYPAL_ENVIRONMENT"] = "live";
     expect(() => getPaypalConfig()).toThrow("paypal_credentials_missing");
+  });
+
+  it("reads the webhook id for the active environment and fails closed when absent", async () => {
+    const { getPaypalWebhookId } = await import("@/lib/paypal.server");
+    expect(getPaypalWebhookId("sandbox")).toBe("WEBHOOK123");
+    delete process.env["PAYPAL_SANDBOX_WEBHOOK_ID"];
+    expect(() => getPaypalWebhookId("sandbox")).toThrow("paypal_webhook_id_missing");
   });
 
   it("never puts credentials in the order payload it sends to PayPal", async () => {
@@ -306,6 +314,74 @@ describe("paypal server config", () => {
     expect(fetchMock.mock.calls[1][0]).toBe("https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER123/capture");
     expect(fetchMock.mock.calls[1][1].headers.Prefer).toBe("return=representation");
     expect(fetchMock.mock.calls[1][1].headers["PayPal-Request-Id"]).toBe(`capture-${PURCHASE_ID}`);
+    vi.unstubAllGlobals();
+  });
+
+  it("verifies real webhook signatures with the environment-specific webhook id", async () => {
+    const mod = await import("@/lib/paypal.server");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers(),
+        json: async () => ({ access_token: "tok" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers(),
+        json: async () => ({ verification_status: "SUCCESS" }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const webhookEvent = {
+      id: "WH-1",
+      event_type: "PAYMENT.CAPTURE.COMPLETED",
+      resource: {},
+    };
+    const webhookEventRaw = JSON.stringify(webhookEvent, null, 2);
+    const verified = await mod.verifyPaypalWebhookSignature(mod.getPaypalConfig(), {
+      webhookId: mod.getPaypalWebhookId("sandbox"),
+      authAlgo: "SHA256withRSA",
+      certUrl: "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-1",
+      transmissionId: "TRANSMISSION-1",
+      transmissionSignature: "signature",
+      transmissionTime: "2026-08-26T03:00:00Z",
+      webhookEventRaw,
+    });
+
+    expect(verified).toBe(true);
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "https://api-m.sandbox.paypal.com/v1/notifications/verify-webhook-signature",
+    );
+    const verificationBody = String(fetchMock.mock.calls[1][1].body);
+    const payload = JSON.parse(verificationBody);
+    expect(payload).toMatchObject({
+      webhook_id: "WEBHOOK123",
+      transmission_id: "TRANSMISSION-1",
+      webhook_event: webhookEvent,
+    });
+    expect(verificationBody).toContain(`"webhook_event":${webhookEventRaw}`);
+    expect(verificationBody).not.toContain("test-secret");
+    vi.unstubAllGlobals();
+  });
+
+  it("rejects non-PayPal certificate URLs before signature verification", async () => {
+    const mod = await import("@/lib/paypal.server");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      mod.verifyPaypalWebhookSignature(mod.getPaypalConfig(), {
+        webhookId: "WEBHOOK123",
+        authAlgo: "SHA256withRSA",
+        certUrl: "https://attacker.example/v1/notifications/certs/CERT-1",
+        transmissionId: "TRANSMISSION-1",
+        transmissionSignature: "signature",
+        transmissionTime: "2026-08-26T03:00:00Z",
+        webhookEventRaw: "{}",
+      }),
+    ).rejects.toThrow("paypal_webhook_cert_url_invalid");
+    expect(fetchMock).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
   });
 });
