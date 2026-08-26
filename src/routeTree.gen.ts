@@ -37,6 +37,7 @@ import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
 import { Route as AuthenticatedPaymentCancelRouteImport } from './routes/_authenticated/payment.cancel'
 import { Route as AuthenticatedPaymentReturnRouteImport } from './routes/_authenticated/payment.return'
+import { Route as ApiPaypalWebhookRouteImport } from './routes/api.paypal.webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -186,6 +187,11 @@ const AuthenticatedPaymentReturnRoute =
     path: '/payment/return',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPaypalWebhookRoute = ApiPaypalWebhookRouteImport.update({
+  id: '/api/paypal/webhook',
+  path: '/api/paypal/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/payment/cancel': typeof AuthenticatedPaymentCancelRoute
   '/payment/return': typeof AuthenticatedPaymentReturnRoute
+  '/api/paypal/webhook': typeof ApiPaypalWebhookRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/payment/cancel': typeof AuthenticatedPaymentCancelRoute
   '/payment/return': typeof AuthenticatedPaymentReturnRoute
+  '/api/paypal/webhook': typeof ApiPaypalWebhookRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -273,6 +281,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/_authenticated/payment/cancel': typeof AuthenticatedPaymentCancelRoute
   '/_authenticated/payment/return': typeof AuthenticatedPaymentReturnRoute
+  '/api/paypal/webhook': typeof ApiPaypalWebhookRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -304,6 +313,7 @@ export interface FileRouteTypes {
     | '/admin/taxonomy'
     | '/payment/cancel'
     | '/payment/return'
+    | '/api/paypal/webhook'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/admin/taxonomy'
     | '/payment/cancel'
     | '/payment/return'
+    | '/api/paypal/webhook'
     | '/admin'
   id:
     | '__root__'
@@ -362,6 +373,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/taxonomy'
     | '/_authenticated/payment/cancel'
     | '/_authenticated/payment/return'
+    | '/api/paypal/webhook'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -380,6 +392,7 @@ export interface RootRouteChildren {
   SubmitPuzzleRoute: typeof SubmitPuzzleRoute
   TermsRoute: typeof TermsRoute
   ChallengeTokenRoute: typeof ChallengeTokenRoute
+  ApiPaypalWebhookRoute: typeof ApiPaypalWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -580,6 +593,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPaymentReturnRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/paypal/webhook': {
+      id: '/api/paypal/webhook'
+      path: '/api/paypal/webhook'
+      fullPath: '/api/paypal/webhook'
+      preLoaderRoute: typeof ApiPaypalWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -645,6 +665,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubmitPuzzleRoute: SubmitPuzzleRoute,
   TermsRoute: TermsRoute,
   ChallengeTokenRoute: ChallengeTokenRoute,
+  ApiPaypalWebhookRoute: ApiPaypalWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
