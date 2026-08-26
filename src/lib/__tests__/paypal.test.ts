@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   extractCaptureFacts,
+  hasCompleteCaptureRepresentation,
   verifyCapture,
   canAttemptCapture,
   PREMIUM_PRICE,
@@ -48,6 +49,22 @@ const goodOrder = {
 const facts = (order: unknown, env = "sandbox") => extractCaptureFacts(order, env);
 
 describe("verifyCapture", () => {
+  it("detects a minimal PayPal response that must be followed by GET Order", () => {
+    expect(
+      hasCompleteCaptureRepresentation({
+        ...facts(goodOrder),
+        captureId: null,
+        captureStatus: null,
+        amountValue: null,
+        currency: null,
+        customId: null,
+        invoiceId: null,
+        merchantId: null,
+      }),
+    ).toBe(false);
+    expect(hasCompleteCaptureRepresentation(facts(goodOrder))).toBe(true);
+  });
+
   it("accepts a fully matching sandbox capture", () => {
     expect(verifyCapture(purchase, facts(goodOrder))).toEqual({ ok: true });
   });
@@ -265,6 +282,30 @@ describe("paypal server config", () => {
 
     expect(result).toEqual(fullOrder);
     expect(fetchMock.mock.calls[1][0]).toBe("https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER123");
+    vi.unstubAllGlobals();
+  });
+
+  it("requests a complete representation when capturing an order", async () => {
+    const mod = await import("@/lib/paypal.server");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers(),
+        json: async () => ({ access_token: "tok" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers(),
+        json: async () => goodOrder,
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await mod.capturePaypalOrder(mod.getPaypalConfig(), "ORDER123", PURCHASE_ID);
+
+    expect(fetchMock.mock.calls[1][0]).toBe("https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER123/capture");
+    expect(fetchMock.mock.calls[1][1].headers.Prefer).toBe("return=representation");
+    expect(fetchMock.mock.calls[1][1].headers["PayPal-Request-Id"]).toBe(`capture-${PURCHASE_ID}`);
     vi.unstubAllGlobals();
   });
 });
