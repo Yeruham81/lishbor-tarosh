@@ -87,7 +87,9 @@ export function PremiumUpgradeDialog({
               )}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
-              התשלום מתבצע באופן מאובטח באתר PayPal. פרטי אמצעי התשלום אינם מועברים אלינו ואינם נשמרים אצלנו.
+              התשלום מתבצע באופן מאובטח באתר PayPal.
+              <br />
+              פרטי אמצעי התשלום אינם מועברים אלינו ואינם נשמרים אצלנו.
             </p>
           </>
         )}
