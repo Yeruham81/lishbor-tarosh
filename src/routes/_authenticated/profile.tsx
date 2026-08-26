@@ -320,13 +320,10 @@ function Profile() {
           </div>
 
           {/* Premium */}
-          <div className="mb-4">
-            <PremiumUpgradeCard />
-          </div>
+          <PremiumUpgradeCard />
 
           {/* Account management */}
           <Card icon={<UserCircle2 className="size-5 text-primary" />} title="ניהול החשבון">
-
             {/* Nickname (permanent) — shown before avatar */}
             <div>
               <div className="text-sm font-medium mb-2">כינוי</div>
