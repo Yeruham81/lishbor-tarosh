@@ -281,7 +281,9 @@ describe("paypal server config", () => {
     });
 
     expect(result).toEqual(fullOrder);
-    expect(fetchMock.mock.calls[1][0]).toBe("https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER123");
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER123",
+    );
     vi.unstubAllGlobals();
   });
 
@@ -303,7 +305,9 @@ describe("paypal server config", () => {
 
     await mod.capturePaypalOrder(mod.getPaypalConfig(), "ORDER123", PURCHASE_ID);
 
-    expect(fetchMock.mock.calls[1][0]).toBe("https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER123/capture");
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER123/capture",
+    );
     expect(fetchMock.mock.calls[1][1].headers.Prefer).toBe("return=representation");
     expect(fetchMock.mock.calls[1][1].headers["PayPal-Request-Id"]).toBe(`capture-${PURCHASE_ID}`);
     vi.unstubAllGlobals();
