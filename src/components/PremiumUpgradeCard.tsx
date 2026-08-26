@@ -74,7 +74,7 @@ export function PremiumUpgradeCard() {
             מעבירים לתשלום…
           </>
         ) : (
-          "לתשלום מאובטח ב־PayPal"
+          "לתשלום מאובטח – 20 ש״ח"
         )}
       </Button>
     </div>
