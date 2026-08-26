@@ -83,7 +83,7 @@ export function PremiumUpgradeDialog({
                   מעבירים אתכם ל־PayPal…
                 </>
               ) : (
-                "לתשלום מאובטח – 20 ש״ח"
+                "מעבר לתשלום מאובטח"
               )}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
