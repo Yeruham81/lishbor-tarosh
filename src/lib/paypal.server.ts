@@ -185,3 +185,70 @@ export async function ensurePaypalOrderRepresentation(cfg: PaypalConfig, order: 
   if (!order?.id) throw new Error("paypal_order_invalid");
   return getPaypalOrder(cfg, order.id);
 }
+
+/** Webhook ID for the active environment (backend secret, never exposed). */
+export function getPaypalWebhookId(environment: PaypalEnvironment): string {
+  const prefix = environment === "sandbox" ? "PAYPAL_SANDBOX" : "PAYPAL_LIVE";
+  const webhookId = process.env[`${prefix}_WEBHOOK_ID`];
+  if (!webhookId) throw new Error("paypal_webhook_id_missing");
+  return webhookId;
+}
+
+export interface PaypalWebhookVerificationArgs {
+  webhookId: string;
+  authAlgo: string;
+  certUrl: string;
+  transmissionId: string;
+  transmissionSignature: string;
+  transmissionTime: string;
+  webhookEventRaw: string;
+}
+
+function assertPaypalCertUrl(certUrl: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(certUrl);
+  } catch {
+    throw new Error("paypal_webhook_cert_url_invalid");
+  }
+  const host = parsed.hostname.toLowerCase();
+  const allowed = host === "api.paypal.com" || host === "api.sandbox.paypal.com" ||
+    host.endsWith(".paypal.com");
+  if (parsed.protocol !== "https:" || !allowed) {
+    throw new Error("paypal_webhook_cert_url_invalid");
+  }
+}
+
+/** Post the event back to PayPal so only PayPal-signed payloads are trusted. */
+export async function verifyPaypalWebhookSignature(
+  cfg: PaypalConfig,
+  args: PaypalWebhookVerificationArgs,
+): Promise<boolean> {
+  assertPaypalCertUrl(args.certUrl);
+  const token = await getAccessToken(cfg);
+  const body = `{"auth_algo":${JSON.stringify(args.authAlgo)},"cert_url":${JSON.stringify(
+    args.certUrl,
+  )},"transmission_id":${JSON.stringify(
+    args.transmissionId,
+  )},"transmission_sig":${JSON.stringify(
+    args.transmissionSignature,
+  )},"transmission_time":${JSON.stringify(
+    args.transmissionTime,
+  )},"webhook_id":${JSON.stringify(args.webhookId)},"webhook_event":${args.webhookEventRaw}}`;
+
+  const res = await fetch(`${cfg.apiBase}/v1/notifications/verify-webhook-signature`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body,
+  });
+  if (!res.ok) {
+    console.error("[paypal] webhook verification request failed", {
+      status: res.status,
+      debugId: res.headers.get("paypal-debug-id"),
+      environment: cfg.environment,
+    });
+    throw new Error("paypal_webhook_verification_failed");
+  }
+  const json = (await res.json().catch(() => null)) as { verification_status?: string } | null;
+  return json?.verification_status === "SUCCESS";
+}
