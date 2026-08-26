@@ -23,19 +23,28 @@ function PaymentReturn() {
   const [state, setState] = useState<"loading" | "success" | "error">("loading");
   const ran = useRef(false);
 
-  useEffect(() => {
-    if (ran.current) return;
-    ran.current = true;
+  const verifyPayment = async () => {
     if (!token) {
       setState("error");
       return;
     }
-    capture({ data: { orderId: token } })
-      .then(async () => {
-        await queryClient.invalidateQueries();
-        setState("success");
-      })
-      .catch(() => setState("error"));
+    setState("loading");
+    try {
+      await capture({ data: { orderId: token } });
+      await queryClient.invalidateQueries();
+      setState("success");
+    } catch {
+      setState("error");
+    }
+  };
+
+  useEffect(() => {
+    if (ran.current) return;
+    ran.current = true;
+    void verifyPayment();
+    // The ref intentionally makes capture-on-return a one-time effect. Manual
+    // retries call verifyPayment with the same PayPal order ID.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, capture, queryClient]);
 
   return (
@@ -51,18 +60,23 @@ function PaymentReturn() {
         <>
           <CheckCircle2 className="size-10 text-primary" />
           <h1 className="text-xl font-bold">התשלום הושלם!</h1>
-          <p className="text-sm text-muted-foreground">התכונות המתקדמות נפתחו בחשבון שלכם.</p>
+          <p className="text-sm text-muted-foreground">הפרסומות הוסרו מהחשבון שלכם לצמיתות. תודה על התמיכה במשחק!</p>
           <Button onClick={() => navigate({ to: "/play" })}>המשך למשחק</Button>
         </>
       )}
       {state === "error" && (
         <>
           <XCircle className="size-10 text-destructive" />
-          <h1 className="text-xl font-bold">התשלום לא אושר</h1>
-          <p className="text-sm text-muted-foreground">לא חויבתם. אפשר לנסות שוב מהפרופיל.</p>
-          <Button asChild variant="outline">
-            <Link to="/profile">חזרה לפרופיל</Link>
-          </Button>
+          <h1 className="text-xl font-bold">עדיין לא הצלחנו לאשר את התשלום</h1>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            ייתכן שעדכון התשלום עדיין בעיבוד. אל תתחילו רכישה חדשה — בדקו שוב את אותה העסקה.
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button onClick={() => void verifyPayment()}>בדיקה מחדש</Button>
+            <Button asChild variant="outline">
+              <Link to="/play">חזרה למשחק</Link>
+            </Button>
+          </div>
         </>
       )}
     </div>
