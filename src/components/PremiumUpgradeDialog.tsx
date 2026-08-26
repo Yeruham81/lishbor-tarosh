@@ -50,7 +50,7 @@ export function PremiumUpgradeDialog({
             {isPaid ? <Crown className="size-6 text-primary" /> : <BadgeDollarSign className="size-6 text-primary" />}
           </div>
           <DialogTitle className="font-display text-2xl font-extrabold">
-            {isPaid ? "כבר נתתם בראש!" : "תנו בראש — בלי פרסומות"}
+            {isPaid ? "כבר נתתם בראש!" : "לשבור ת'ראש — בלי פרסומות"}
           </DialogTitle>
           <DialogDescription className="pt-2 text-center leading-relaxed">
             {isPaid
