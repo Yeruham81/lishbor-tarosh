@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Download, Trash2 } from "lucide-react";
+import { Check, MoreHorizontal, Download, Trash2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -47,6 +47,7 @@ export const Route = createFileRoute("/_authenticated/admin/players")({
 const COLS = [
   { key: "player", label: "שחקן" },
   { key: "email", label: "אימייל" },
+  { key: "subscription", label: "מנוי" },
   { key: "age", label: "גיל" },
   { key: "player_level", label: "רמה" },
   { key: "level", label: "שלב" },
@@ -237,6 +238,7 @@ function PlayersPage() {
             </TableHead>
             {t.isVisible("player") && <TableHead>שחקן</TableHead>}
             {t.isVisible("email") && <TableHead className="hidden md:table-cell">אימייל</TableHead>}
+            {t.isVisible("subscription") && <TableHead className="text-center">מנוי</TableHead>}
             {t.isVisible("age") && <TableHead className="hidden lg:table-cell">גיל</TableHead>}
             {t.isVisible("player_level") && <TableHead className="hidden lg:table-cell">רמה</TableHead>}
             {t.isVisible("level") && (
@@ -272,13 +274,13 @@ function PlayersPage() {
         rows={
           list.isLoading ? (
             <TableRow>
-              <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={COLS.length + 2} className="text-center py-8 text-muted-foreground">
                 טוען...
               </TableCell>
             </TableRow>
           ) : rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={COLS.length + 2} className="text-center py-8 text-muted-foreground">
                 אין שחקנים
               </TableCell>
             </TableRow>
@@ -303,7 +305,21 @@ function PlayersPage() {
                 {t.isVisible("email") && (
                   <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
                 )}
-
+                {t.isVisible("subscription") && (
+                  <TableCell className="text-center">
+                    {r.is_paid ? (
+                      <span
+                        className="inline-flex size-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                        title="מנוי פעיל"
+                      >
+                        <Check className="size-4 stroke-[3]" aria-hidden="true" />
+                        <span className="sr-only">מנוי פעיל</span>
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                )}
                 {t.isVisible("age") && <TableCell className="hidden lg:table-cell">{r.age ?? "—"}</TableCell>}
                 {t.isVisible("player_level") && (
                   <TableCell className="hidden lg:table-cell">
