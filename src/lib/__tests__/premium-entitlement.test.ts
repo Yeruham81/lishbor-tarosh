@@ -3,15 +3,7 @@ import { describe, expect, it } from "vitest";
 import { isAdEligible } from "@/lib/ads/eligibility";
 import type { AdConfig, AdScreen } from "@/lib/ads/types";
 
-const allScreens: AdScreen[] = [
-  "play",
-  "home",
-  "levels",
-  "profile",
-  "leaderboard",
-  "submit-puzzle",
-  "contact",
-];
+const allScreens: AdScreen[] = ["play", "home", "levels", "profile", "leaderboard", "submit-puzzle", "contact"];
 
 const config: AdConfig = {
   enabled: true,
@@ -61,10 +53,7 @@ describe("Premium entitlement", () => {
   });
 
   it("installs the one-pending-purchase and atomic-profile invariants", () => {
-    const migration = readFileSync(
-      "supabase/migrations/20260826010000_paypal_checkout_hardening.sql",
-      "utf8",
-    );
+    const migration = readFileSync("supabase/migrations/20260826010000_paypal_checkout_hardening.sql", "utf8");
     expect(migration).toContain(
       "CREATE UNIQUE INDEX IF NOT EXISTS purchases_one_pending_per_user_provider_environment_idx",
     );
