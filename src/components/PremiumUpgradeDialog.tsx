@@ -35,7 +35,9 @@ export function PremiumUpgradeDialog({
       window.location.assign(result.approvalUrl);
     } catch {
       setPending(false);
-      await queryClient.invalidateQueries({ queryKey: premiumStatusQueryKey(user?.id) });
+      await queryClient.invalidateQueries({
+        queryKey: premiumStatusQueryKey(user?.id),
+      });
       toast.error("לא הצלחנו לפתוח את התשלום. נסו שוב בעוד רגע.");
     }
   };
@@ -48,12 +50,19 @@ export function PremiumUpgradeDialog({
             {isPaid ? <Crown className="size-6 text-primary" /> : <BadgeDollarSign className="size-6 text-primary" />}
           </div>
           <DialogTitle className="font-display text-2xl font-extrabold">
-            {isPaid ? "כבר נתתם בראש!" : "תנו בראש — ותיפרדו מהפרסומות"}
+            {isPaid ? "כבר נתתם בראש!" : "תנו בראש — בלי פרסומות"}
           </DialogTitle>
           <DialogDescription className="pt-2 text-center leading-relaxed">
-            {isPaid
-              ? "החשבון שלכם כבר כולל הסרת פרסומות לצמיתות. תודה על התמיכה במשחק."
-              : "תשלום חד־פעמי קטן עוזר לתמוך בהמשך הפיתוח העצמאי של לשבור ת'ראש, ועל הדרך מסיר את הפרסומות מהחשבון שלכם לצמיתות."}
+            {isPaid ? (
+              "החשבון שלכם כבר כולל הסרת פרסומות לצמיתות. תודה על התמיכה במשחק."
+            ) : (
+              <>
+                <span className="block">בתשלום חד־פעמי של 20 ₪ אתם תומכים בהמשך הפיתוח העצמאי של לשבור ת'ראש.</span>
+                <span className="mt-2 block">
+                  ועל הדרך, אתם נהנים מחוויית משחק משודרגת ללא פרסומות — ללא הגבלת זמן.
+                </span>
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -62,11 +71,15 @@ export function PremiumUpgradeDialog({
             <div className="rounded-xl border bg-muted/30 p-4">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <CheckCircle2 className="size-5 shrink-0 text-primary" />
-                ללא פרסומות בחשבון הזה
+                משחק ללא פרסומות
               </div>
               <div className="mt-2 flex items-center gap-2 text-sm font-medium">
                 <CheckCircle2 className="size-5 shrink-0 text-primary" />
-                תשלום חד־פעמי בלבד — ללא מנוי או חידוש אוטומטי
+                מעבר אוטומטי להגדרה הבאה
+              </div>
+              <div className="mt-2 flex items-center gap-2 text-sm font-bold">
+                <CheckCircle2 className="size-5 shrink-0 text-primary" />
+                תשלום חד־פעמי בלבד — ללא מנוי וללא חידוש אוטומטי
               </div>
             </div>
 
@@ -74,14 +87,14 @@ export function PremiumUpgradeDialog({
               {pending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  מעבירים לתשלום מאובטח…
+                  מעבירים אתכם ל־PayPal…
                 </>
               ) : (
-                "לתשלום מאובטח – 20 ש״ח"
+                "לתשלום מאובטח ב־PayPal — 20 ₪"
               )}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
-              התשלום מתבצע באתר PayPal. פרטי התשלום אינם נשמרים אצלנו.
+              התשלום מתבצע באופן מאובטח באתר PayPal. פרטי אמצעי התשלום אינם מועברים אלינו ואינם נשמרים אצלנו.
             </p>
           </>
         )}
