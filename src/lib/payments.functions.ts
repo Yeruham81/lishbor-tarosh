@@ -208,8 +208,13 @@ export const capturePremiumOrder = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { userId } = context;
     const { getPaypalConfig, capturePaypalOrder, getPaypalOrder } = await import("@/lib/paypal.server");
-    const { extractCaptureFacts, verifyCapture, canAttemptCapture, isRetryableCapture } =
-      await import("@/lib/paypal-verify");
+    const {
+      extractCaptureFacts,
+      hasCompleteCaptureRepresentation,
+      verifyCapture,
+      canAttemptCapture,
+      isRetryableCapture,
+    } = await import("@/lib/paypal-verify");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const cfg = getPaypalConfig();
@@ -254,7 +259,15 @@ export const capturePremiumOrder = createServerFn({ method: "POST" })
       order = await getPaypalOrder(cfg, data.orderId);
     }
 
-    const facts = extractCaptureFacts(order, cfg.environment);
+    let facts = extractCaptureFacts(order, cfg.environment);
+
+    // PayPal may return only id/status/links even after a successful capture.
+    // Retrieve the authoritative order whenever verification fields are absent.
+    // This also recovers an order captured before the browser retried its return.
+    if (!hasCompleteCaptureRepresentation(facts)) {
+      order = await getPaypalOrder(cfg, data.orderId);
+      facts = extractCaptureFacts(order, cfg.environment);
+    }
 
     // Recover old pending rows created before merchant-id persistence was
     // hardened. The value comes from PayPal under this app's credentials.
