@@ -41,6 +41,20 @@ export interface PaypalOrder {
   [key: string]: unknown;
 }
 
+export class PaypalRequestError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super("paypal_request_failed");
+    this.name = "PaypalRequestError";
+    this.status = status;
+  }
+}
+
+export function isPaypalRequestError(error: unknown, status?: number): error is PaypalRequestError {
+  return error instanceof PaypalRequestError && (status === undefined || error.status === status);
+}
+
 export function getPaypalConfig(): PaypalConfig {
   const raw = (process.env["PAYPAL_ENVIRONMENT"] ?? "").trim().toLowerCase();
   if (raw !== "sandbox" && raw !== "live") {
@@ -119,7 +133,7 @@ async function paypalFetch<T>(
       debugId: res.headers.get("paypal-debug-id"),
       environment: cfg.environment,
     });
-    throw new Error("paypal_request_failed");
+    throw new PaypalRequestError(res.status);
   }
   return json as T;
 }
