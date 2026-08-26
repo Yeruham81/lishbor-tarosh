@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { getMyRole } from "@/lib/account.functions";
+import { getPremiumStatus, premiumStatusQueryKey } from "@/lib/payments.functions";
 import { useAdConfig } from "./config";
 import { SCREEN_ROUTES } from "./screens";
 import type { AdConfig, AdEligibilityInput, AdScreen } from "./types";
@@ -63,6 +64,7 @@ export function useAdEligibility(screen: AdScreen): boolean {
   const { user } = useAuth();
 
   const fetchRole = useServerFn(getMyRole);
+  const fetchPremiumStatus = useServerFn(getPremiumStatus);
 
   const roleQuery = useQuery({
     queryKey: ["my-role", user?.id],
@@ -71,7 +73,16 @@ export function useAdEligibility(screen: AdScreen): boolean {
     staleTime: 5 * 60_000,
   });
 
-  const adminLoading = flags.loading || (!!user && (roleQuery.isLoading || roleQuery.isError));
+  const premiumQuery = useQuery({
+    queryKey: premiumStatusQueryKey(user?.id),
+    queryFn: () => fetchPremiumStatus(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+
+  const userStateUnavailable =
+    !!user && (roleQuery.isLoading || roleQuery.isError || premiumQuery.isLoading || premiumQuery.isError);
+  const adminLoading = flags.loading || userStateUnavailable;
 
   const isAdmin = !!roleQuery.data?.isAdmin;
 
@@ -81,9 +92,6 @@ export function useAdEligibility(screen: AdScreen): boolean {
     isAdmin,
     adminLoading,
     config,
-    // The paid remove-ads entitlement does not yet have a user-specific
-    // source of truth in the current project. Keep this false until that
-    // feature is implemented, then wire the entitlement here before launch.
-    hasRemoveAdsEntitlement: false,
+    hasRemoveAdsEntitlement: !!premiumQuery.data?.isPaid,
   });
 }
