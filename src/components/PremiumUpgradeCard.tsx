@@ -5,11 +5,13 @@ import { Crown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
+import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { createPremiumOrder, getPremiumStatus, premiumStatusQueryKey } from "@/lib/payments.functions";
 
 /** One-time premium purchase (20 ₪) via PayPal. */
 export function PremiumUpgradeCard() {
   const { user } = useAuth();
+  const flags = useFeatureFlags();
   const fetchStatus = useServerFn(getPremiumStatus);
   const createOrder = useServerFn(createPremiumOrder);
   const [pending, setPending] = useState(false);
@@ -17,8 +19,12 @@ export function PremiumUpgradeCard() {
   const { data, isLoading, isError } = useQuery({
     queryKey: premiumStatusQueryKey(user?.id),
     queryFn: () => fetchStatus(),
-    enabled: !!user,
+    enabled: !!user && !flags.loading && flags.disableAdsButtonVisible,
   });
+
+  // The admin setting that controls the "תנו בראש" button also controls
+  // the entire premium purchase area on the profile page.
+  if (flags.loading || !flags.disableAdsButtonVisible) return null;
 
   if (isLoading) {
     return (
@@ -74,7 +80,7 @@ export function PremiumUpgradeCard() {
             מעבירים לתשלום…
           </>
         ) : (
-          "לתשלום מאובטח – 20 ש״ח"
+          "לתשלום מאובטח ב־PayPal"
         )}
       </Button>
     </div>
