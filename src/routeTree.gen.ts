@@ -8,610 +8,601 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as DemoRouteImport } from './routes/demo'
-import { Route as InstructionsRouteImport } from './routes/instructions'
-import { Route as LeaderboardRouteImport } from './routes/leaderboard'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SubmitPuzzleRouteImport } from './routes/submit-puzzle'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as AuthenticatedLevelsRouteImport } from './routes/_authenticated/levels'
-import { Route as AuthenticatedPlayRouteImport } from './routes/_authenticated/play'
-import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
-import { Route as ChallengeTokenRouteImport } from './routes/challenge.$token'
-import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as AuthenticatedAdminDefinitionsRouteImport } from './routes/_authenticated/admin.definitions'
-import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
-import { Route as AuthenticatedAdminPayingRouteImport } from './routes/_authenticated/admin.paying'
-import { Route as AuthenticatedAdminPlayersRouteImport } from './routes/_authenticated/admin.players'
-import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
-import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin.submissions'
-import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
-import { Route as AuthenticatedPaymentCancelRouteImport } from './routes/_authenticated/payment.cancel'
-import { Route as AuthenticatedPaymentReturnRouteImport } from './routes/_authenticated/payment.return'
-import { Route as ApiPaypalWebhookRouteImport } from './routes/api.paypal.webhook'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as AuthenticatedRouteImport } from "./routes/_authenticated";
+import { Route as AboutRouteImport } from "./routes/about";
+import { Route as AuthRouteImport } from "./routes/auth";
+import { Route as ContactRouteImport } from "./routes/contact";
+import { Route as DemoRouteImport } from "./routes/demo";
+import { Route as InstructionsRouteImport } from "./routes/instructions";
+import { Route as LeaderboardRouteImport } from "./routes/leaderboard";
+import { Route as PrivacyRouteImport } from "./routes/privacy";
+import { Route as ResetPasswordRouteImport } from "./routes/reset-password";
+import { Route as SitemapDotxmlRouteImport } from "./routes/sitemap[.]xml";
+import { Route as SubmitPuzzleRouteImport } from "./routes/submit-puzzle";
+import { Route as TermsRouteImport } from "./routes/terms";
+import { Route as AuthenticatedAdminRouteImport } from "./routes/_authenticated/admin";
+import { Route as AuthenticatedLevelsRouteImport } from "./routes/_authenticated/levels";
+import { Route as AuthenticatedPlayRouteImport } from "./routes/_authenticated/play";
+import { Route as AuthenticatedProfileRouteImport } from "./routes/_authenticated/profile";
+import { Route as ChallengeTokenRouteImport } from "./routes/challenge.$token";
+import { Route as AuthenticatedAdminIndexRouteImport } from "./routes/_authenticated/admin.index";
+import { Route as AuthenticatedAdminDefinitionsRouteImport } from "./routes/_authenticated/admin.definitions";
+import { Route as AuthenticatedAdminMessagesRouteImport } from "./routes/_authenticated/admin.messages";
+import { Route as AuthenticatedAdminPayingRouteImport } from "./routes/_authenticated/admin.paying";
+import { Route as AuthenticatedAdminPlayersRouteImport } from "./routes/_authenticated/admin.players";
+import { Route as AuthenticatedAdminSettingsRouteImport } from "./routes/_authenticated/admin.settings";
+import { Route as AuthenticatedAdminSubmissionsRouteImport } from "./routes/_authenticated/admin.submissions";
+import { Route as AuthenticatedAdminTaxonomyRouteImport } from "./routes/_authenticated/admin.taxonomy";
+import { Route as AuthenticatedPaymentCancelRouteImport } from "./routes/_authenticated/payment.cancel";
+import { Route as AuthenticatedPaymentReturnRouteImport } from "./routes/_authenticated/payment.return";
+import { Route as ApiPaypalWebhookRouteImport } from "./routes/api.paypal.webhook";
 
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+  id: "/_authenticated",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+  id: "/about",
+  path: "/about",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+  id: "/auth",
+  path: "/auth",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
+  id: "/contact",
+  path: "/contact",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DemoRoute = DemoRouteImport.update({
-  id: '/demo',
-  path: '/demo',
+  id: "/demo",
+  path: "/demo",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const InstructionsRoute = InstructionsRouteImport.update({
-  id: '/instructions',
-  path: '/instructions',
+  id: "/instructions",
+  path: "/instructions",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const LeaderboardRoute = LeaderboardRouteImport.update({
-  id: '/leaderboard',
-  path: '/leaderboard',
+  id: "/leaderboard",
+  path: "/leaderboard",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
+  id: "/privacy",
+  path: "/privacy",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+  id: "/reset-password",
+  path: "/reset-password",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+  id: "/sitemap.xml",
+  path: "/sitemap.xml",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SubmitPuzzleRoute = SubmitPuzzleRouteImport.update({
-  id: '/submit-puzzle',
-  path: '/submit-puzzle',
+  id: "/submit-puzzle",
+  path: "/submit-puzzle",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
+  id: "/terms",
+  path: "/terms",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+  id: "/admin",
+  path: "/admin",
   getParentRoute: () => AuthenticatedRoute,
-} as any)
+} as any);
 const AuthenticatedLevelsRoute = AuthenticatedLevelsRouteImport.update({
-  id: '/levels',
-  path: '/levels',
+  id: "/levels",
+  path: "/levels",
   getParentRoute: () => AuthenticatedRoute,
-} as any)
+} as any);
 const AuthenticatedPlayRoute = AuthenticatedPlayRouteImport.update({
-  id: '/play',
-  path: '/play',
+  id: "/play",
+  path: "/play",
   getParentRoute: () => AuthenticatedRoute,
-} as any)
+} as any);
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
+  id: "/profile",
+  path: "/profile",
   getParentRoute: () => AuthenticatedRoute,
-} as any)
+} as any);
 const ChallengeTokenRoute = ChallengeTokenRouteImport.update({
-  id: '/challenge/$token',
-  path: '/challenge/$token',
+  id: "/challenge/$token",
+  path: "/challenge/$token",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminDefinitionsRoute =
-  AuthenticatedAdminDefinitionsRouteImport.update({
-    id: '/definitions',
-    path: '/definitions',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminMessagesRoute =
-  AuthenticatedAdminMessagesRouteImport.update({
-    id: '/messages',
-    path: '/messages',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminPayingRoute =
-  AuthenticatedAdminPayingRouteImport.update({
-    id: '/paying',
-    path: '/paying',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminPlayersRoute =
-  AuthenticatedAdminPlayersRouteImport.update({
-    id: '/players',
-    path: '/players',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSettingsRoute =
-  AuthenticatedAdminSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSubmissionsRoute =
-  AuthenticatedAdminSubmissionsRouteImport.update({
-    id: '/submissions',
-    path: '/submissions',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminTaxonomyRoute =
-  AuthenticatedAdminTaxonomyRouteImport.update({
-    id: '/taxonomy',
-    path: '/taxonomy',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedPaymentCancelRoute =
-  AuthenticatedPaymentCancelRouteImport.update({
-    id: '/payment/cancel',
-    path: '/payment/cancel',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedPaymentReturnRoute =
-  AuthenticatedPaymentReturnRouteImport.update({
-    id: '/payment/return',
-    path: '/payment/return',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
+} as any);
+const AuthenticatedAdminDefinitionsRoute = AuthenticatedAdminDefinitionsRouteImport.update({
+  id: "/definitions",
+  path: "/definitions",
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any);
+const AuthenticatedAdminMessagesRoute = AuthenticatedAdminMessagesRouteImport.update({
+  id: "/messages",
+  path: "/messages",
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any);
+const AuthenticatedAdminPayingRoute = AuthenticatedAdminPayingRouteImport.update({
+  id: "/paying",
+  path: "/paying",
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any);
+const AuthenticatedAdminPlayersRoute = AuthenticatedAdminPlayersRouteImport.update({
+  id: "/players",
+  path: "/players",
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any);
+const AuthenticatedAdminSettingsRoute = AuthenticatedAdminSettingsRouteImport.update({
+  id: "/settings",
+  path: "/settings",
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any);
+const AuthenticatedAdminSubmissionsRoute = AuthenticatedAdminSubmissionsRouteImport.update({
+  id: "/submissions",
+  path: "/submissions",
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any);
+const AuthenticatedAdminTaxonomyRoute = AuthenticatedAdminTaxonomyRouteImport.update({
+  id: "/taxonomy",
+  path: "/taxonomy",
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any);
+const AuthenticatedPaymentCancelRoute = AuthenticatedPaymentCancelRouteImport.update({
+  id: "/payment/cancel",
+  path: "/payment/cancel",
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
+const AuthenticatedPaymentReturnRoute = AuthenticatedPaymentReturnRouteImport.update({
+  id: "/payment/return",
+  path: "/payment/return",
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
 const ApiPaypalWebhookRoute = ApiPaypalWebhookRouteImport.update({
-  id: '/api/paypal/webhook',
-  path: '/api/paypal/webhook',
+  id: "/api/paypal/webhook",
+  path: "/api/paypal/webhook",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
-  '/contact': typeof ContactRoute
-  '/demo': typeof DemoRoute
-  '/instructions': typeof InstructionsRoute
-  '/leaderboard': typeof LeaderboardRoute
-  '/privacy': typeof PrivacyRoute
-  '/reset-password': typeof ResetPasswordRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/submit-puzzle': typeof SubmitPuzzleRoute
-  '/terms': typeof TermsRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/levels': typeof AuthenticatedLevelsRoute
-  '/play': typeof AuthenticatedPlayRoute
-  '/profile': typeof AuthenticatedProfileRoute
-  '/challenge/$token': typeof ChallengeTokenRoute
-  '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
-  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
-  '/admin/paying': typeof AuthenticatedAdminPayingRoute
-  '/admin/players': typeof AuthenticatedAdminPlayersRoute
-  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
-  '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
-  '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
-  '/payment/cancel': typeof AuthenticatedPaymentCancelRoute
-  '/payment/return': typeof AuthenticatedPaymentReturnRoute
-  '/api/paypal/webhook': typeof ApiPaypalWebhookRoute
-  '/admin/': typeof AuthenticatedAdminIndexRoute
+  "/": typeof IndexRoute;
+  "/about": typeof AboutRoute;
+  "/auth": typeof AuthRoute;
+  "/contact": typeof ContactRoute;
+  "/demo": typeof DemoRoute;
+  "/instructions": typeof InstructionsRoute;
+  "/leaderboard": typeof LeaderboardRoute;
+  "/privacy": typeof PrivacyRoute;
+  "/reset-password": typeof ResetPasswordRoute;
+  "/sitemap.xml": typeof SitemapDotxmlRoute;
+  "/submit-puzzle": typeof SubmitPuzzleRoute;
+  "/terms": typeof TermsRoute;
+  "/admin": typeof AuthenticatedAdminRouteWithChildren;
+  "/levels": typeof AuthenticatedLevelsRoute;
+  "/play": typeof AuthenticatedPlayRoute;
+  "/profile": typeof AuthenticatedProfileRoute;
+  "/challenge/$token": typeof ChallengeTokenRoute;
+  "/admin/definitions": typeof AuthenticatedAdminDefinitionsRoute;
+  "/admin/messages": typeof AuthenticatedAdminMessagesRoute;
+  "/admin/paying": typeof AuthenticatedAdminPayingRoute;
+  "/admin/players": typeof AuthenticatedAdminPlayersRoute;
+  "/admin/settings": typeof AuthenticatedAdminSettingsRoute;
+  "/admin/submissions": typeof AuthenticatedAdminSubmissionsRoute;
+  "/admin/taxonomy": typeof AuthenticatedAdminTaxonomyRoute;
+  "/payment/cancel": typeof AuthenticatedPaymentCancelRoute;
+  "/payment/return": typeof AuthenticatedPaymentReturnRoute;
+  "/api/paypal/webhook": typeof ApiPaypalWebhookRoute;
+  "/admin/": typeof AuthenticatedAdminIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
-  '/contact': typeof ContactRoute
-  '/demo': typeof DemoRoute
-  '/instructions': typeof InstructionsRoute
-  '/leaderboard': typeof LeaderboardRoute
-  '/privacy': typeof PrivacyRoute
-  '/reset-password': typeof ResetPasswordRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/submit-puzzle': typeof SubmitPuzzleRoute
-  '/terms': typeof TermsRoute
-  '/levels': typeof AuthenticatedLevelsRoute
-  '/play': typeof AuthenticatedPlayRoute
-  '/profile': typeof AuthenticatedProfileRoute
-  '/challenge/$token': typeof ChallengeTokenRoute
-  '/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
-  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
-  '/admin/paying': typeof AuthenticatedAdminPayingRoute
-  '/admin/players': typeof AuthenticatedAdminPlayersRoute
-  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
-  '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
-  '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
-  '/payment/cancel': typeof AuthenticatedPaymentCancelRoute
-  '/payment/return': typeof AuthenticatedPaymentReturnRoute
-  '/api/paypal/webhook': typeof ApiPaypalWebhookRoute
-  '/admin': typeof AuthenticatedAdminIndexRoute
+  "/": typeof IndexRoute;
+  "/about": typeof AboutRoute;
+  "/auth": typeof AuthRoute;
+  "/contact": typeof ContactRoute;
+  "/demo": typeof DemoRoute;
+  "/instructions": typeof InstructionsRoute;
+  "/leaderboard": typeof LeaderboardRoute;
+  "/privacy": typeof PrivacyRoute;
+  "/reset-password": typeof ResetPasswordRoute;
+  "/sitemap.xml": typeof SitemapDotxmlRoute;
+  "/submit-puzzle": typeof SubmitPuzzleRoute;
+  "/terms": typeof TermsRoute;
+  "/levels": typeof AuthenticatedLevelsRoute;
+  "/play": typeof AuthenticatedPlayRoute;
+  "/profile": typeof AuthenticatedProfileRoute;
+  "/challenge/$token": typeof ChallengeTokenRoute;
+  "/admin/definitions": typeof AuthenticatedAdminDefinitionsRoute;
+  "/admin/messages": typeof AuthenticatedAdminMessagesRoute;
+  "/admin/paying": typeof AuthenticatedAdminPayingRoute;
+  "/admin/players": typeof AuthenticatedAdminPlayersRoute;
+  "/admin/settings": typeof AuthenticatedAdminSettingsRoute;
+  "/admin/submissions": typeof AuthenticatedAdminSubmissionsRoute;
+  "/admin/taxonomy": typeof AuthenticatedAdminTaxonomyRoute;
+  "/payment/cancel": typeof AuthenticatedPaymentCancelRoute;
+  "/payment/return": typeof AuthenticatedPaymentReturnRoute;
+  "/api/paypal/webhook": typeof ApiPaypalWebhookRoute;
+  "/admin": typeof AuthenticatedAdminIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
-  '/contact': typeof ContactRoute
-  '/demo': typeof DemoRoute
-  '/instructions': typeof InstructionsRoute
-  '/leaderboard': typeof LeaderboardRoute
-  '/privacy': typeof PrivacyRoute
-  '/reset-password': typeof ResetPasswordRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/submit-puzzle': typeof SubmitPuzzleRoute
-  '/terms': typeof TermsRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/_authenticated/levels': typeof AuthenticatedLevelsRoute
-  '/_authenticated/play': typeof AuthenticatedPlayRoute
-  '/_authenticated/profile': typeof AuthenticatedProfileRoute
-  '/challenge/$token': typeof ChallengeTokenRoute
-  '/_authenticated/admin/definitions': typeof AuthenticatedAdminDefinitionsRoute
-  '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
-  '/_authenticated/admin/paying': typeof AuthenticatedAdminPayingRoute
-  '/_authenticated/admin/players': typeof AuthenticatedAdminPlayersRoute
-  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
-  '/_authenticated/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
-  '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
-  '/_authenticated/payment/cancel': typeof AuthenticatedPaymentCancelRoute
-  '/_authenticated/payment/return': typeof AuthenticatedPaymentReturnRoute
-  '/api/paypal/webhook': typeof ApiPaypalWebhookRoute
-  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/_authenticated": typeof AuthenticatedRouteWithChildren;
+  "/about": typeof AboutRoute;
+  "/auth": typeof AuthRoute;
+  "/contact": typeof ContactRoute;
+  "/demo": typeof DemoRoute;
+  "/instructions": typeof InstructionsRoute;
+  "/leaderboard": typeof LeaderboardRoute;
+  "/privacy": typeof PrivacyRoute;
+  "/reset-password": typeof ResetPasswordRoute;
+  "/sitemap.xml": typeof SitemapDotxmlRoute;
+  "/submit-puzzle": typeof SubmitPuzzleRoute;
+  "/terms": typeof TermsRoute;
+  "/_authenticated/admin": typeof AuthenticatedAdminRouteWithChildren;
+  "/_authenticated/levels": typeof AuthenticatedLevelsRoute;
+  "/_authenticated/play": typeof AuthenticatedPlayRoute;
+  "/_authenticated/profile": typeof AuthenticatedProfileRoute;
+  "/challenge/$token": typeof ChallengeTokenRoute;
+  "/_authenticated/admin/definitions": typeof AuthenticatedAdminDefinitionsRoute;
+  "/_authenticated/admin/messages": typeof AuthenticatedAdminMessagesRoute;
+  "/_authenticated/admin/paying": typeof AuthenticatedAdminPayingRoute;
+  "/_authenticated/admin/players": typeof AuthenticatedAdminPlayersRoute;
+  "/_authenticated/admin/settings": typeof AuthenticatedAdminSettingsRoute;
+  "/_authenticated/admin/submissions": typeof AuthenticatedAdminSubmissionsRoute;
+  "/_authenticated/admin/taxonomy": typeof AuthenticatedAdminTaxonomyRoute;
+  "/_authenticated/payment/cancel": typeof AuthenticatedPaymentCancelRoute;
+  "/_authenticated/payment/return": typeof AuthenticatedPaymentReturnRoute;
+  "/api/paypal/webhook": typeof ApiPaypalWebhookRoute;
+  "/_authenticated/admin/": typeof AuthenticatedAdminIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/about'
-    | '/auth'
-    | '/contact'
-    | '/demo'
-    | '/instructions'
-    | '/leaderboard'
-    | '/privacy'
-    | '/reset-password'
-    | '/sitemap.xml'
-    | '/submit-puzzle'
-    | '/terms'
-    | '/admin'
-    | '/levels'
-    | '/play'
-    | '/profile'
-    | '/challenge/$token'
-    | '/admin/definitions'
-    | '/admin/messages'
-    | '/admin/paying'
-    | '/admin/players'
-    | '/admin/settings'
-    | '/admin/submissions'
-    | '/admin/taxonomy'
-    | '/payment/cancel'
-    | '/payment/return'
-    | '/api/paypal/webhook'
-    | '/admin/'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/about"
+    | "/auth"
+    | "/contact"
+    | "/demo"
+    | "/instructions"
+    | "/leaderboard"
+    | "/privacy"
+    | "/reset-password"
+    | "/sitemap.xml"
+    | "/submit-puzzle"
+    | "/terms"
+    | "/admin"
+    | "/levels"
+    | "/play"
+    | "/profile"
+    | "/challenge/$token"
+    | "/admin/definitions"
+    | "/admin/messages"
+    | "/admin/paying"
+    | "/admin/players"
+    | "/admin/settings"
+    | "/admin/submissions"
+    | "/admin/taxonomy"
+    | "/payment/cancel"
+    | "/payment/return"
+    | "/api/paypal/webhook"
+    | "/admin/";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/about'
-    | '/auth'
-    | '/contact'
-    | '/demo'
-    | '/instructions'
-    | '/leaderboard'
-    | '/privacy'
-    | '/reset-password'
-    | '/sitemap.xml'
-    | '/submit-puzzle'
-    | '/terms'
-    | '/levels'
-    | '/play'
-    | '/profile'
-    | '/challenge/$token'
-    | '/admin/definitions'
-    | '/admin/messages'
-    | '/admin/paying'
-    | '/admin/players'
-    | '/admin/settings'
-    | '/admin/submissions'
-    | '/admin/taxonomy'
-    | '/payment/cancel'
-    | '/payment/return'
-    | '/api/paypal/webhook'
-    | '/admin'
+    | "/"
+    | "/about"
+    | "/auth"
+    | "/contact"
+    | "/demo"
+    | "/instructions"
+    | "/leaderboard"
+    | "/privacy"
+    | "/reset-password"
+    | "/sitemap.xml"
+    | "/submit-puzzle"
+    | "/terms"
+    | "/levels"
+    | "/play"
+    | "/profile"
+    | "/challenge/$token"
+    | "/admin/definitions"
+    | "/admin/messages"
+    | "/admin/paying"
+    | "/admin/players"
+    | "/admin/settings"
+    | "/admin/submissions"
+    | "/admin/taxonomy"
+    | "/payment/cancel"
+    | "/payment/return"
+    | "/api/paypal/webhook"
+    | "/admin";
   id:
-    | '__root__'
-    | '/'
-    | '/_authenticated'
-    | '/about'
-    | '/auth'
-    | '/contact'
-    | '/demo'
-    | '/instructions'
-    | '/leaderboard'
-    | '/privacy'
-    | '/reset-password'
-    | '/sitemap.xml'
-    | '/submit-puzzle'
-    | '/terms'
-    | '/_authenticated/admin'
-    | '/_authenticated/levels'
-    | '/_authenticated/play'
-    | '/_authenticated/profile'
-    | '/challenge/$token'
-    | '/_authenticated/admin/definitions'
-    | '/_authenticated/admin/messages'
-    | '/_authenticated/admin/paying'
-    | '/_authenticated/admin/players'
-    | '/_authenticated/admin/settings'
-    | '/_authenticated/admin/submissions'
-    | '/_authenticated/admin/taxonomy'
-    | '/_authenticated/payment/cancel'
-    | '/_authenticated/payment/return'
-    | '/api/paypal/webhook'
-    | '/_authenticated/admin/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/_authenticated"
+    | "/about"
+    | "/auth"
+    | "/contact"
+    | "/demo"
+    | "/instructions"
+    | "/leaderboard"
+    | "/privacy"
+    | "/reset-password"
+    | "/sitemap.xml"
+    | "/submit-puzzle"
+    | "/terms"
+    | "/_authenticated/admin"
+    | "/_authenticated/levels"
+    | "/_authenticated/play"
+    | "/_authenticated/profile"
+    | "/challenge/$token"
+    | "/_authenticated/admin/definitions"
+    | "/_authenticated/admin/messages"
+    | "/_authenticated/admin/paying"
+    | "/_authenticated/admin/players"
+    | "/_authenticated/admin/settings"
+    | "/_authenticated/admin/submissions"
+    | "/_authenticated/admin/taxonomy"
+    | "/_authenticated/payment/cancel"
+    | "/_authenticated/payment/return"
+    | "/api/paypal/webhook"
+    | "/_authenticated/admin/";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  AboutRoute: typeof AboutRoute
-  AuthRoute: typeof AuthRoute
-  ContactRoute: typeof ContactRoute
-  DemoRoute: typeof DemoRoute
-  InstructionsRoute: typeof InstructionsRoute
-  LeaderboardRoute: typeof LeaderboardRoute
-  PrivacyRoute: typeof PrivacyRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  SubmitPuzzleRoute: typeof SubmitPuzzleRoute
-  TermsRoute: typeof TermsRoute
-  ChallengeTokenRoute: typeof ChallengeTokenRoute
-  ApiPaypalWebhookRoute: typeof ApiPaypalWebhookRoute
+  IndexRoute: typeof IndexRoute;
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren;
+  AboutRoute: typeof AboutRoute;
+  AuthRoute: typeof AuthRoute;
+  ContactRoute: typeof ContactRoute;
+  DemoRoute: typeof DemoRoute;
+  InstructionsRoute: typeof InstructionsRoute;
+  LeaderboardRoute: typeof LeaderboardRoute;
+  PrivacyRoute: typeof PrivacyRoute;
+  ResetPasswordRoute: typeof ResetPasswordRoute;
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute;
+  SubmitPuzzleRoute: typeof SubmitPuzzleRoute;
+  TermsRoute: typeof TermsRoute;
+  ChallengeTokenRoute: typeof ChallengeTokenRoute;
+  ApiPaypalWebhookRoute: typeof ApiPaypalWebhookRoute;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo': {
-      id: '/demo'
-      path: '/demo'
-      fullPath: '/demo'
-      preLoaderRoute: typeof DemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/instructions': {
-      id: '/instructions'
-      path: '/instructions'
-      fullPath: '/instructions'
-      preLoaderRoute: typeof InstructionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/leaderboard': {
-      id: '/leaderboard'
-      path: '/leaderboard'
-      fullPath: '/leaderboard'
-      preLoaderRoute: typeof LeaderboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/submit-puzzle': {
-      id: '/submit-puzzle'
-      path: '/submit-puzzle'
-      fullPath: '/submit-puzzle'
-      preLoaderRoute: typeof SubmitPuzzleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/levels': {
-      id: '/_authenticated/levels'
-      path: '/levels'
-      fullPath: '/levels'
-      preLoaderRoute: typeof AuthenticatedLevelsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/play': {
-      id: '/_authenticated/play'
-      path: '/play'
-      fullPath: '/play'
-      preLoaderRoute: typeof AuthenticatedPlayRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/profile': {
-      id: '/_authenticated/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AuthenticatedProfileRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/challenge/$token': {
-      id: '/challenge/$token'
-      path: '/challenge/$token'
-      fullPath: '/challenge/$token'
-      preLoaderRoute: typeof ChallengeTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/admin/': {
-      id: '/_authenticated/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/definitions': {
-      id: '/_authenticated/admin/definitions'
-      path: '/definitions'
-      fullPath: '/admin/definitions'
-      preLoaderRoute: typeof AuthenticatedAdminDefinitionsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/messages': {
-      id: '/_authenticated/admin/messages'
-      path: '/messages'
-      fullPath: '/admin/messages'
-      preLoaderRoute: typeof AuthenticatedAdminMessagesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/paying': {
-      id: '/_authenticated/admin/paying'
-      path: '/paying'
-      fullPath: '/admin/paying'
-      preLoaderRoute: typeof AuthenticatedAdminPayingRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/players': {
-      id: '/_authenticated/admin/players'
-      path: '/players'
-      fullPath: '/admin/players'
-      preLoaderRoute: typeof AuthenticatedAdminPlayersRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/settings': {
-      id: '/_authenticated/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/submissions': {
-      id: '/_authenticated/admin/submissions'
-      path: '/submissions'
-      fullPath: '/admin/submissions'
-      preLoaderRoute: typeof AuthenticatedAdminSubmissionsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/taxonomy': {
-      id: '/_authenticated/admin/taxonomy'
-      path: '/taxonomy'
-      fullPath: '/admin/taxonomy'
-      preLoaderRoute: typeof AuthenticatedAdminTaxonomyRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/payment/cancel': {
-      id: '/_authenticated/payment/cancel'
-      path: '/payment/cancel'
-      fullPath: '/payment/cancel'
-      preLoaderRoute: typeof AuthenticatedPaymentCancelRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/payment/return': {
-      id: '/_authenticated/payment/return'
-      path: '/payment/return'
-      fullPath: '/payment/return'
-      preLoaderRoute: typeof AuthenticatedPaymentReturnRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/api/paypal/webhook': {
-      id: '/api/paypal/webhook'
-      path: '/api/paypal/webhook'
-      fullPath: '/api/paypal/webhook'
-      preLoaderRoute: typeof ApiPaypalWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_authenticated": {
+      id: "/_authenticated";
+      path: "";
+      fullPath: "/";
+      preLoaderRoute: typeof AuthenticatedRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/about": {
+      id: "/about";
+      path: "/about";
+      fullPath: "/about";
+      preLoaderRoute: typeof AboutRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/auth": {
+      id: "/auth";
+      path: "/auth";
+      fullPath: "/auth";
+      preLoaderRoute: typeof AuthRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/contact": {
+      id: "/contact";
+      path: "/contact";
+      fullPath: "/contact";
+      preLoaderRoute: typeof ContactRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/demo": {
+      id: "/demo";
+      path: "/demo";
+      fullPath: "/demo";
+      preLoaderRoute: typeof DemoRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/instructions": {
+      id: "/instructions";
+      path: "/instructions";
+      fullPath: "/instructions";
+      preLoaderRoute: typeof InstructionsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/leaderboard": {
+      id: "/leaderboard";
+      path: "/leaderboard";
+      fullPath: "/leaderboard";
+      preLoaderRoute: typeof LeaderboardRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/privacy": {
+      id: "/privacy";
+      path: "/privacy";
+      fullPath: "/privacy";
+      preLoaderRoute: typeof PrivacyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/reset-password": {
+      id: "/reset-password";
+      path: "/reset-password";
+      fullPath: "/reset-password";
+      preLoaderRoute: typeof ResetPasswordRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/sitemap.xml": {
+      id: "/sitemap.xml";
+      path: "/sitemap.xml";
+      fullPath: "/sitemap.xml";
+      preLoaderRoute: typeof SitemapDotxmlRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/submit-puzzle": {
+      id: "/submit-puzzle";
+      path: "/submit-puzzle";
+      fullPath: "/submit-puzzle";
+      preLoaderRoute: typeof SubmitPuzzleRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/terms": {
+      id: "/terms";
+      path: "/terms";
+      fullPath: "/terms";
+      preLoaderRoute: typeof TermsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_authenticated/admin": {
+      id: "/_authenticated/admin";
+      path: "/admin";
+      fullPath: "/admin";
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    "/_authenticated/levels": {
+      id: "/_authenticated/levels";
+      path: "/levels";
+      fullPath: "/levels";
+      preLoaderRoute: typeof AuthenticatedLevelsRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    "/_authenticated/play": {
+      id: "/_authenticated/play";
+      path: "/play";
+      fullPath: "/play";
+      preLoaderRoute: typeof AuthenticatedPlayRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    "/_authenticated/profile": {
+      id: "/_authenticated/profile";
+      path: "/profile";
+      fullPath: "/profile";
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    "/challenge/$token": {
+      id: "/challenge/$token";
+      path: "/challenge/$token";
+      fullPath: "/challenge/$token";
+      preLoaderRoute: typeof ChallengeTokenRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_authenticated/admin/": {
+      id: "/_authenticated/admin/";
+      path: "/";
+      fullPath: "/admin/";
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
+    };
+    "/_authenticated/admin/definitions": {
+      id: "/_authenticated/admin/definitions";
+      path: "/definitions";
+      fullPath: "/admin/definitions";
+      preLoaderRoute: typeof AuthenticatedAdminDefinitionsRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
+    };
+    "/_authenticated/admin/messages": {
+      id: "/_authenticated/admin/messages";
+      path: "/messages";
+      fullPath: "/admin/messages";
+      preLoaderRoute: typeof AuthenticatedAdminMessagesRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
+    };
+    "/_authenticated/admin/paying": {
+      id: "/_authenticated/admin/paying";
+      path: "/paying";
+      fullPath: "/admin/paying";
+      preLoaderRoute: typeof AuthenticatedAdminPayingRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
+    };
+    "/_authenticated/admin/players": {
+      id: "/_authenticated/admin/players";
+      path: "/players";
+      fullPath: "/admin/players";
+      preLoaderRoute: typeof AuthenticatedAdminPlayersRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
+    };
+    "/_authenticated/admin/settings": {
+      id: "/_authenticated/admin/settings";
+      path: "/settings";
+      fullPath: "/admin/settings";
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
+    };
+    "/_authenticated/admin/submissions": {
+      id: "/_authenticated/admin/submissions";
+      path: "/submissions";
+      fullPath: "/admin/submissions";
+      preLoaderRoute: typeof AuthenticatedAdminSubmissionsRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
+    };
+    "/_authenticated/admin/taxonomy": {
+      id: "/_authenticated/admin/taxonomy";
+      path: "/taxonomy";
+      fullPath: "/admin/taxonomy";
+      preLoaderRoute: typeof AuthenticatedAdminTaxonomyRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
+    };
+    "/_authenticated/payment/cancel": {
+      id: "/_authenticated/payment/cancel";
+      path: "/payment/cancel";
+      fullPath: "/payment/cancel";
+      preLoaderRoute: typeof AuthenticatedPaymentCancelRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    "/_authenticated/payment/return": {
+      id: "/_authenticated/payment/return";
+      path: "/payment/return";
+      fullPath: "/payment/return";
+      preLoaderRoute: typeof AuthenticatedPaymentReturnRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    "/api/paypal/webhook": {
+      id: "/api/paypal/webhook";
+      path: "/api/paypal/webhook";
+      fullPath: "/api/paypal/webhook";
+      preLoaderRoute: typeof ApiPaypalWebhookRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminDefinitionsRoute: typeof AuthenticatedAdminDefinitionsRoute
-  AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
-  AuthenticatedAdminPayingRoute: typeof AuthenticatedAdminPayingRoute
-  AuthenticatedAdminPlayersRoute: typeof AuthenticatedAdminPlayersRoute
-  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
-  AuthenticatedAdminSubmissionsRoute: typeof AuthenticatedAdminSubmissionsRoute
-  AuthenticatedAdminTaxonomyRoute: typeof AuthenticatedAdminTaxonomyRoute
-  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminDefinitionsRoute: typeof AuthenticatedAdminDefinitionsRoute;
+  AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute;
+  AuthenticatedAdminPayingRoute: typeof AuthenticatedAdminPayingRoute;
+  AuthenticatedAdminPlayersRoute: typeof AuthenticatedAdminPlayersRoute;
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute;
+  AuthenticatedAdminSubmissionsRoute: typeof AuthenticatedAdminSubmissionsRoute;
+  AuthenticatedAdminTaxonomyRoute: typeof AuthenticatedAdminTaxonomyRoute;
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute;
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -623,18 +614,17 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSubmissionsRoute: AuthenticatedAdminSubmissionsRoute,
   AuthenticatedAdminTaxonomyRoute: AuthenticatedAdminTaxonomyRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
-}
+};
 
-const AuthenticatedAdminRouteWithChildren =
-  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+const AuthenticatedAdminRouteWithChildren = AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren);
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
-  AuthenticatedLevelsRoute: typeof AuthenticatedLevelsRoute
-  AuthenticatedPlayRoute: typeof AuthenticatedPlayRoute
-  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
-  AuthenticatedPaymentCancelRoute: typeof AuthenticatedPaymentCancelRoute
-  AuthenticatedPaymentReturnRoute: typeof AuthenticatedPaymentReturnRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren;
+  AuthenticatedLevelsRoute: typeof AuthenticatedLevelsRoute;
+  AuthenticatedPlayRoute: typeof AuthenticatedPlayRoute;
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute;
+  AuthenticatedPaymentCancelRoute: typeof AuthenticatedPaymentCancelRoute;
+  AuthenticatedPaymentReturnRoute: typeof AuthenticatedPaymentReturnRoute;
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -644,11 +634,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedPaymentCancelRoute: AuthenticatedPaymentCancelRoute,
   AuthenticatedPaymentReturnRoute: AuthenticatedPaymentReturnRoute,
-}
+};
 
-const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
-  AuthenticatedRouteChildren,
-)
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(AuthenticatedRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -666,17 +654,15 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ChallengeTokenRoute: ChallengeTokenRoute,
   ApiPaypalWebhookRoute: ApiPaypalWebhookRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+};
+export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
+import type { getRouter } from "./router.tsx";
+import type { startInstance } from "./start.ts";
+declare module "@tanstack/react-start" {
   interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>;
   }
 }
