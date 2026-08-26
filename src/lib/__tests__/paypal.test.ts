@@ -317,6 +317,32 @@ describe("paypal server config", () => {
     vi.unstubAllGlobals();
   });
 
+  it("keeps the PayPal HTTP status available for safe stale-order recovery", async () => {
+    const mod = await import("@/lib/paypal.server");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers(),
+        json: async () => ({ access_token: "tok" }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        headers: new Headers(),
+        json: async () => ({ name: "RESOURCE_NOT_FOUND" }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const error = await mod.getPaypalOrder(mod.getPaypalConfig(), "MISSING_ORDER").catch((cause) => cause);
+
+    expect(error).toBeInstanceOf(mod.PaypalRequestError);
+    expect(error.message).toBe("paypal_request_failed");
+    expect(mod.isPaypalRequestError(error, 404)).toBe(true);
+    expect(mod.isPaypalRequestError(error, 500)).toBe(false);
+    vi.unstubAllGlobals();
+  });
+
   it("verifies real webhook signatures with the environment-specific webhook id", async () => {
     const mod = await import("@/lib/paypal.server");
     const fetchMock = vi
