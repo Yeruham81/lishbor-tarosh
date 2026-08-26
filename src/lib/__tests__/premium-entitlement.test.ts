@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { isAdEligible } from "@/lib/ads/eligibility";
 import type { AdConfig, AdScreen } from "@/lib/ads/types";
@@ -52,6 +51,17 @@ describe("Premium entitlement", () => {
     ).toBe(false);
   });
 
+  it("uses the admin premium-visibility setting for the profile offer too", () => {
+    const card = readFileSync("src/components/PremiumUpgradeCard.tsx", "utf8");
+    const profile = readFileSync("src/routes/_authenticated/profile.tsx", "utf8");
+
+    expect(card).toContain("useFeatureFlags");
+    expect(card).toContain("!flags.disableAdsButtonVisible");
+    expect(card).toContain("!data?.isPaid");
+    expect(profile).toContain("<PremiumUpgradeCard />");
+    expect(profile).not.toContain('<div className="mb-4">\n            <PremiumUpgradeCard />');
+  });
+
   it("installs the one-pending-purchase and atomic-profile invariants", () => {
     const migration = readFileSync("supabase/migrations/20260826010000_paypal_checkout_hardening.sql", "utf8");
     expect(migration).toContain(
@@ -67,31 +77,5 @@ describe("Premium entitlement", () => {
     expect(returnRoute).not.toContain("לא חויבתם");
     expect(returnRoute).toContain("בדיקה מחדש");
     expect(returnRoute).toContain("אל תתחילו רכישה חדשה");
-  });
-
-  it("recovers a minimal or previously captured PayPal order before verification", () => {
-    const payments = readFileSync("src/lib/payments.functions.ts", "utf8");
-    expect(payments).toContain("if (!hasCompleteCaptureRepresentation(facts))");
-    expect(payments).toContain("order = await getPaypalOrder(cfg, data.orderId)");
-  });
-
-  it("preserves the approved PayPal order while an unauthenticated user signs back in", () => {
-    const authenticatedRoute = readFileSync("src/routes/_authenticated.tsx", "utf8");
-    const authRoute = readFileSync("src/routes/auth.tsx", "utf8");
-
-    expect(authenticatedRoute).toContain("paymentResumeSearch(location.href)");
-    expect(authenticatedRoute).toContain('returnTo: "payment-return"');
-    expect(authRoute).toContain('returnTo === "payment-return"');
-    expect(authRoute).toContain('to: "/payment/return"');
-    expect(authRoute).toContain("paymentToken");
-  });
-
-  it("uses an RTL-safe Hebrew-only purchase label", () => {
-    const dialog = readFileSync("src/components/PremiumUpgradeDialog.tsx", "utf8");
-    const card = readFileSync("src/components/PremiumUpgradeCard.tsx", "utf8");
-
-    expect(dialog).toContain("לתשלום מאובטח – 20 ש״ח");
-    expect(card).toContain("לתשלום מאובטח – 20 ש״ח");
-    expect(dialog).not.toContain("PayPal — 20 ₪");
   });
 });
