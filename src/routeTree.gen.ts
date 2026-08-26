@@ -35,6 +35,7 @@ import { Route as AuthenticatedAdminPlayersRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin.submissions'
 import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
+import { Route as AuthenticatedPaymentCancelRouteImport } from './routes/_authenticated/payment.cancel'
 import { Route as AuthenticatedPaymentReturnRouteImport } from './routes/_authenticated/payment.return'
 
 const IndexRoute = IndexRouteImport.update({
@@ -173,6 +174,12 @@ const AuthenticatedAdminTaxonomyRoute =
     path: '/taxonomy',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedPaymentCancelRoute =
+  AuthenticatedPaymentCancelRouteImport.update({
+    id: '/payment/cancel',
+    path: '/payment/cancel',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPaymentReturnRoute =
   AuthenticatedPaymentReturnRouteImport.update({
     id: '/payment/return',
@@ -205,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
+  '/payment/cancel': typeof AuthenticatedPaymentCancelRoute
   '/payment/return': typeof AuthenticatedPaymentReturnRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -232,6 +240,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
+  '/payment/cancel': typeof AuthenticatedPaymentCancelRoute
   '/payment/return': typeof AuthenticatedPaymentReturnRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -262,6 +271,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
+  '/_authenticated/payment/cancel': typeof AuthenticatedPaymentCancelRoute
   '/_authenticated/payment/return': typeof AuthenticatedPaymentReturnRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/submissions'
     | '/admin/taxonomy'
+    | '/payment/cancel'
     | '/payment/return'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/submissions'
     | '/admin/taxonomy'
+    | '/payment/cancel'
     | '/payment/return'
     | '/admin'
   id:
@@ -348,6 +360,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/submissions'
     | '/_authenticated/admin/taxonomy'
+    | '/_authenticated/payment/cancel'
     | '/_authenticated/payment/return'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -553,6 +566,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTaxonomyRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/payment/cancel': {
+      id: '/_authenticated/payment/cancel'
+      path: '/payment/cancel'
+      fullPath: '/payment/cancel'
+      preLoaderRoute: typeof AuthenticatedPaymentCancelRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/payment/return': {
       id: '/_authenticated/payment/return'
       path: '/payment/return'
@@ -593,6 +613,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedLevelsRoute: typeof AuthenticatedLevelsRoute
   AuthenticatedPlayRoute: typeof AuthenticatedPlayRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedPaymentCancelRoute: typeof AuthenticatedPaymentCancelRoute
   AuthenticatedPaymentReturnRoute: typeof AuthenticatedPaymentReturnRoute
 }
 
@@ -601,6 +622,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedLevelsRoute: AuthenticatedLevelsRoute,
   AuthenticatedPlayRoute: AuthenticatedPlayRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedPaymentCancelRoute: AuthenticatedPaymentCancelRoute,
   AuthenticatedPaymentReturnRoute: AuthenticatedPaymentReturnRoute,
 }
 
