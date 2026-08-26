@@ -5,6 +5,7 @@ import {
   canAttemptCapture,
   PREMIUM_PRICE,
   PREMIUM_CURRENCY,
+  isRetryableCapture,
   type StoredPurchase,
 } from "@/lib/paypal-verify";
 
@@ -124,6 +125,22 @@ describe("verifyCapture", () => {
     }
   });
 
+  it("only retries non-terminal PayPal states", () => {
+    const created = {
+      ...facts(goodOrder),
+      orderStatus: "CREATED",
+      captureId: null,
+      captureStatus: null,
+    };
+    expect(isRetryableCapture(created)).toBe(true);
+
+    const pendingCapture = { ...facts(goodOrder), captureStatus: "PENDING" };
+    expect(isRetryableCapture(pendingCapture)).toBe(true);
+
+    const declinedCapture = { ...facts(goodOrder), captureStatus: "DECLINED" };
+    expect(isRetryableCapture(declinedCapture)).toBe(false);
+  });
+
   it("uses a server-fixed price and currency", () => {
     expect(PREMIUM_PRICE).toBe("20.00");
     expect(PREMIUM_CURRENCY).toBe("ILS");
@@ -192,12 +209,62 @@ describe("paypal server config", () => {
       cancelUrl: "https://site/payment/cancel",
     });
 
-    const body = String(fetchMock.mock.calls[1][1].body);
+    const request = fetchMock.mock.calls[1][1];
+    const body = String(request.body);
+    const payload = JSON.parse(body);
     expect(body).not.toContain("test-secret");
     expect(body).not.toContain("test-id");
-    expect(body).toContain('"intent":"CAPTURE"');
-    expect(body).toContain(PURCHASE_ID);
-    expect(fetchMock.mock.calls[1][1].headers["PayPal-Request-Id"]).toBe(`order-${PURCHASE_ID}`);
+    expect(payload.intent).toBe("CAPTURE");
+    expect(payload.purchase_units[0].custom_id).toBe(PURCHASE_ID);
+    expect(payload.purchase_units[0].amount).toMatchObject({
+      currency_code: "ILS",
+      value: "20.00",
+      breakdown: { item_total: { currency_code: "ILS", value: "20.00" } },
+    });
+    expect(payload.purchase_units[0].items).toEqual([
+      expect.objectContaining({
+        sku: "PREMIUM_LIFETIME",
+        quantity: "1",
+        category: "DIGITAL_GOODS",
+        unit_amount: { currency_code: "ILS", value: "20.00" },
+      }),
+    ]);
+    expect(payload).not.toHaveProperty("application_context");
+    expect(request.headers["PayPal-Request-Id"]).toBe(`order-${PURCHASE_ID}`);
+    expect(request.headers.Prefer).toBe("return=representation");
+    vi.unstubAllGlobals();
+  });
+
+  it("fetches the authoritative order when Create Order is minimal", async () => {
+    const mod = await import("@/lib/paypal.server");
+    const fullOrder = {
+      id: "ORDER123",
+      status: "CREATED",
+      purchase_units: [{ payee: { merchant_id: "MERCHANT1" } }],
+      links: [{ rel: "payer-action", href: "https://paypal.test/approve" }],
+    };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers(),
+        json: async () => ({ access_token: "tok" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers(),
+        json: async () => fullOrder,
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await mod.ensurePaypalOrderRepresentation(mod.getPaypalConfig(), {
+      id: "ORDER123",
+      status: "CREATED",
+      links: [{ rel: "payer-action", href: "https://paypal.test/approve" }],
+    });
+
+    expect(result).toEqual(fullOrder);
+    expect(fetchMock.mock.calls[1][0]).toBe("https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER123");
     vi.unstubAllGlobals();
   });
 });
