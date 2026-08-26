@@ -16,6 +16,8 @@ import {
   updatePlayerLevel,
 } from "@/lib/account.functions";
 import { PLAYER_LEVELS } from "@/components/DisplayNameSetup";
+import { PremiumUpgradeCard } from "@/components/PremiumUpgradeCard";
+
 import { openCookiePreferences } from "@/lib/ads/consent";
 import { Cookie } from "lucide-react";
 
