@@ -37,6 +37,7 @@ export const createPremiumOrder = createServerFn({ method: "POST" })
       approvalUrl,
       payeeMerchantId,
       ensurePaypalOrderRepresentation,
+      isPaypalRequestError,
     } = await import("@/lib/paypal.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -82,8 +83,21 @@ export const createPremiumOrder = createServerFn({ method: "POST" })
       }
 
       // A transient PayPal error must not create a replacement order: the old
-      // order may already have been approved or captured.
-      const order = await getPaypalOrder(cfg, purchase.paypal_order_id);
+      // order may already have been approved or captured. A 404 is different:
+      // PayPal confirms that the stored resource no longer exists, so close
+      // only that stale local row and let the caller create a fresh order.
+      let order: Awaited<ReturnType<typeof getPaypalOrder>>;
+      try {
+        order = await getPaypalOrder(cfg, purchase.paypal_order_id);
+      } catch (error) {
+        if (!isPaypalRequestError(error, 404)) throw error;
+        await failPendingPurchase(purchase.id);
+        console.info("[paypal] stale pending order closed", {
+          purchaseId: purchase.id,
+          environment: cfg.environment,
+        });
+        return null;
+      }
       const merchantId = payeeMerchantId(order);
       if (!merchantId) {
         await failPendingPurchase(purchase.id);
