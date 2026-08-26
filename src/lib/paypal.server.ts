@@ -20,6 +20,16 @@ export interface PaypalConfig {
   clientSecret: string;
 }
 
+export interface PaypalWebhookVerificationArgs {
+  webhookId: string;
+  authAlgo: string;
+  certUrl: string;
+  transmissionId: string;
+  transmissionSignature: string;
+  transmissionTime: string;
+  webhookEventRaw: string;
+}
+
 export interface PaypalOrder {
   id?: string;
   status?: string;
@@ -44,6 +54,14 @@ export function getPaypalConfig(): PaypalConfig {
     throw new Error("paypal_credentials_missing");
   }
   return { environment, apiBase: API_BASES[environment], clientId, clientSecret };
+}
+
+/** Webhook IDs are app- and environment-specific and remain server-side. */
+export function getPaypalWebhookId(environment: PaypalEnvironment): string {
+  const name = environment === "sandbox" ? "PAYPAL_SANDBOX_WEBHOOK_ID" : "PAYPAL_LIVE_WEBHOOK_ID";
+  const webhookId = process.env[name]?.trim();
+  if (!webhookId) throw new Error("paypal_webhook_id_missing");
+  return webhookId;
 }
 
 async function getAccessToken(cfg: PaypalConfig): Promise<string> {
@@ -72,7 +90,13 @@ async function getAccessToken(cfg: PaypalConfig): Promise<string> {
 async function paypalFetch<T>(
   cfg: PaypalConfig,
   path: string,
-  init: { method: string; body?: unknown; requestId?: string; prefer?: "return=representation" },
+  init: {
+    method: string;
+    body?: unknown;
+    rawBody?: string;
+    requestId?: string;
+    prefer?: "return=representation";
+  },
 ): Promise<T> {
   const token = await getAccessToken(cfg);
   const headers: Record<string, string> = {
@@ -85,7 +109,7 @@ async function paypalFetch<T>(
   const res = await fetch(`${cfg.apiBase}${path}`, {
     method: init.method,
     headers,
-    body: init.body ? JSON.stringify(init.body) : undefined,
+    body: init.rawBody ?? (init.body ? JSON.stringify(init.body) : undefined),
   });
   const json = await res.json().catch(() => null);
   if (!res.ok) {
@@ -166,6 +190,61 @@ export async function capturePaypalOrder(cfg: PaypalConfig, orderId: string, pur
     prefer: "return=representation",
     body: {},
   });
+}
+
+function isAllowedPaypalCertificateUrl(cfg: PaypalConfig, value: string): boolean {
+  try {
+    const url = new URL(value);
+    const expectedHosts =
+      cfg.environment === "sandbox"
+        ? new Set(["api.sandbox.paypal.com", "api-m.sandbox.paypal.com"])
+        : new Set(["api.paypal.com", "api-m.paypal.com"]);
+    return (
+      url.protocol === "https:" &&
+      expectedHosts.has(url.hostname) &&
+      url.port === "" &&
+      url.username === "" &&
+      url.password === "" &&
+      url.pathname.startsWith("/v1/notifications/certs/")
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Verify a real webhook by posting its signed fields back to PayPal. */
+export async function verifyPaypalWebhookSignature(
+  cfg: PaypalConfig,
+  args: PaypalWebhookVerificationArgs,
+): Promise<boolean> {
+  if (!isAllowedPaypalCertificateUrl(cfg, args.certUrl)) {
+    throw new Error("paypal_webhook_cert_url_invalid");
+  }
+
+  // Keep webhook_event byte-for-byte as received. PayPal warns that parsing and
+  // re-serializing the event can invalidate postback verification.
+  const verificationBody = [
+    "{",
+    `"auth_algo":${JSON.stringify(args.authAlgo)},`,
+    `"cert_url":${JSON.stringify(args.certUrl)},`,
+    `"transmission_id":${JSON.stringify(args.transmissionId)},`,
+    `"transmission_sig":${JSON.stringify(args.transmissionSignature)},`,
+    `"transmission_time":${JSON.stringify(args.transmissionTime)},`,
+    `"webhook_id":${JSON.stringify(args.webhookId)},`,
+    `"webhook_event":${args.webhookEventRaw}`,
+    "}",
+  ].join("");
+
+  const result = await paypalFetch<{ verification_status?: string }>(
+    cfg,
+    "/v1/notifications/verify-webhook-signature",
+    {
+      method: "POST",
+      rawBody: verificationBody,
+    },
+  );
+
+  return result.verification_status === "SUCCESS";
 }
 
 /** Approval link the buyer must be redirected to. */
