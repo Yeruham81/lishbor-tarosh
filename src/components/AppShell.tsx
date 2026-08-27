@@ -27,8 +27,19 @@ import { CookiePreferencesDialog } from "@/components/CookiePreferencesDialog";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyRole } from "@/lib/account.functions";
+import { getProfile } from "@/lib/game.functions";
 import { getPremiumStatus, premiumStatusQueryKey } from "@/lib/payments.functions";
 import { PremiumUpgradeDialog } from "@/components/PremiumUpgradeDialog";
+import { type AccessibilityPrefs, type NotificationPrefs } from "@/lib/profile-preferences";
+
+const ROUTE_NAMES: Record<string, string> = {
+  "/": "דף הבית",
+  "/play": "המשחק",
+  "/levels": "שלבים ואתגרים",
+  "/leaderboard": "טבלת השחקנים",
+  "/profile": "הפרופיל",
+  "/instructions": "הוראות המשחק",
+};
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
@@ -39,12 +50,27 @@ export function AppShell({ children }: { children: ReactNode }) {
   const showMobileHelp = !!user && (onPlay || onInstructions);
   const flags = useFeatureFlags();
 
+  const fetchProfile = useServerFn(getProfile);
+  const profileQ = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => fetchProfile(),
+    enabled: !!user,
+  });
+  const notificationPrefs = (profileQ.data?.notification_prefs ?? {}) as NotificationPrefs;
+  const accessibilityPrefs = (profileQ.data?.accessibility_prefs ?? {}) as AccessibilityPrefs;
+  const announcementsReady = !user || profileQ.isSuccess;
+  const announcementsMuted = !!user && !!notificationPrefs.mute_announcements;
+  const announcementsAllowed = announcementsReady && !announcementsMuted;
+
   // Popup announcement: show once per session per message text.
   const popupText = flags.popupAnnouncement?.trim() ?? "";
   const [popupOpen, setPopupOpen] = useState(false);
   const [premiumOpen, setPremiumOpen] = useState(false);
   useEffect(() => {
-    if (!popupText) return;
+    if (!announcementsAllowed || !popupText) {
+      setPopupOpen(false);
+      return;
+    }
     if (typeof window === "undefined") return;
     try {
       const key = `popup_seen:${btoa(unescape(encodeURIComponent(popupText))).slice(0, 32)}`;
@@ -54,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     } catch {
       setPopupOpen(true);
     }
-  }, [popupText]);
+  }, [announcementsAllowed, popupText]);
 
   // Check if current user is admin (to bypass maintenance mode).
   const fetchRole = useServerFn(getMyRole);
@@ -92,7 +118,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {flags.globalAnnouncement && flags.globalAnnouncement.trim() && (
+      {accessibilityPrefs.screen_reader && (
+        <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {`עברת לעמוד ${ROUTE_NAMES[pathname] ?? "חדש"}`}
+        </p>
+      )}
+      {announcementsAllowed && flags.globalAnnouncement && flags.globalAnnouncement.trim() && (
         <div className="bg-gradient-sunset text-white text-center text-sm py-2 px-4">{flags.globalAnnouncement}</div>
       )}
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl">
