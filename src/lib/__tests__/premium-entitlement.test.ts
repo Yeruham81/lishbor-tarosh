@@ -115,6 +115,10 @@ describe("Premium entitlement", () => {
   it("allows automatic clue advancement only for paid players", () => {
     const profileRoute = readFileSync("src/routes/_authenticated/profile.tsx", "utf8");
     const accountFunctions = readFileSync("src/lib/account.functions.ts", "utf8");
+    const preferenceHardeningMigration = readFileSync(
+      "supabase/migrations/20260827104000_profile_preferences_avatar_hardening.sql",
+      "utf8",
+    );
     const gameFunctions = readFileSync("src/lib/game.functions.ts", "utf8");
     const playRoute = readFileSync("src/routes/_authenticated/play.tsx", "utf8");
 
@@ -122,8 +126,12 @@ describe("Premium entitlement", () => {
     expect(profileRoute).toContain("disabled={!p.is_paid}");
     expect(profileRoute).toContain("disabled={disabled}");
     expect(profileRoute).toContain('"זמין לשחקנים ששילמו"');
-    expect(accountFunctions).toContain('.eq("is_paid", true)');
+    expect(accountFunctions).toContain('supabaseAdmin.rpc("update_profile_preferences_atomic"');
     expect(accountFunctions).toContain('throw new Error("premium_required")');
+    expect(preferenceHardeningMigration).toContain("SELECT is_paid");
+    expect(preferenceHardeningMigration).toContain("FOR UPDATE");
+    expect(preferenceHardeningMigration).toContain("IF _auto_next IS TRUE AND NOT COALESCE(v_is_paid, false) THEN");
+    expect(preferenceHardeningMigration).toContain("RAISE EXCEPTION 'premium_required'");
     expect(gameFunctions).toContain("is_blocked, is_paid, created_at");
     expect(playRoute).toContain("!profileQ.data?.is_paid || !profileQ.data?.auto_next");
   });
