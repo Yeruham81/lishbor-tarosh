@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Trophy, Sparkles, Award, X } from "lucide-react";
 
@@ -16,7 +17,18 @@ export type SolveEvent =
 type Burst = { id: number; text: string };
 type ModalEvent =
   | { id: number; kind: "stage_up"; stage: number }
-  | { id: number; kind: "achievement"; title: string; category: "solved" | "perfect" | "perfect_streak" | "play_days" };
+  | {
+      id: number;
+      kind: "achievement";
+      title: string;
+      category: "solved" | "perfect" | "perfect_streak" | "play_days";
+    };
+
+type SolveNotificationOptions = {
+  muteLevelUp?: boolean;
+  muteChallenges?: boolean;
+  screenReader?: boolean;
+};
 
 /**
  * Surfaces solve events as visual notifications:
@@ -28,9 +40,10 @@ type ModalEvent =
  * next queued event is shown. Multiple progression events from a single solve
  * are displayed sequentially.
  */
-export function useSolveNotifications() {
+export function useSolveNotifications(options: SolveNotificationOptions = {}) {
   const [queue, setQueue] = useState<ModalEvent[]>([]);
   const [bursts, setBursts] = useState<Burst[]>([]);
+  const [spokenUpdate, setSpokenUpdate] = useState("");
 
   const current = queue[0] ?? null;
 
@@ -53,26 +66,44 @@ export function useSolveNotifications() {
     const sorted = [...events].sort((a, b) => order[a.kind] - order[b.kind]);
 
     const toEnqueue: ModalEvent[] = [];
+    const spokenParts: string[] = [];
     let toastDelay = 0;
     let idSeed = Date.now();
     for (const ev of sorted) {
       if (ev.kind === "stage_up") {
+        if (options.muteLevelUp) continue;
         toEnqueue.push({ id: ++idSeed, kind: "stage_up", stage: ev.stage });
+        spokenParts.push(`עלית לשלב ${ev.stage}`);
       } else if (ev.kind === "achievement") {
-        toEnqueue.push({ id: ++idSeed, kind: "achievement", title: ev.title, category: ev.category });
+        if (options.muteChallenges) continue;
+        toEnqueue.push({
+          id: ++idSeed,
+          kind: "achievement",
+          title: ev.title,
+          category: ev.category,
+        });
+        spokenParts.push(`השלמת אתגר: ${ev.title}`);
       } else if (ev.kind === "perfect_bonus") {
         const delay = toastDelay;
         toastDelay += 400;
         setTimeout(() => {
-          toast.success(`🔥 רצף מושלם ×${ev.streak}! בונוס +${ev.points} נקודות`, { duration: 4000 });
+          toast.success(`🔥 רצף מושלם ×${ev.streak}! בונוס +${ev.points} נקודות`, {
+            duration: 4000,
+          });
         }, delay);
+        spokenParts.push(`רצף מושלם ${ev.streak}. בונוס ${ev.points} נקודות`);
       } else if (ev.kind === "score") {
         const id = Date.now() + Math.random();
         setBursts((b) => [...b, { id, text: `+${ev.points}` }]);
         setTimeout(() => setBursts((b) => b.filter((x) => x.id !== id)), 1400);
+        spokenParts.push(`נוספו ${ev.points} נקודות`);
       }
     }
     if (toEnqueue.length) setQueue((q) => [...q, ...toEnqueue]);
+    if (options.screenReader && spokenParts.length) {
+      setSpokenUpdate("");
+      window.setTimeout(() => setSpokenUpdate(spokenParts.join(". ")), 0);
+    }
   };
 
   const progressModal = useMemo(
@@ -93,8 +124,14 @@ export function useSolveNotifications() {
     </span>
   );
 
+  const screenReaderAnnouncement = options.screenReader ? (
+    <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+      {spokenUpdate}
+    </p>
+  ) : null;
+
   // Backward-compat alias: previous API exposed `stageBanner`.
-  return { emit, progressModal, stageBanner: progressModal, scoreBurst };
+  return { emit, progressModal, stageBanner: progressModal, scoreBurst, screenReaderAnnouncement };
 }
 
 function ProgressionModal({
@@ -106,12 +143,36 @@ function ProgressionModal({
   onDismiss: () => void;
   remaining: number;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialogRef.current?.focus();
+    return () => previousFocusRef.current?.focus();
+  }, []);
+
   // Acknowledge via Enter / Space / Escape as well.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === " " || e.key === "Escape") {
         e.preventDefault();
         onDismiss();
+        return;
+      }
+
+      if (e.key === "Tab" && dialogRef.current) {
+        const controls = Array.from(dialogRef.current.querySelectorAll<HTMLElement>("button:not([disabled])"));
+        if (!controls.length) return;
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     window.addEventListener("keydown", onKey);
@@ -122,10 +183,13 @@ function ProgressionModal({
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
       role="dialog"
       aria-modal="true"
-      aria-live="polite"
+      aria-labelledby={`progression-title-${event.id}`}
+      aria-describedby={`progression-description-${event.id}`}
+      tabIndex={-1}
       dir="rtl"
     >
       <div className="relative w-full max-w-md text-center bg-gradient-sunset text-white rounded-3xl shadow-glow border-2 border-white/30 p-6 sm:p-8 animate-fade-in">
@@ -145,15 +209,26 @@ function ProgressionModal({
         {isStage ? (
           <>
             <div className="text-sm font-medium opacity-90">כל הכבוד 🎉</div>
-            <div className="font-display text-5xl font-extrabold my-2 drop-shadow">שלב {event.stage}</div>
-            <div className="text-base opacity-95"> המון הגדרות חדשות מחכות לך </div>
-            <Trophy className="absolute -top-4 -right-4 size-10 text-yellow-300 drop-shadow" />
+            <div id={`progression-title-${event.id}`} className="font-display text-5xl font-extrabold my-2 drop-shadow">
+              שלב {event.stage}
+            </div>
+            <div id={`progression-description-${event.id}`} className="text-base opacity-95">
+              המון הגדרות חדשות מחכות לך
+            </div>
+            <Trophy aria-hidden="true" className="absolute -top-4 -right-4 size-10 text-yellow-300 drop-shadow" />
           </>
         ) : (
           <>
             <div className="text-sm font-medium opacity-90">הישג חדש נפתח</div>
-            <div className="font-display text-2xl sm:text-3xl font-extrabold my-2 drop-shadow">{event.title}</div>
-            <div className="text-sm opacity-90">כל הכבוד! 🏆</div>
+            <div
+              id={`progression-title-${event.id}`}
+              className="font-display text-2xl sm:text-3xl font-extrabold my-2 drop-shadow"
+            >
+              {event.title}
+            </div>
+            <div id={`progression-description-${event.id}`} className="text-sm opacity-90">
+              כל הכבוד! 🏆
+            </div>
           </>
         )}
 
