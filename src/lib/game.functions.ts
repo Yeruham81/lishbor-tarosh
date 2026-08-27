@@ -17,6 +17,36 @@ import {
   findAchievementTitle,
 } from "./progression";
 
+const LEADERBOARD_AVATAR_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp", "gif"]);
+
+function isSafeLeaderboardAvatarPath(profileId: string, path: string | null | undefined) {
+  if (!path) return false;
+  const prefix = `${profileId}/avatar-`;
+  const extension = path.split(".").pop()?.toLowerCase() ?? "";
+  return (
+    path.startsWith(prefix) && !path.slice(prefix.length).includes("/") && LEADERBOARD_AVATAR_EXTENSIONS.has(extension)
+  );
+}
+
+async function signedLeaderboardAvatar(profileId: string, path: string | null | undefined) {
+  if (!isSafeLeaderboardAvatarPath(profileId, path)) return null;
+  const { data, error } = await supabaseAdmin.storage.from("avatars").createSignedUrl(path!, 60 * 60);
+  if (error) {
+    console.error("[leaderboard] failed to sign avatar", { profileId, message: error.message });
+    return null;
+  }
+  return data?.signedUrl ?? null;
+}
+
+async function withSignedLeaderboardAvatars<T extends { id: string; avatar_url?: string | null }>(rows: T[]) {
+  return Promise.all(
+    rows.map(async (row) => ({
+      ...row,
+      avatar_url: await signedLeaderboardAvatar(row.id, row.avatar_url),
+    })),
+  );
+}
+
 export type SolveEvent =
   | { kind: "score"; points: number }
   | { kind: "perfect_bonus"; points: number; streak: number }
@@ -560,14 +590,14 @@ export const getProfile = createServerFn({ method: "GET" })
 
 export const getLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data } = await context.supabase
+  .handler(async () => {
+    const { data } = await supabaseAdmin
       .from("profiles")
       .select("id, username, display_name, avatar_url, total_score, level, solved_count, best_streak")
       .eq("is_private", false)
       .order("total_score", { ascending: false })
       .limit(50);
-    return data ?? [];
+    return withSignedLeaderboardAvatars(data ?? []);
   });
 
 const periodSchema = z.object({
@@ -577,26 +607,26 @@ const periodSchema = z.object({
 export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => periodSchema.parse(d))
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-
+  .handler(async ({ data }) => {
     if (data.period === "all") {
-      const { data: rows } = await supabase
+      const { data: rows } = await supabaseAdmin
         .from("profiles")
         .select("id, username, display_name, avatar_url, total_score, level, solved_count, best_streak")
         .eq("is_private", false)
         .order("total_score", { ascending: false })
         .limit(20);
-      return (rows ?? []).map((r: any) => ({
-        id: r.id,
-        username: r.username,
-        display_name: r.display_name,
-        avatar_url: r.avatar_url,
-        level: r.level,
-        solved_count: r.solved_count,
-        best_streak: r.best_streak,
-        score: r.total_score,
-      }));
+      return withSignedLeaderboardAvatars(
+        (rows ?? []).map((r: any) => ({
+          id: r.id,
+          username: r.username,
+          display_name: r.display_name,
+          avatar_url: r.avatar_url,
+          level: r.level,
+          solved_count: r.solved_count,
+          best_streak: r.best_streak,
+          score: r.total_score,
+        })),
+      );
     }
 
     const now = new Date();
@@ -628,7 +658,7 @@ export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
 
     if (topIds.length === 0) return [];
 
-    const { data: profiles } = await supabase
+    const { data: profiles } = await supabaseAdmin
       .from("profiles")
       .select("id, username, display_name, avatar_url, level, best_streak, is_private")
       .in(
@@ -637,10 +667,13 @@ export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
       );
 
     const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
-    return topIds
-      .filter(([id]) => !byId.get(id)?.is_private)
+    const visibleRows = topIds
+      .filter(([id]) => {
+        const profile = byId.get(id);
+        return !!profile && profile.is_private === false;
+      })
       .map(([id, t]) => {
-        const p = byId.get(id) ?? {};
+        const p = byId.get(id);
         return {
           id,
           username: p.username ?? "",
@@ -652,4 +685,6 @@ export const getLeaderboardByPeriod = createServerFn({ method: "POST" })
           score: t.score,
         };
       });
+
+    return withSignedLeaderboardAvatars(visibleRows);
   });
