@@ -30,16 +30,7 @@ import { getMyRole } from "@/lib/account.functions";
 import { getProfile } from "@/lib/game.functions";
 import { getPremiumStatus, premiumStatusQueryKey } from "@/lib/payments.functions";
 import { PremiumUpgradeDialog } from "@/components/PremiumUpgradeDialog";
-import { type AccessibilityPrefs, type NotificationPrefs } from "@/lib/profile-preferences";
-
-const ROUTE_NAMES: Record<string, string> = {
-  "/": "דף הבית",
-  "/play": "המשחק",
-  "/levels": "שלבים ואתגרים",
-  "/leaderboard": "טבלת השחקנים",
-  "/profile": "הפרופיל",
-  "/instructions": "הוראות המשחק",
-};
+import { type NotificationPrefs } from "@/lib/profile-preferences";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
@@ -57,7 +48,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     enabled: !!user,
   });
   const notificationPrefs = (profileQ.data?.notification_prefs ?? {}) as NotificationPrefs;
-  const accessibilityPrefs = (profileQ.data?.accessibility_prefs ?? {}) as AccessibilityPrefs;
   const announcementsReady = !user || profileQ.isSuccess;
   const announcementsMuted = !!user && !!notificationPrefs.mute_announcements;
   const announcementsAllowed = announcementsReady && !announcementsMuted;
@@ -118,11 +108,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {accessibilityPrefs.screen_reader && (
-        <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-          {`עברת לעמוד ${ROUTE_NAMES[pathname] ?? "חדש"}`}
-        </p>
-      )}
       {announcementsAllowed && flags.globalAnnouncement && flags.globalAnnouncement.trim() && (
         <div className="bg-gradient-sunset text-white text-center text-sm py-2 px-4">{flags.globalAnnouncement}</div>
       )}
