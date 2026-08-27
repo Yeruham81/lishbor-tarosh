@@ -68,11 +68,9 @@ export function PremiumUpgradeCard() {
     <div className="flex flex-col gap-3 rounded-lg border p-4">
       <div className="flex items-center gap-2">
         <Crown className="size-5 text-primary" />
-        <span className="font-semibold">תנו בראש — 20 ₪ בתשלום חד־פעמי</span>
+        <span className="font-semibold">לשבור ת'ראש — בלי פרסומות</span>
       </div>
-      <p className="text-sm text-muted-foreground">
-        תמיכה בהמשך הפיתוח העצמאי של המשחק והסרת הפרסומות מהחשבון שלך לצמיתות.
-      </p>
+      <p className="text-sm text-muted-foreground">תמיכה בהמשך הפיתוח העצמאי של המשחק והסרת הפרסומות לצמיתות.</p>
       <Button onClick={start} disabled={pending} className="w-fit">
         {pending ? (
           <>
