@@ -8,7 +8,7 @@ import { PageAdLayout } from "@/components/ads/PageAdLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { getLeaderboardByPeriod } from "@/lib/game.functions";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Trophy, Medal, Award } from "lucide-react";
+import { Trophy, Medal, Award, UserCircle2 } from "lucide-react";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 
 export const Route = createFileRoute("/leaderboard")({
@@ -122,6 +122,13 @@ function Row({ row, rank, isMe, hasBorder }: { row: any; rank: number; isMe: boo
         style={medal.style}
       >
         {medal.icon ?? rank}
+      </div>
+      <div className="size-10 rounded-full bg-muted border overflow-hidden flex items-center justify-center shrink-0">
+        {row.avatar_url ? (
+          <img src={row.avatar_url} alt="" className="size-full object-cover" />
+        ) : (
+          <UserCircle2 className="size-7 text-muted-foreground" aria-hidden="true" />
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="font-bold truncate">{row.display_name ?? row.username}</div>
