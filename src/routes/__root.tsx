@@ -1,9 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, createRootRouteWithContext, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "sonner";
 import { SITE_LOCALE, SITE_NAME, absoluteUrl } from "@/lib/site";
+import { usePrefsApplier } from "@/hooks/use-prefs-applier";
+import { screenReaderRouteName } from "@/lib/profile-preferences";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -74,9 +76,23 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <GlobalProfilePreferences />
         <Outlet />
         <Toaster position="top-center" richColors dir="rtl" />
       </AuthProvider>
     </QueryClientProvider>
+  );
+}
+
+function GlobalProfilePreferences() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const preferences = usePrefsApplier();
+
+  if (!preferences.screen_reader) return null;
+
+  return (
+    <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+      {`עברת לעמוד ${screenReaderRouteName(pathname)}`}
+    </p>
   );
 }
