@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
@@ -22,6 +22,11 @@ import { openCookiePreferences } from "@/lib/ads/consent";
 import { Cookie } from "lucide-react";
 
 import { PALETTES, type Palette } from "@/hooks/use-theme";
+import {
+  applyAccessibilityPreferences,
+  type AccessibilityPrefs,
+  type NotificationPrefs,
+} from "@/lib/profile-preferences";
 import { toast } from "sonner";
 import {
   Award,
@@ -43,34 +48,28 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/profile")({ component: Profile });
+type PreferencePatch = {
+  is_private?: boolean;
+  auto_next?: boolean;
+  notification_prefs?: Partial<NotificationPrefs>;
+  accessibility_prefs?: Partial<AccessibilityPrefs>;
+};
 
-type AccessibilityPrefs = {
-  text_size?: "small" | "normal" | "large";
-  high_contrast?: boolean;
-  colorblind?: boolean;
-  screen_reader?: boolean;
-  palette?: Palette;
-  mode?: "light" | "dark";
-};
-// mute_* keys: true = notification IS MUTED (disabled).  Absent / false = enabled (default).
-type MuteNotifs = {
-  mute_level_up?: boolean;
-  mute_challenge?: boolean;
-  mute_daily?: boolean;
-  mute_events?: boolean;
-  mute_announcements?: boolean;
-};
+export const Route = createFileRoute("/_authenticated/profile")({ component: Profile });
 
 // Upload limits — single source of truth
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 const AVATAR_ACCEPTED_MIMES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const AVATAR_HINT_FORMATS = "PNG, JPG, WEBP, GIF";
 
-function getProfileErrorMessage(error: any, fallback: string): string {
-  const originalMessage = typeof error?.message === "string" ? error.message : "";
+function getProfileErrorMessage(error: unknown, fallback: string): string {
+  const details =
+    typeof error === "object" && error !== null
+      ? (error as { message?: unknown; code?: unknown; status?: unknown })
+      : {};
+  const originalMessage = typeof details.message === "string" ? details.message : "";
   const message = originalMessage.toLowerCase();
-  const code = String(error?.code ?? "").toLowerCase();
+  const code = String(details.code ?? "").toLowerCase();
 
   // Keep Hebrew messages created by the application unchanged.
   if (/[\u0590-\u05FF]/.test(originalMessage)) {
@@ -78,7 +77,7 @@ function getProfileErrorMessage(error: any, fallback: string): string {
   }
 
   if (
-    error?.status === 401 ||
+    details.status === 401 ||
     code === "unauthorized" ||
     code === "session_expired" ||
     code === "session_not_found" ||
@@ -91,7 +90,7 @@ function getProfileErrorMessage(error: any, fallback: string): string {
   }
 
   if (
-    error?.status === 403 ||
+    details.status === 403 ||
     code === "forbidden" ||
     code === "permission_denied" ||
     message.includes("permission denied") ||
@@ -139,8 +138,16 @@ function Profile() {
   const doUpdateLevel = useServerFn(updatePlayerLevel);
   const qc = useQueryClient();
 
-  const { data } = useQuery({ queryKey: ["stats"], queryFn: () => fetchStats(), enabled: !!user });
-  const avatarQ = useQuery({ queryKey: ["avatar-url"], queryFn: () => fetchAvatar(), enabled: !!user });
+  const statsQ = useQuery({
+    queryKey: ["stats", user?.id],
+    queryFn: () => fetchStats(),
+    enabled: !!user,
+  });
+  const avatarQ = useQuery({
+    queryKey: ["avatar-url", user?.id],
+    queryFn: () => fetchAvatar(),
+    enabled: !!user,
+  });
 
   const [deleting, setDeleting] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -152,40 +159,56 @@ function Profile() {
   const [pwd2, setPwd2] = useState("");
   const [pwdBusy, setPwdBusy] = useState(false);
 
-  if (!data?.profile)
+  if (statsQ.isError)
+    return (
+      <AppShell>
+        <div className="text-center py-20 space-y-4">
+          <p className="text-destructive">לא ניתן לטעון את נתוני הפרופיל כרגע</p>
+          <button
+            type="button"
+            onClick={() => statsQ.refetch()}
+            className="px-4 py-2 rounded-xl border bg-card hover:bg-muted transition font-medium"
+          >
+            ניסיון נוסף
+          </button>
+        </div>
+      </AppShell>
+    );
+
+  if (!statsQ.data?.profile)
     return (
       <AppShell>
         <div className="text-center py-20 text-muted-foreground">טוען...</div>
       </AppShell>
     );
-  const p = data.profile;
+  const p = statsQ.data.profile;
   const a11y: AccessibilityPrefs = (p.accessibility_prefs ?? {}) as AccessibilityPrefs;
-  const mutes: MuteNotifs = (p.notification_prefs ?? {}) as MuteNotifs;
+  const mutes: NotificationPrefs = (p.notification_prefs ?? {}) as NotificationPrefs;
   const isEmailAuth = (p.auth_provider ?? "email") === "email";
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["stats"] });
-  const setPref = async (patch: any) => {
+  const setPref = async (patch: PreferencePatch) => {
     try {
       await doUpdatePrefs({ data: patch });
-      refresh();
-    } catch (e: any) {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["stats"] }),
+        qc.invalidateQueries({ queryKey: ["profile"] }),
+      ]);
+      return true;
+    } catch (e) {
       toast.error(getProfileErrorMessage(e, "לא ניתן לשמור את ההגדרות כרגע. נסו שוב"));
+      return false;
     }
   };
-  const setA11y = (patch: Partial<AccessibilityPrefs>) => {
+  const setA11y = async (patch: Partial<AccessibilityPrefs>) => {
     // Apply immediately to <html> so the user sees the change without refresh.
-    const html = document.documentElement;
     const merged = { ...a11y, ...patch } as AccessibilityPrefs;
-    html.dataset.textSize = merged.text_size ?? "normal";
-    html.dataset.highContrast = merged.high_contrast ? "true" : "false";
-    html.dataset.colorblind = merged.colorblind ? "true" : "false";
-    if (merged.palette) html.dataset.palette = merged.palette;
-    if (merged.mode) html.classList.toggle("dark", merged.mode === "dark");
-    if (merged.screen_reader) html.setAttribute("aria-live", "polite");
-    else html.removeAttribute("aria-live");
-    return setPref({ accessibility_prefs: patch });
+    applyAccessibilityPreferences(merged);
+    const saved = await setPref({ accessibility_prefs: patch });
+    if (!saved) applyAccessibilityPreferences(a11y);
+    return saved;
   };
-  const resetDisplaySettings = () => {
+  const resetDisplaySettings = async () => {
     const reset: AccessibilityPrefs = {
       text_size: "normal",
       high_contrast: false,
@@ -194,11 +217,11 @@ function Profile() {
       palette: "sunset",
       mode: "light",
     };
-    setA11y(reset);
-    toast.success("הגדרות התצוגה אופסו");
+    const saved = await setA11y(reset);
+    if (saved) toast.success("הגדרות התצוגה אופסו");
   };
   // muted=true means the notification is OFF. Toggle UI shows checked when MUTED.
-  const setMute = (patch: Partial<MuteNotifs>) => setPref({ notification_prefs: { ...mutes, ...patch } as any });
+  const setMute = (patch: Partial<NotificationPrefs>) => setPref({ notification_prefs: patch });
 
   const onAvatarPick = async (file: File) => {
     if (!user) return;
@@ -216,10 +239,11 @@ function Profile() {
       const path = `${user.id}/avatar-${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
       if (error) throw error;
-      await doSetAvatar({ data: { path } });
-      toast.success("התמונה עודכנה");
-      qc.invalidateQueries({ queryKey: ["avatar-url"] });
-    } catch (e: any) {
+      const result = await doSetAvatar({ data: { path } });
+      if (result.cleanupComplete) toast.success("התמונה עודכנה");
+      else toast.warning("התמונה עודכנה, אך ניקוי הקובץ הקודם לא הושלם");
+      await qc.invalidateQueries({ queryKey: ["avatar-url"] });
+    } catch (e) {
       toast.error(getProfileErrorMessage(e, "לא ניתן להעלות את תמונת הפרופיל כרגע. נסו שוב"));
     } finally {
       setUploading(false);
@@ -227,12 +251,16 @@ function Profile() {
   };
   const onAvatarRemove = async () => {
     if (!confirm("להסיר את התמונה?")) return;
+    setUploading(true);
     try {
-      await doSetAvatar({ data: { path: null } });
-      qc.invalidateQueries({ queryKey: ["avatar-url"] });
-      toast.success("התמונה הוסרה");
-    } catch (e: any) {
+      const result = await doSetAvatar({ data: { path: null } });
+      await qc.invalidateQueries({ queryKey: ["avatar-url"] });
+      if (result.cleanupComplete) toast.success("התמונה הוסרה");
+      else toast.warning("התמונה הוסרה מהפרופיל, אך ניקוי הקובץ לא הושלם");
+    } catch (e) {
       toast.error(getProfileErrorMessage(e, "לא ניתן להסיר את תמונת הפרופיל כרגע. נסו שוב"));
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -253,7 +281,7 @@ function Profile() {
       toast.success("הסיסמה עודכנה");
       setPwd("");
       setPwd2("");
-    } catch (e: any) {
+    } catch (e) {
       toast.error(getProfileErrorMessage(e, "לא ניתן לעדכן את הסיסמה כרגע. נסו שוב"));
     } finally {
       setPwdBusy(false);
@@ -266,9 +294,17 @@ function Profile() {
     setResetting(true);
     try {
       await doReset();
+      if (user) {
+        try {
+          window.localStorage.removeItem(`play:currentClueId:${user.id}`);
+        } catch {
+          // Storage can be unavailable in privacy-restricted browsers.
+        }
+        qc.removeQueries({ queryKey: ["clue", user.id] });
+      }
       await qc.invalidateQueries();
       toast.success("הפרופיל אופס. ברוך הבא מחדש!");
-    } catch (e: any) {
+    } catch (e) {
       toast.error(getProfileErrorMessage(e, "לא ניתן לאפס את נתוני המשחק כרגע. נסו שוב"));
     } finally {
       setResetting(false);
@@ -281,10 +317,18 @@ function Profile() {
     setDeleting(true);
     try {
       await doDelete();
+      if (user) {
+        try {
+          window.localStorage.removeItem(`play:currentClueId:${user.id}`);
+        } catch {
+          // Storage can be unavailable in privacy-restricted browsers.
+        }
+      }
       await signOut();
+      qc.clear();
       toast.success("הפרופיל נמחק");
       navigate({ to: "/" });
-    } catch (e: any) {
+    } catch (e) {
       toast.error(getProfileErrorMessage(e, "לא ניתן למחוק את הפרופיל כרגע. נסו שוב"));
     } finally {
       setDeleting(false);
@@ -351,7 +395,11 @@ function Profile() {
                     type="file"
                     accept={AVATAR_ACCEPTED_MIMES.join(",")}
                     className="hidden"
-                    onChange={(e) => e.target.files?.[0] && onAvatarPick(e.target.files[0])}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) void onAvatarPick(file);
+                    }}
                   />
                   <button
                     onClick={() => fileInput.current?.click()}
@@ -363,6 +411,7 @@ function Profile() {
                   {avatarQ.data?.url && (
                     <button
                       onClick={onAvatarRemove}
+                      disabled={uploading}
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground text-sm font-medium transition"
                     >
                       <X className="size-4" /> הסרה
@@ -464,7 +513,7 @@ function Profile() {
             <div>
               <div className="text-sm font-medium mb-2">רמה</div>
               <select
-                value={(p as any).player_level ?? ""}
+                value={p.player_level ?? ""}
                 onChange={async (e) => {
                   const n = Number(e.target.value);
                   if (!Number.isInteger(n) || n < 1 || n > 5) return;
@@ -472,7 +521,7 @@ function Profile() {
                     await doUpdateLevel({ data: { playerLevel: n } });
                     refresh();
                     toast.success("רמת השחקן עודכנה");
-                  } catch (err: any) {
+                  } catch (err) {
                     toast.error(getProfileErrorMessage(err, "לא ניתן לעדכן את רמת השחקן כרגע. נסו שוב"));
                   }
                 }}
@@ -511,18 +560,6 @@ function Profile() {
                 label="ביטול התראות על השלמת אתגרים"
                 checked={!!mutes.mute_challenge}
                 onChange={(v) => setMute({ mute_challenge: v })}
-              />
-              <Toggle
-                small
-                label="ביטול התראות על אתגר יומי חדש"
-                checked={!!mutes.mute_daily}
-                onChange={(v) => setMute({ mute_daily: v })}
-              />
-              <Toggle
-                small
-                label="ביטול התראות על אירועים מיוחדים"
-                checked={!!mutes.mute_events}
-                onChange={(v) => setMute({ mute_events: v })}
               />
               <Toggle
                 small
@@ -615,7 +652,7 @@ function Profile() {
             </div>
             <Toggle
               label="תמיכה בקורא מסך"
-              hint="הפעלת שיפורי נגישות לנעזרים בקורא מסך"
+              hint="הפעלת הכרזות קוליות מורחבות על ניקוד, שלבים, הישגים ומעבר בין עמודים"
               checked={!!a11y.screen_reader}
               onChange={(v) => setA11y({ screen_reader: v })}
             />
@@ -667,22 +704,31 @@ function Toggle({
   small?: boolean;
   disabled?: boolean;
 }) {
+  const labelId = useId();
+  const hintId = useId();
+
   return (
     <label
       className={`flex items-center justify-between gap-3 ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"} ${small ? "py-1" : ""}`}
     >
       <div className="min-w-0">
-        <div className={`font-medium flex items-center gap-2 ${small ? "text-sm" : ""}`}>
+        <div id={labelId} className={`font-medium flex items-center gap-2 ${small ? "text-sm" : ""}`}>
           {icon}
           {label}
         </div>
-        {hint && <div className="text-xs text-muted-foreground mt-0.5">{hint}</div>}
+        {hint && (
+          <div id={hintId} className="text-xs text-muted-foreground mt-0.5">
+            {hint}
+          </div>
+        )}
       </div>
       <button
         type="button"
         role="switch"
         aria-checked={checked}
         aria-disabled={disabled}
+        aria-labelledby={labelId}
+        aria-describedby={hint ? hintId : undefined}
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={`relative h-6 w-11 rounded-full transition shrink-0 disabled:cursor-not-allowed ${checked ? "bg-gradient-sunset" : "bg-muted border"}`}
