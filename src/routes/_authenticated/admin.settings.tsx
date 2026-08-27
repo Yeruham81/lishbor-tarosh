@@ -93,7 +93,7 @@ const GAMEPLAY_BOOL_FIELDS: Field[] = [
   {
     key: "disable_ads_button_visible",
     label: 'הצגת כפתור "תנו בראש"',
-    hint: "הצגת/הסתרת הכפתור (בקרוב — לפי תכונה עתידית)",
+    hint: "הצגת/הסתרת הכפתור בכל מסכי המשחק",
     type: "boolean",
     default: true,
   },
