@@ -14,12 +14,22 @@ import { Lightbulb, SkipForward } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { GameTopBar } from "@/components/GameTopBar";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
-import { useSolveNotifications } from "@/components/SolveNotifications";
+import { useSolveNotifications, type SolveEvent } from "@/components/SolveNotifications";
 import { PageAdLayout } from "@/components/ads/PageAdLayout";
+import { type AccessibilityPrefs, type NotificationPrefs } from "@/lib/profile-preferences";
 
 export const Route = createFileRoute("/_authenticated/play")({ component: Play });
 
 type ClueState = Awaited<ReturnType<typeof getNextClue>>;
+
+function solveEventsFrom(result: unknown): SolveEvent[] | undefined {
+  if (typeof result !== "object" || result === null || !("events" in result)) return undefined;
+  return Array.isArray(result.events) ? (result.events as SolveEvent[]) : undefined;
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "אירעה שגיאה. נסו שוב";
+}
 
 function Play() {
   const { user, loading } = useAuth();
@@ -52,10 +62,16 @@ function Play() {
     try {
       if (id) window.localStorage.setItem(storageKey, id);
       else window.localStorage.removeItem(storageKey);
-    } catch {}
+    } catch {
+      // Storage can be unavailable in privacy-restricted browsers.
+    }
   };
 
-  const profileQ = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile(), enabled: !!user });
+  const profileQ = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => fetchProfile(),
+    enabled: !!user,
+  });
 
   // Resume by stored clue id first (handles solved-but-not-advanced + post-refresh).
   // Falls back to getNextClue when there's no stored id or it can no longer be resolved.
@@ -88,7 +104,13 @@ function Play() {
   const [shake, setShake] = useState(false);
   const [busy, setBusy] = useState(false);
   const prevRevealedCount = useRef(0);
-  const notif = useSolveNotifications();
+  const notificationPrefs = (profileQ.data?.notification_prefs ?? {}) as NotificationPrefs;
+  const accessibilityPrefs = (profileQ.data?.accessibility_prefs ?? {}) as AccessibilityPrefs;
+  const notif = useSolveNotifications({
+    muteLevelUp: !!notificationPrefs.mute_level_up,
+    muteChallenges: !!notificationPrefs.mute_challenge,
+    screenReader: !!accessibilityPrefs.screen_reader,
+  });
 
   // Auto-advance countdown (seconds remaining, or null when inactive)
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -133,7 +155,6 @@ function Play() {
       setCountdown((c) => (c === null ? null : c - 1));
     }, 1000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clue?.isSolved, clue?.id, profileQ.data?.is_paid, profileQ.data?.auto_next, autoCancelled]);
 
   useEffect(() => {
@@ -166,9 +187,9 @@ function Play() {
         toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
         qc.invalidateQueries({ queryKey: ["profile"] });
       }
-      notif.emit((r as any).events);
-    } catch (e: any) {
-      toast.error(e.message);
+      notif.emit(solveEventsFrom(r));
+    } catch (e) {
+      toast.error(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -186,9 +207,9 @@ function Play() {
         toast.success("🎉 נפתר עם רמז!");
         qc.invalidateQueries({ queryKey: ["profile"] });
       } else toast.info("נחשפה אות חדשה");
-      notif.emit((r as any).events);
-    } catch (e: any) {
-      toast.error(e.message);
+      notif.emit(solveEventsFrom(r));
+    } catch (e) {
+      toast.error(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -210,8 +231,8 @@ function Play() {
         writeStoredClueId(next.id);
       }
       qc.setQueryData(["clue", user?.id ?? "anon"], next);
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch (e) {
+      toast.error(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -227,6 +248,7 @@ function Play() {
   return (
     <AppShell>
       {notif.progressModal}
+      {notif.screenReaderAnnouncement}
       <PageAdLayout screen="play" cycleKey={adCycleKey}>
         <div className="container mx-auto px-4 py-2 max-w-4xl">
           <GameTopBar profile={profile} helpVariant="help" />
