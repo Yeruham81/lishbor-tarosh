@@ -8,7 +8,8 @@ import { applyAccessibilityPreferences, type AccessibilityPrefs } from "@/lib/pr
 /**
  * Applies accessibility & theme preferences from the user's profile to
  * <html>: data-text-size, data-high-contrast, data-colorblind, dark class,
- * data-palette. Falls back to localStorage when not yet loaded.
+ * data-palette. Existing guest/local styling is left untouched until an
+ * authenticated profile has loaded.
  */
 export function usePrefsApplier() {
   const { user } = useAuth();
@@ -20,8 +21,10 @@ export function usePrefsApplier() {
   });
 
   useEffect(() => {
-    if (typeof document === "undefined") return;
-    const preferences = (profile?.accessibility_prefs ?? {}) as AccessibilityPrefs;
+    if (typeof document === "undefined" || !user || !profile) return;
+    const preferences = (profile.accessibility_prefs ?? {}) as AccessibilityPrefs;
     applyAccessibilityPreferences(preferences);
-  }, [profile]);
+  }, [profile, user]);
+
+  return (profile?.accessibility_prefs ?? {}) as AccessibilityPrefs;
 }
