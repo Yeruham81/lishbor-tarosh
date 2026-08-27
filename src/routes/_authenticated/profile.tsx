@@ -209,11 +209,10 @@ function Profile() {
     return saved;
   };
   const resetDisplaySettings = async () => {
-    const reset: AccessibilityPrefs = {
+    const reset: Partial<AccessibilityPrefs> = {
       text_size: "normal",
       high_contrast: false,
       colorblind: false,
-      screen_reader: false,
       palette: "sunset",
       mode: "light",
     };
@@ -312,11 +311,14 @@ function Profile() {
   };
 
   const onDelete = async () => {
-    if (!confirm("מחיקת הפרופיל היא פעולה בלתי הפיכה. כל הנתונים יימחקו לצמיתות. להמשיך?")) return;
+    if (
+      !confirm("מחיקת הפרופיל היא פעולה בלתי הפיכה. החשבון ונתוני המשחק יימחקו לצמיתות בהתאם למדיניות הפרטיות. להמשיך?")
+    )
+      return;
     if (!confirm("בטוחים לחלוטין? פעולה זו אינה הפיכה.")) return;
     setDeleting(true);
     try {
-      await doDelete();
+      const result = await doDelete();
       if (user) {
         try {
           window.localStorage.removeItem(`play:currentClueId:${user.id}`);
@@ -326,7 +328,8 @@ function Profile() {
       }
       await signOut();
       qc.clear();
-      toast.success("הפרופיל נמחק");
+      if (result.cleanupComplete) toast.success("הפרופיל נמחק");
+      else toast.warning("הפרופיל נמחק, אך ניקוי תמונת הפרופיל מהאחסון לא הושלם");
       navigate({ to: "/" });
     } catch (e) {
       toast.error(getProfileErrorMessage(e, "לא ניתן למחוק את הפרופיל כרגע. נסו שוב"));
