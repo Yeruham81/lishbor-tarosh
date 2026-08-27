@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getProfile } from "@/lib/game.functions";
 import { useAuth } from "./use-auth";
+import { applyAccessibilityPreferences, type AccessibilityPrefs } from "@/lib/profile-preferences";
 
 /**
  * Applies accessibility & theme preferences from the user's profile to
@@ -20,14 +21,7 @@ export function usePrefsApplier() {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    const html = document.documentElement;
-    const a: any = (profile as any)?.accessibility_prefs ?? {};
-    html.dataset.textSize = a.text_size ?? "normal";
-    html.dataset.highContrast = a.high_contrast ? "true" : "false";
-    html.dataset.colorblind = a.colorblind ? "true" : "false";
-    if (a.palette) html.dataset.palette = a.palette;
-    if (a.mode) html.classList.toggle("dark", a.mode === "dark");
-    if (a.screen_reader) html.setAttribute("aria-live", "polite");
-    else html.removeAttribute("aria-live");
+    const preferences = (profile?.accessibility_prefs ?? {}) as AccessibilityPrefs;
+    applyAccessibilityPreferences(preferences);
   }, [profile]);
 }
