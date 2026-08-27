@@ -113,15 +113,24 @@ export const deleteAccount = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { userId } = context;
 
-    await removeAvatarFiles(userId);
-
     const { error } = await supabaseAdmin.rpc("delete_player_account", {
       _user_id: userId,
     });
 
     if (error) throw new Error(error.message);
 
-    return { ok: true };
+    // The account is already gone at this point. Storage cleanup is best-effort
+    // so a temporary Storage failure can never leave a half-deleted account.
+    try {
+      await removeAvatarFiles(userId);
+      return { ok: true, cleanupComplete: true };
+    } catch (cleanupError) {
+      console.error("[profile] deleted account but failed to clean avatar files", {
+        userId,
+        message: cleanupError instanceof Error ? cleanupError.message : "unknown_error",
+      });
+      return { ok: true, cleanupComplete: false };
+    }
   });
 
 // Confirm a display name on first login. Permanent — set once.
@@ -149,9 +158,9 @@ export const confirmDisplayName = createServerFn({
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => confirmSchema.parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
 
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from("profiles")
       .select("display_name_confirmed")
       .eq("id", userId)
@@ -161,7 +170,7 @@ export const confirmDisplayName = createServerFn({
       throw new Error("הכינוי כבר אושר ולא ניתן לשנותו");
     }
 
-    const { error } = await supabase
+    const { data: confirmed, error } = await supabaseAdmin
       .from("profiles")
       .update({
         display_name: data.displayName,
@@ -169,9 +178,13 @@ export const confirmDisplayName = createServerFn({
         age: data.age,
         player_level: data.playerLevel,
       })
-      .eq("id", userId);
+      .eq("id", userId)
+      .eq("display_name_confirmed", false)
+      .select("id")
+      .maybeSingle();
 
     if (error) throw new Error(error.message);
+    if (!confirmed) throw new Error("הכינוי כבר אושר ולא ניתן לשנותו");
 
     return { ok: true };
   });
@@ -189,7 +202,7 @@ export const updatePlayerLevel = createServerFn({
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
+    const { error } = await supabaseAdmin
       .from("profiles")
       .update({
         player_level: data.playerLevel,
@@ -267,7 +280,7 @@ export const updatePreferences = createServerFn({
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => prefsSchema.parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
     const patch: ProfileUpdate = {};
 
     if (typeof data.is_private === "boolean") {
@@ -319,7 +332,7 @@ export const updatePreferences = createServerFn({
       }
     }
 
-    const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
+    const { error } = await supabaseAdmin.from("profiles").update(patch).eq("id", userId);
 
     if (error) throw new Error(error.message);
 
@@ -354,7 +367,7 @@ export const setAvatarPath = createServerFn({
       throw new Error(currentProfileError.message);
     }
 
-    const { error } = await context.supabase
+    const { error } = await supabaseAdmin
       .from("profiles")
       .update({
         avatar_url: data.path,
@@ -394,7 +407,7 @@ export const getAvatarUrl = createServerFn({
 
     if (profileError) throw new Error(profileError.message);
 
-    if (!profile?.avatar_url) {
+    if (!profile?.avatar_url || !isOwnedAvatarPath(context.userId, profile.avatar_url)) {
       return {
         url: null as string | null,
       };
