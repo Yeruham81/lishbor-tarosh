@@ -2,6 +2,55 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database, Json } from "@/integrations/supabase/types";
+
+type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+
+const AVATAR_FOLDER_PAGE_SIZE = 100;
+const AVATAR_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp", "gif"]);
+
+async function removeAvatarFiles(userId: string, keepPath: string | null = null) {
+  const paths: string[] = [];
+  let offset = 0;
+
+  while (true) {
+    const { data, error } = await supabaseAdmin.storage.from("avatars").list(userId, {
+      limit: AVATAR_FOLDER_PAGE_SIZE,
+      offset,
+      sortBy: { column: "name", order: "asc" },
+    });
+
+    if (error) throw new Error(error.message);
+
+    const page = data ?? [];
+    paths.push(...page.map((file) => `${userId}/${file.name}`).filter((path) => path !== keepPath));
+
+    if (page.length < AVATAR_FOLDER_PAGE_SIZE) break;
+    offset += page.length;
+  }
+
+  if (!paths.length) return;
+
+  const { error } = await supabaseAdmin.storage.from("avatars").remove(paths);
+  if (error) throw new Error(error.message);
+}
+
+function isOwnedAvatarPath(userId: string, path: string) {
+  const prefix = `${userId}/avatar-`;
+  const extension = path.split(".").pop()?.toLowerCase() ?? "";
+  return path.startsWith(prefix) && !path.slice(prefix.length).includes("/") && AVATAR_EXTENSIONS.has(extension);
+}
+
+async function discardUploadedAvatar(path: string | null) {
+  if (!path) return;
+  const { error } = await supabaseAdmin.storage.from("avatars").remove([path]);
+  if (error) {
+    console.error("[profile] failed to discard unreferenced avatar", {
+      path,
+      message: error.message,
+    });
+  }
+}
 
 export const getStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -10,7 +59,7 @@ export const getStats = createServerFn({ method: "GET" })
 
     // Sensitive personal columns are column-revoked from authenticated;
     // read via admin scoped to owner.
-    const { data: profile } = await supabaseAdmin
+    const { data: profile, error } = await supabaseAdmin
       .from("profiles")
       .select(
         "id, username, display_name, display_name_confirmed, avatar_url, total_score, solved_count, current_streak, best_streak, level, is_private, auto_next, notification_prefs, accessibility_prefs, auth_provider, perfect_solves, definitions_played, definitions_skipped, hints_used_total, wrong_letters_total, current_play_days_streak, best_play_days_streak, last_play_date, age, player_level, is_paid, paid_at, payment_amount, created_at, updated_at",
@@ -18,7 +67,9 @@ export const getStats = createServerFn({ method: "GET" })
       .eq("id", userId)
       .single();
 
-    const p: any = profile ?? {};
+    if (error) throw new Error(error.message);
+
+    const p = profile;
     const totalSolved = p.solved_count ?? 0;
     const totalSkipped = p.definitions_skipped ?? 0;
     const totalPlayed = p.definitions_played ?? 0;
@@ -48,34 +99,11 @@ export const resetAccount = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { userId } = context;
 
-    await Promise.all([
-      supabaseAdmin.from("game_progress").delete().eq("user_id", userId),
-      supabaseAdmin.from("hint_usage").delete().eq("user_id", userId),
-      supabaseAdmin.from("clue_ratings").delete().eq("user_id", userId),
-      supabaseAdmin.from("challenges").delete().eq("challenger_id", userId),
-    ]);
+    const { error } = await supabaseAdmin.rpc("reset_player_progress", {
+      _user_id: userId,
+    });
 
-    await supabaseAdmin
-      .from("profiles")
-      .update({
-        total_score: 0,
-        solved_count: 0,
-        current_streak: 0,
-        best_streak: 0,
-        highest_streak: 0,
-        level: 1,
-        perfect_solves: 0,
-        definitions_played: 0,
-        definitions_skipped: 0,
-        hints_used_total: 0,
-        wrong_letters_total: 0,
-        current_play_days_streak: 0,
-        best_play_days_streak: 0,
-        last_play_date: null,
-        active_day_date: null,
-        active_day_solves: 0,
-      } as any)
-      .eq("id", userId);
+    if (error) throw new Error(error.message);
 
     return { ok: true };
   });
@@ -85,18 +113,11 @@ export const deleteAccount = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { userId } = context;
 
-    await Promise.all([
-      supabaseAdmin.from("game_progress").delete().eq("user_id", userId),
-      supabaseAdmin.from("hint_usage").delete().eq("user_id", userId),
-      supabaseAdmin.from("clue_ratings").delete().eq("user_id", userId),
-      supabaseAdmin.from("challenges").delete().eq("challenger_id", userId),
-      supabaseAdmin.from("feedback").delete().eq("user_id", userId),
-      supabaseAdmin.from("user_roles").delete().eq("user_id", userId),
-    ]);
+    await removeAvatarFiles(userId);
 
-    await supabaseAdmin.from("profiles").delete().eq("id", userId);
-
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    const { error } = await supabaseAdmin.rpc("delete_player_account", {
+      _user_id: userId,
+    });
 
     if (error) throw new Error(error.message);
 
@@ -147,7 +168,7 @@ export const confirmDisplayName = createServerFn({
         display_name_confirmed: true,
         age: data.age,
         player_level: data.playerLevel,
-      } as any)
+      })
       .eq("id", userId);
 
     if (error) throw new Error(error.message);
@@ -172,7 +193,7 @@ export const updatePlayerLevel = createServerFn({
       .from("profiles")
       .update({
         player_level: data.playerLevel,
-      } as any)
+      })
       .eq("id", context.userId);
 
     if (error) throw new Error(error.message);
@@ -198,7 +219,10 @@ export const getDisplayNameStatus = createServerFn({
 })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId, claims } = context as any;
+    const { supabase, userId } = context;
+    const { claims } = context as typeof context & {
+      claims?: { user_metadata?: Record<string, unknown> };
+    };
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -207,9 +231,11 @@ export const getDisplayNameStatus = createServerFn({
       .single();
 
     // Try to extract a suggested name from JWT user_metadata
-    const meta = (claims?.user_metadata ?? {}) as Record<string, any>;
-
-    const suggested: string | null = meta.full_name || meta.name || meta.display_name || profile?.display_name || null;
+    const meta = claims?.user_metadata ?? {};
+    const suggested =
+      [meta.full_name, meta.name, meta.display_name, profile?.display_name].find(
+        (value): value is string => typeof value === "string" && value.trim().length > 0,
+      ) ?? null;
 
     return {
       confirmed: !!profile?.display_name_confirmed,
@@ -242,7 +268,7 @@ export const updatePreferences = createServerFn({
   .inputValidator((d) => prefsSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const patch: Record<string, any> = {};
+    const patch: ProfileUpdate = {};
 
     if (typeof data.is_private === "boolean") {
       patch.is_private = data.is_private;
@@ -263,30 +289,37 @@ export const updatePreferences = createServerFn({
       patch.auto_next = data.auto_next;
     }
 
-    if (data.notification_prefs) {
-      patch.notification_prefs = data.notification_prefs;
-    }
-
-    if (data.accessibility_prefs) {
-      // merge with existing (accessibility_prefs is column-revoked from authenticated)
-      const { data: cur } = await supabaseAdmin
+    if (data.notification_prefs || data.accessibility_prefs) {
+      // These columns are private and column-revoked from authenticated users.
+      // Merge on the server so quick consecutive toggles cannot overwrite a
+      // sibling preference and hidden future preferences stay intact.
+      const { data: cur, error: currentPrefsError } = await supabaseAdmin
         .from("profiles")
-        .select("accessibility_prefs")
+        .select("notification_prefs, accessibility_prefs")
         .eq("id", userId)
         .single();
 
-      const curPrefs = (cur?.accessibility_prefs ?? {}) as Record<string, any>;
+      if (currentPrefsError) throw new Error(currentPrefsError.message);
 
-      patch.accessibility_prefs = {
-        ...curPrefs,
-        ...data.accessibility_prefs,
-      };
+      if (data.notification_prefs) {
+        const currentNotifications = (cur?.notification_prefs ?? {}) as Record<string, boolean>;
+        patch.notification_prefs = {
+          ...currentNotifications,
+          ...data.notification_prefs,
+        };
+      }
+
+      if (data.accessibility_prefs) {
+        const currentAccessibility = (cur?.accessibility_prefs ?? {}) as Record<string, Json | undefined>;
+
+        patch.accessibility_prefs = {
+          ...currentAccessibility,
+          ...data.accessibility_prefs,
+        };
+      }
     }
 
-    const { error } = await supabase
-      .from("profiles")
-      .update(patch as any)
-      .eq("id", userId);
+    const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
 
     if (error) throw new Error(error.message);
 
@@ -301,11 +334,26 @@ export const setAvatarPath = createServerFn({
   .inputValidator((d) =>
     z
       .object({
-        path: z.string().nullable(),
+        path: z.string().max(300).nullable(),
       })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    if (data.path && !isOwnedAvatarPath(context.userId, data.path)) {
+      throw new Error("avatar_path_invalid");
+    }
+
+    const { data: currentProfile, error: currentProfileError } = await supabaseAdmin
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", context.userId)
+      .single();
+
+    if (currentProfileError) {
+      await discardUploadedAvatar(data.path);
+      throw new Error(currentProfileError.message);
+    }
+
     const { error } = await context.supabase
       .from("profiles")
       .update({
@@ -313,18 +361,24 @@ export const setAvatarPath = createServerFn({
       })
       .eq("id", context.userId);
 
-    if (error) throw new Error(error.message);
-
-    // Best-effort: remove old file when clearing
-    if (!data.path) {
-      const { data: list } = await supabaseAdmin.storage.from("avatars").list(context.userId);
-
-      if (list?.length) {
-        await supabaseAdmin.storage.from("avatars").remove(list.map((f) => `${context.userId}/${f.name}`));
-      }
+    if (error) {
+      await discardUploadedAvatar(data.path);
+      throw new Error(error.message);
     }
 
-    return { ok: true };
+    try {
+      await removeAvatarFiles(context.userId, data.path);
+    } catch (cleanupError) {
+      console.error("[profile] avatar cleanup failed", {
+        userId: context.userId,
+        previousPath: currentProfile.avatar_url,
+        nextPath: data.path,
+        message: cleanupError instanceof Error ? cleanupError.message : "unknown_error",
+      });
+      return { ok: true, cleanupComplete: false };
+    }
+
+    return { ok: true, cleanupComplete: true };
   });
 
 export const getAvatarUrl = createServerFn({
@@ -332,11 +386,13 @@ export const getAvatarUrl = createServerFn({
 })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: profile } = await context.supabase
+    const { data: profile, error: profileError } = await context.supabase
       .from("profiles")
       .select("avatar_url")
       .eq("id", context.userId)
       .single();
+
+    if (profileError) throw new Error(profileError.message);
 
     if (!profile?.avatar_url) {
       return {
@@ -344,9 +400,11 @@ export const getAvatarUrl = createServerFn({
       };
     }
 
-    const { data: signed } = await supabaseAdmin.storage
+    const { data: signed, error: signedUrlError } = await supabaseAdmin.storage
       .from("avatars")
       .createSignedUrl(profile.avatar_url, 60 * 60 * 24);
+
+    if (signedUrlError) throw new Error(signedUrlError.message);
 
     return {
       url: signed?.signedUrl ?? null,
