@@ -2,12 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import type { Database, Json } from "@/integrations/supabase/types";
-
-type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
-
 const AVATAR_FOLDER_PAGE_SIZE = 100;
 const AVATAR_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp", "gif"]);
+const AVATAR_ALLOWED_MIMES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
 async function removeAvatarFiles(userId: string, keepPath: string | null = null) {
   const paths: string[] = [];
@@ -35,10 +33,35 @@ async function removeAvatarFiles(userId: string, keepPath: string | null = null)
   if (error) throw new Error(error.message);
 }
 
+function isAvatarPathInOwnedFolder(userId: string, path: string) {
+  const prefix = `${userId}/`;
+  return path.startsWith(prefix) && !path.slice(prefix.length).includes("/");
+}
+
 function isOwnedAvatarPath(userId: string, path: string) {
   const prefix = `${userId}/avatar-`;
   const extension = path.split(".").pop()?.toLowerCase() ?? "";
   return path.startsWith(prefix) && !path.slice(prefix.length).includes("/") && AVATAR_EXTENSIONS.has(extension);
+}
+
+async function validateUploadedAvatar(userId: string, path: string) {
+  const fileName = path.slice(`${userId}/`.length);
+  const { data, error } = await supabaseAdmin.storage.from("avatars").list(userId, {
+    limit: 20,
+    search: fileName,
+  });
+
+  if (error) throw new Error(error.message);
+
+  const uploaded = (data ?? []).find((file) => file.name === fileName);
+  if (!uploaded) throw new Error("avatar_file_missing");
+
+  const metadata = uploaded.metadata as { mimetype?: unknown; size?: unknown } | null | undefined;
+  const mime = typeof metadata?.mimetype === "string" ? metadata.mimetype.toLowerCase() : null;
+  const size = typeof metadata?.size === "number" ? metadata.size : Number(metadata?.size);
+
+  if (mime && !AVATAR_ALLOWED_MIMES.has(mime)) throw new Error("avatar_file_type_invalid");
+  if (Number.isFinite(size) && size > AVATAR_MAX_BYTES) throw new Error("avatar_file_too_large");
 }
 
 async function discardUploadedAvatar(path: string | null) {
@@ -280,61 +303,18 @@ export const updatePreferences = createServerFn({
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => prefsSchema.parse(d))
   .handler(async ({ data, context }) => {
-    const { userId } = context;
-    const patch: ProfileUpdate = {};
+    const { error } = await supabaseAdmin.rpc("update_profile_preferences_atomic", {
+      _user_id: context.userId,
+      _is_private: data.is_private ?? null,
+      _auto_next: data.auto_next ?? null,
+      _notification_patch: data.notification_prefs ?? null,
+      _accessibility_patch: data.accessibility_prefs ?? null,
+    });
 
-    if (typeof data.is_private === "boolean") {
-      patch.is_private = data.is_private;
+    if (error) {
+      if (error.message.includes("premium_required")) throw new Error("premium_required");
+      throw new Error(error.message);
     }
-
-    if (typeof data.auto_next === "boolean") {
-      if (data.auto_next) {
-        const { data: paidProfile, error: paidError } = await supabaseAdmin
-          .from("profiles")
-          .select("id")
-          .eq("id", userId)
-          .eq("is_paid", true)
-          .maybeSingle();
-
-        if (paidError) throw new Error(paidError.message);
-        if (!paidProfile) throw new Error("premium_required");
-      }
-      patch.auto_next = data.auto_next;
-    }
-
-    if (data.notification_prefs || data.accessibility_prefs) {
-      // These columns are private and column-revoked from authenticated users.
-      // Merge on the server so quick consecutive toggles cannot overwrite a
-      // sibling preference and hidden future preferences stay intact.
-      const { data: cur, error: currentPrefsError } = await supabaseAdmin
-        .from("profiles")
-        .select("notification_prefs, accessibility_prefs")
-        .eq("id", userId)
-        .single();
-
-      if (currentPrefsError) throw new Error(currentPrefsError.message);
-
-      if (data.notification_prefs) {
-        const currentNotifications = (cur?.notification_prefs ?? {}) as Record<string, boolean>;
-        patch.notification_prefs = {
-          ...currentNotifications,
-          ...data.notification_prefs,
-        };
-      }
-
-      if (data.accessibility_prefs) {
-        const currentAccessibility = (cur?.accessibility_prefs ?? {}) as Record<string, Json | undefined>;
-
-        patch.accessibility_prefs = {
-          ...currentAccessibility,
-          ...data.accessibility_prefs,
-        };
-      }
-    }
-
-    const { error } = await supabaseAdmin.from("profiles").update(patch).eq("id", userId);
-
-    if (error) throw new Error(error.message);
 
     return { ok: true };
   });
@@ -353,7 +333,19 @@ export const setAvatarPath = createServerFn({
   )
   .handler(async ({ data, context }) => {
     if (data.path && !isOwnedAvatarPath(context.userId, data.path)) {
+      if (isAvatarPathInOwnedFolder(context.userId, data.path)) {
+        await discardUploadedAvatar(data.path);
+      }
       throw new Error("avatar_path_invalid");
+    }
+
+    if (data.path) {
+      try {
+        await validateUploadedAvatar(context.userId, data.path);
+      } catch (validationError) {
+        await discardUploadedAvatar(data.path);
+        throw validationError;
+      }
     }
 
     const { data: currentProfile, error: currentProfileError } = await supabaseAdmin

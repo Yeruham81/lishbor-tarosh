@@ -746,6 +746,16 @@ export type Database = {
         Args: { _user_id: string };
         Returns: undefined;
       };
+      update_profile_preferences_atomic: {
+        Args: {
+          _accessibility_patch?: Json | null;
+          _auto_next?: boolean | null;
+          _is_private?: boolean | null;
+          _notification_patch?: Json | null;
+          _user_id: string;
+        };
+        Returns: undefined;
+      };
       touch_last_seen: { Args: never; Returns: undefined };
     };
     Enums: {

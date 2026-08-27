@@ -60,6 +60,12 @@ export const Route = createFileRoute("/_authenticated/profile")({ component: Pro
 // Upload limits — single source of truth
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 const AVATAR_ACCEPTED_MIMES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+const AVATAR_EXTENSION_BY_MIME: Record<string, "png" | "jpg" | "webp" | "gif"> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
 const AVATAR_HINT_FORMATS = "PNG, JPG, WEBP, GIF";
 
 function getProfileErrorMessage(error: unknown, fallback: string): string {
@@ -158,6 +164,9 @@ function Profile() {
   const [pwd, setPwd] = useState("");
   const [pwd2, setPwd2] = useState("");
   const [pwdBusy, setPwdBusy] = useState(false);
+  const playerLevelId = useId();
+  const newPasswordId = useId();
+  const confirmPasswordId = useId();
 
   if (statsQ.isError)
     return (
@@ -186,13 +195,13 @@ function Profile() {
   const mutes: NotificationPrefs = (p.notification_prefs ?? {}) as NotificationPrefs;
   const isEmailAuth = (p.auth_provider ?? "email") === "email";
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["stats"] });
+  const refresh = () => qc.invalidateQueries({ queryKey: ["stats", user?.id ?? "anon"] });
   const setPref = async (patch: PreferencePatch) => {
     try {
       await doUpdatePrefs({ data: patch });
       await Promise.all([
-        qc.invalidateQueries({ queryKey: ["stats"] }),
-        qc.invalidateQueries({ queryKey: ["profile"] }),
+        qc.invalidateQueries({ queryKey: ["stats", user?.id ?? "anon"] }),
+        qc.invalidateQueries({ queryKey: ["profile", user?.id ?? "anon"] }),
       ]);
       return true;
     } catch (e) {
@@ -234,9 +243,9 @@ function Profile() {
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const ext = AVATAR_EXTENSION_BY_MIME[file.type];
       const path = `${user.id}/avatar-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: false });
       if (error) throw error;
       const result = await doSetAvatar({ data: { path } });
       if (result.cleanupComplete) toast.success("התמונה עודכנה");
@@ -340,6 +349,7 @@ function Profile() {
 
   const onSignOut = async () => {
     await signOut();
+    qc.clear();
     navigate({ to: "/" });
   };
 
@@ -433,7 +443,11 @@ function Profile() {
                 <div className="text-sm font-medium flex items-center gap-2">
                   <KeyRound className="size-4" /> החלפת סיסמה
                 </div>
+                <label htmlFor={newPasswordId} className="sr-only">
+                  סיסמה חדשה
+                </label>
                 <input
+                  id={newPasswordId}
                   type="password"
                   value={pwd}
                   onChange={(e) => setPwd(e.target.value)}
@@ -443,7 +457,11 @@ function Profile() {
                   dir="ltr"
                   autoComplete="new-password"
                 />
+                <label htmlFor={confirmPasswordId} className="sr-only">
+                  אימות סיסמה חדשה
+                </label>
                 <input
+                  id={confirmPasswordId}
                   type="password"
                   value={pwd2}
                   onChange={(e) => setPwd2(e.target.value)}
@@ -482,7 +500,7 @@ function Profile() {
                   <LogOut className="size-4 shrink-0" />
                   <div className="flex flex-col items-center min-w-0 leading-tight">
                     <span className="truncate">נתק אותי</span>
-                    <span className="truncate text-[12px] font-normal opacity-70">התנתקות ויציאה מהמשחק</span>
+                    <span className="truncate text-xs font-normal opacity-70">התנתקות ויציאה מהמשחק</span>
                   </div>
                 </button>
                 <button
@@ -493,7 +511,7 @@ function Profile() {
                   <Eraser className="size-4 shrink-0" />
                   <div className="flex flex-col items-center min-w-0 leading-tight">
                     <span className="truncate">{resetting ? "מאפס..." : "שכח אותי"}</span>
-                    <span className="truncate text-[12px] font-normal opacity-70">איפוס ההיסטוריה והניקוד</span>
+                    <span className="truncate text-xs font-normal opacity-70">איפוס ההיסטוריה והניקוד</span>
                   </div>
                 </button>
                 <button
@@ -504,7 +522,7 @@ function Profile() {
                   <Trash2 className="size-4 shrink-0" />
                   <div className="flex flex-col items-center min-w-0 leading-tight">
                     <span className="truncate">{deleting ? "מוחק..." : "מחק אותי"}</span>
-                    <span className="truncate text-[12px] font-normal opacity-70">מחיקת הפרופיל לצמיתות</span>
+                    <span className="truncate text-xs font-normal opacity-70">מחיקת הפרופיל לצמיתות</span>
                   </div>
                 </button>
               </div>
@@ -514,8 +532,11 @@ function Profile() {
           {/* Game settings */}
           <Card icon={<Gamepad2 className="size-5 text-primary" />} title="ניהול המשחק">
             <div>
-              <div className="text-sm font-medium mb-2">רמה</div>
+              <label htmlFor={playerLevelId} className="text-sm font-medium mb-2 block">
+                רמה
+              </label>
               <select
+                id={playerLevelId}
                 value={p.player_level ?? ""}
                 onChange={async (e) => {
                   const n = Number(e.target.value);
@@ -580,12 +601,14 @@ function Profile() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setA11y({ mode: "light" })}
+                  aria-pressed={(a11y.mode ?? "light") === "light"}
                   className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${(a11y.mode ?? "light") === "light" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
                 >
                   <Sun className="size-4" /> בהיר
                 </button>
                 <button
                   onClick={() => setA11y({ mode: "dark" })}
+                  aria-pressed={a11y.mode === "dark"}
                   className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition ${a11y.mode === "dark" ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
                 >
                   <Moon className="size-4" /> כהה
@@ -600,6 +623,7 @@ function Profile() {
                   <button
                     key={pl.id}
                     onClick={() => setA11y({ palette: pl.id as Palette })}
+                    aria-pressed={(a11y.palette ?? "sunset") === pl.id}
                     className={`p-3 rounded-xl border transition text-center ${(a11y.palette ?? "sunset") === pl.id ? "ring-2 ring-primary border-transparent" : "hover:bg-muted"}`}
                   >
                     <div className="h-10 rounded-lg mb-2" style={{ background: pl.swatch }} />
@@ -646,6 +670,7 @@ function Profile() {
                   <button
                     key={v}
                     onClick={() => setA11y({ text_size: v })}
+                    aria-pressed={(a11y.text_size ?? "normal") === v}
                     className={`px-3 py-2.5 rounded-xl border transition ${(a11y.text_size ?? "normal") === v ? "bg-gradient-sunset text-white border-transparent" : "bg-card hover:bg-muted"}`}
                   >
                     {label}

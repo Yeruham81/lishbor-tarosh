@@ -152,10 +152,11 @@ function ProgressionModal({
     return () => previousFocusRef.current?.focus();
   }, []);
 
-  // Acknowledge via Enter / Space / Escape as well.
+  // Escape is a dialog-level shortcut. Enter/Space are left to focused
+  // buttons so one key press cannot dismiss two queued messages.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " " || e.key === "Escape") {
+      if (e.key === "Escape") {
         e.preventDefault();
         onDismiss();
         return;
@@ -163,13 +164,23 @@ function ProgressionModal({
 
       if (e.key === "Tab" && dialogRef.current) {
         const controls = Array.from(dialogRef.current.querySelectorAll<HTMLElement>("button:not([disabled])"));
-        if (!controls.length) return;
+        if (!controls.length) {
+          e.preventDefault();
+          dialogRef.current.focus();
+          return;
+        }
+
         const first = controls[0];
         const last = controls[controls.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
+        const active = document.activeElement;
+
+        if (!controls.includes(active as HTMLElement)) {
+          e.preventDefault();
+          (e.shiftKey ? last : first).focus();
+        } else if (e.shiftKey && active === first) {
           e.preventDefault();
           last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
+        } else if (!e.shiftKey && active === last) {
           e.preventDefault();
           first.focus();
         }

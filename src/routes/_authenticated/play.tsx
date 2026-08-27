@@ -68,7 +68,7 @@ function Play() {
   };
 
   const profileQ = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.id ?? "anon"],
     queryFn: () => fetchProfile(),
     enabled: !!user,
   });
@@ -185,7 +185,7 @@ function Play() {
       }
       if (r.isSolved) {
         toast.success(`🎉 פתרת את ההגדרה! +${r.currentScore} נקודות`);
-        qc.invalidateQueries({ queryKey: ["profile"] });
+        qc.invalidateQueries({ queryKey: ["profile", user?.id ?? "anon"] });
       }
       notif.emit(solveEventsFrom(r));
     } catch (e) {
@@ -205,7 +205,7 @@ function Play() {
       qc.setQueryData(["clue", user?.id ?? "anon"], r);
       if (r.isSolved) {
         toast.success("🎉 נפתר עם רמז!");
-        qc.invalidateQueries({ queryKey: ["profile"] });
+        qc.invalidateQueries({ queryKey: ["profile", user?.id ?? "anon"] });
       } else toast.info("נחשפה אות חדשה");
       notif.emit(solveEventsFrom(r));
     } catch (e) {
@@ -223,7 +223,7 @@ function Play() {
       if (!clue.isSolved) await doSkip({ data: { clueId: clue.id } });
       // The user explicitly advances — clear the stored id so the next fetch picks fresh.
       writeStoredClueId(null);
-      await qc.invalidateQueries({ queryKey: ["profile"] });
+      await qc.invalidateQueries({ queryKey: ["profile", user?.id ?? "anon"] });
       const next = await fetchClue();
       if (next && !("exhausted" in next)) {
         prevRevealedCount.current = next.revealed.length;

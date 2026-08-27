@@ -20,6 +20,17 @@ function apply(palette: Palette, mode: Mode) {
   html.dataset.palette = palette;
 }
 
+export function getStoredThemePreferences(): { palette: Palette; mode: Mode } {
+  if (typeof window === "undefined") return { palette: "sunset", mode: "light" };
+  try {
+    const palette = (localStorage.getItem(PALETTE_KEY) as Palette) || "sunset";
+    const mode = (localStorage.getItem(MODE_KEY) as Mode) || "light";
+    return { palette, mode };
+  } catch {
+    return { palette: "sunset", mode: "light" };
+  }
+}
+
 export function useTheme() {
   const [palette, setPaletteState] = useState<Palette>("sunset");
   const [mode, setModeState] = useState<Mode>("light");
@@ -34,17 +45,27 @@ export function useTheme() {
     } catch {}
   }, []);
 
-  const setPalette = useCallback((p: Palette) => {
-    setPaletteState(p);
-    try { localStorage.setItem(PALETTE_KEY, p); } catch {}
-    apply(p, mode);
-  }, [mode]);
+  const setPalette = useCallback(
+    (p: Palette) => {
+      setPaletteState(p);
+      try {
+        localStorage.setItem(PALETTE_KEY, p);
+      } catch {}
+      apply(p, mode);
+    },
+    [mode],
+  );
 
-  const setMode = useCallback((m: Mode) => {
-    setModeState(m);
-    try { localStorage.setItem(MODE_KEY, m); } catch {}
-    apply(palette, m);
-  }, [palette]);
+  const setMode = useCallback(
+    (m: Mode) => {
+      setModeState(m);
+      try {
+        localStorage.setItem(MODE_KEY, m);
+      } catch {}
+      apply(palette, m);
+    },
+    [palette],
+  );
 
   const reset = useCallback(() => {
     try {

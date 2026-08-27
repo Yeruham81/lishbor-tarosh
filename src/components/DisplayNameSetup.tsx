@@ -91,11 +91,11 @@ export function DisplayNameSetup() {
       });
 
       await qc.invalidateQueries({
-        queryKey: ["profile"],
+        queryKey: ["profile", user.id],
       });
 
       await qc.invalidateQueries({
-        queryKey: ["stats"],
+        queryKey: ["stats", user.id],
       });
     } catch (e: any) {
       toast.error(e.message ?? "שגיאה");

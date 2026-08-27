@@ -43,7 +43,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const fetchProfile = useServerFn(getProfile);
   const profileQ = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.id ?? "anon"],
     queryFn: () => fetchProfile(),
     enabled: !!user,
   });
@@ -75,7 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Check if current user is admin (to bypass maintenance mode).
   const fetchRole = useServerFn(getMyRole);
   const roleQ = useQuery({
-    queryKey: ["my-role"],
+    queryKey: ["my-role", user?.id ?? "anon"],
     queryFn: () => fetchRole(),
     enabled: !!user,
     staleTime: 5 * 60_000,
