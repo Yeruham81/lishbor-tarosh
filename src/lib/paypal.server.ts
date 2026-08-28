@@ -180,6 +180,7 @@ export async function createPaypalOrder(cfg: PaypalConfig, args: CreateOrderArgs
       payment_source: {
         paypal: {
           experience_context: {
+            brand_name: "לשבור ת'ראש",
             shipping_preference: "NO_SHIPPING",
             user_action: "PAY_NOW",
             return_url: args.returnUrl,
