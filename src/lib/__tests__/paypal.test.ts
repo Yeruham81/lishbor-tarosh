@@ -254,6 +254,7 @@ describe("paypal server config", () => {
         unit_amount: { currency_code: "ILS", value: "20.00" },
       }),
     ]);
+    expect(payload.payment_source?.paypal?.experience_context?.brand_name).toBe("לשבור ת'ראש");
     expect(payload).not.toHaveProperty("application_context");
     expect(request.headers["PayPal-Request-Id"]).toBe(`order-${PURCHASE_ID}`);
     expect(request.headers.Prefer).toBe("return=representation");
