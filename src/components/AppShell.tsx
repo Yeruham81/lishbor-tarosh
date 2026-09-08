@@ -18,7 +18,6 @@ import {
   FileText,
   Info,
 } from "lucide-react";
-import brandIcon from "@/assets/lishbor-icon.jpg.asset.json";
 import { useFeatureFlags } from "@/hooks/use-public-settings";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -114,7 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-xl">
-            <img src={brandIcon.url} alt="לשבור ת'ראש" className="size-9 rounded-lg shadow-card object-cover" />
+            <img src="/favicon.jpg" alt="לשבור ת'ראש" className="size-9 rounded-lg shadow-card object-cover" />
             <span className="text-gradient-sunset">לשבור ת'ראש</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 text-sm">
