@@ -1,0 +1,41 @@
+steps:
+  # 1. Build the production image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "--build-arg"
+      - "VITE_SUPABASE_PROJECT_ID=${_SUPABASE_PROJECT_ID}"
+      - "--build-arg"
+      - "VITE_SUPABASE_URL=${_SUPABASE_URL}"
+      - "--build-arg"
+      - "VITE_SUPABASE_PUBLISHABLE_KEY=${_SUPABASE_PUBLISHABLE_KEY}"
+      - "-t"
+      - "europe-west3-docker.pkg.dev/$PROJECT_ID/lishbor-tarosh/lishbor-tarosh:$BUILD_ID"
+      - "."
+
+  # 2. Push the image to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "europe-west3-docker.pkg.dev/$PROJECT_ID/lishbor-tarosh/lishbor-tarosh:$BUILD_ID"
+
+  # 3. Deploy the image to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "lishbor-tarosh"
+      - "--image=europe-west3-docker.pkg.dev/$PROJECT_ID/lishbor-tarosh/lishbor-tarosh:$BUILD_ID"
+      - "--region=europe-west3"
+      - "--platform=managed"
+      - "--service-account=lishbor-tarosh-run@$PROJECT_ID.iam.gserviceaccount.com"
+      - "--allow-unauthenticated"
+      - "--set-env-vars=SUPABASE_PROJECT_ID=${_SUPABASE_PROJECT_ID},SUPABASE_URL=${_SUPABASE_URL},SUPABASE_PUBLISHABLE_KEY=${_SUPABASE_PUBLISHABLE_KEY}"
+      - "--update-secrets=SUPABASE_SERVICE_ROLE_KEY=supabase-service-role-key:1"
+
+images:
+  - "europe-west3-docker.pkg.dev/$PROJECT_ID/lishbor-tarosh/lishbor-tarosh:$BUILD_ID"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
