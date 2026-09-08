@@ -1,0 +1,41 @@
+name: Refresh Production Lockfile
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-lockfile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout production branch
+        uses: actions/checkout@v4
+        with:
+          ref: lishbor-tarosh-prod
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Refresh bun.lock
+        run: bun install --lockfile-only
+
+      - name: Verify frozen install
+        run: bun install --frozen-lockfile
+
+      - name: Commit updated lockfile
+        shell: bash
+        run: |
+          if git diff --quiet -- bun.lock; then
+            echo "bun.lock is already up to date"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add bun.lock
+          git commit -m "chore: refresh production bun lockfile"
+          git push origin HEAD:lishbor-tarosh-prod
