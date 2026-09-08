@@ -30,15 +30,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:locale", content: SITE_LOCALE },
       { property: "og:url", content: absoluteUrl("/") },
       {
-        property: "og:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/95776419-1419-4174-8c98-941a05712d28",
-      },
-      {
-        name: "twitter:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/95776419-1419-4174-8c98-941a05712d28",
-      },
+  property: "og:image",
+  content: absoluteUrl("/lishbor-tarosh-og.jpg"),
+},
+{
+  name: "twitter:image",
+  content: absoluteUrl("/lishbor-tarosh-og.jpg"),
+},
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
