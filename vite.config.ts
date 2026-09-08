@@ -10,7 +10,7 @@ export default defineConfig({
     tsConfigPaths(),
     tailwindcss(),
     tanstackStart(),
-    nitro(),
+    nitro({ preset: "node" }),
     viteReact(),
   ],
 });
